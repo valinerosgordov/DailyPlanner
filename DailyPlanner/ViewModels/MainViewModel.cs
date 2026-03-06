@@ -275,8 +275,22 @@ public sealed partial class MainViewModel : ObservableObject
         var dbPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "DailyPlanner", "planner.db");
+
+        // Close all pooled SQLite connections before overwriting the file
+        Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
+
         File.Copy(dialog.FileName, dbPath, true);
+
+        // Remove stale WAL/SHM files that belong to the old database
+        var walPath = dbPath + "-wal";
+        var shmPath = dbPath + "-shm";
+        if (File.Exists(walPath)) File.Delete(walPath);
+        if (File.Exists(shmPath)) File.Delete(shmPath);
+
+        // Reload all data from the restored database
         await LoadMonthAsync();
+        await LoadTemplatesAsync();
+        await LoadRemindersAsync();
     }
 
     // Recurring templates
