@@ -43,7 +43,7 @@
                         <ui:SymbolIcon Symbol="CalendarLtr24" FontSize="22" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
                         <TextBlock FontSize="18" FontWeight="Bold" FontFamily="{StaticResource MainFont}">
                             <Run Text="Daily" Foreground="{DynamicResource AccentBrush}"/>
-                            <Run Text="Planner" Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
+                            <Run Text="Planner" Foreground="{DynamicResource TextPrimaryBrush}"/>
                         </TextBlock>
                     </StackPanel>
                     <TextBlock Text="{Binding SelectedYear}" FontSize="11"
@@ -66,7 +66,7 @@
                                        HorizontalAlignment="Right" VerticalAlignment="Center"/>
                         </DockPanel>
                         <TextBlock Text="{Binding TodayTasks}" FontSize="10"
-                                   TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                   TextWrapping="Wrap" Foreground="{DynamicResource TextPrimaryBrush}"
                                    LineHeight="16" MaxHeight="90"/>
                     </StackPanel>
                 </Border>
@@ -130,7 +130,7 @@
                                         </Style>
                                     </Border.Style>
                                     <TextBlock Text="{Binding Name}" Padding="14,8"
-                                               Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"
                                                FontFamily="{StaticResource MainFont}" FontSize="13"/>
                                 </Border>
                             </DataTemplate>
@@ -184,7 +184,7 @@
                                             <Run Text="{Binding Week, Mode=OneWay}"/>
                                         </TextBlock>
                                         <TextBlock Text="{Binding Text}" FontSize="12"
-                                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                    TextTrimming="CharacterEllipsis"/>
                                     </DockPanel>
                                 </Border>
@@ -201,7 +201,7 @@
                         <ui:Button Icon="{ui:SymbolIcon ChevronLeft24}" Appearance="Transparent"
                                    Command="{Binding PreviousMonthCommand}" Padding="8"/>
                         <TextBlock FontSize="24" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                    FontFamily="{StaticResource MainFont}"
                                    VerticalAlignment="Center" Margin="12,0">
                             <Run Text="{Binding SelectedMonthName, Mode=OneWay}"/>
@@ -250,8 +250,8 @@
                                                         <Setter TargetName="Bd" Property="Background">
                                                             <Setter.Value>
                                                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                                                    <GradientStop Color="#7C5CFC" Offset="0"/>
-                                                                    <GradientStop Color="#5B3FD6" Offset="1"/>
+                                                                    <GradientStop Color="#cba6f7" Offset="0"/>
+                                                                    <GradientStop Color="#9399b2" Offset="1"/>
                                                                 </LinearGradientBrush>
                                                             </Setter.Value>
                                                         </Setter>
@@ -290,7 +290,7 @@
                 BorderBrush="{DynamicResource AccentBrush}"
                 BorderThickness="1">
             <Border.Effect>
-                <DropShadowEffect Color="#7C5CFC" BlurRadius="30" ShadowDepth="0" Opacity="0.2"/>
+                <DropShadowEffect Color="#cba6f7" BlurRadius="30" ShadowDepth="0" Opacity="0.2"/>
             </Border.Effect>
             <StackPanel DataContext="{Binding Pomodoro}" Width="220">
                 <TextBlock Text="{Binding ModeLabel}" FontSize="10" FontWeight="SemiBold"
@@ -299,7 +299,7 @@
                            Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                 <TextBlock Text="{Binding TimeDisplay}" FontSize="42" FontWeight="Bold"
                            HorizontalAlignment="Center" FontFamily="Cascadia Code, Consolas"
-                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
+                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                 <ProgressBar Value="{Binding ProgressPercent}" Maximum="100" Height="3" Margin="0,8,0,12"
                              Style="{StaticResource DayProgressBar}"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">

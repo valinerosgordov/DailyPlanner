@@ -3,7 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:conv="clr-namespace:DailyPlanner.Converters"
-      Foreground="{DynamicResource TextFillColorPrimaryBrush}">
+      Foreground="{DynamicResource TextPrimaryBrush}">
 
     <Page.Resources>
         <conv:HeatmapIntensityToBrushConverter x:Key="HeatConv"/>
@@ -38,36 +38,36 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <ui:Card Grid.Column="0" Padding="16">
+                <Border Style="{StaticResource PlannerCard}" Padding="16">
                     <StackPanel>
                         <TextBlock Text="Всего задач" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock Text="{Binding MonthTotalTasks}" FontSize="28" FontWeight="Bold"/>
                     </StackPanel>
-                </ui:Card>
+                </Border>
 
-                <ui:Card Grid.Column="2" Padding="16">
+                <Border Style="{StaticResource PlannerCard}" Padding="16">
                     <StackPanel>
                         <TextBlock Text="Выполнено" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock Text="{Binding MonthCompletedTasks}" FontSize="28" FontWeight="Bold"
                                    Foreground="{DynamicResource SuccessBrush}"/>
                     </StackPanel>
-                </ui:Card>
+                </Border>
 
-                <ui:Card Grid.Column="4" Padding="16">
+                <Border Style="{StaticResource PlannerCard}" Padding="16">
                     <StackPanel>
                         <TextBlock Text="Продуктивность" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock FontSize="28" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">
                             <Run Text="{Binding MonthCompletionRate, StringFormat={}{0}%, Mode=OneWay}"/>
                         </TextBlock>
                     </StackPanel>
-                </ui:Card>
+                </Border>
 
-                <ui:Card Grid.Column="6" Padding="16">
+                <Border Style="{StaticResource PlannerCard}" Padding="16">
                     <StackPanel>
                         <TextBlock Text="Лучший день" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock Text="{Binding MostProductiveDay}" FontSize="20" FontWeight="Bold"/>
                     </StackPanel>
-                </ui:Card>
+                </Border>
             </Grid>
 
             <!-- Stat Cards Row 2 -->
@@ -82,42 +82,42 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <ui:Card Grid.Column="0" Padding="16">
+                <Border Style="{StaticResource PlannerCard}" Padding="16">
                     <StackPanel>
                         <TextBlock Text="Цели" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock FontSize="28" FontWeight="Bold">
                             <Run Text="{Binding MonthCompletedGoals, Mode=OneWay}"/>/<Run Text="{Binding MonthTotalGoals, Mode=OneWay}"/>
                         </TextBlock>
                     </StackPanel>
-                </ui:Card>
+                </Border>
 
-                <ui:Card Grid.Column="2" Padding="16">
+                <Border Style="{StaticResource PlannerCard}" Padding="16">
                     <StackPanel>
                         <TextBlock Text="Ср. сон" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock Text="{Binding AvgSleep, StringFormat={}{0:F1}}" FontSize="28" FontWeight="Bold"
                                    Foreground="{DynamicResource InfoBrush}"/>
                     </StackPanel>
-                </ui:Card>
+                </Border>
 
-                <ui:Card Grid.Column="4" Padding="16">
+                <Border Style="{StaticResource PlannerCard}" Padding="16">
                     <StackPanel>
                         <TextBlock Text="Ср. энергия" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock Text="{Binding AvgEnergy, StringFormat={}{0:F1}}" FontSize="28" FontWeight="Bold"
                                    Foreground="{DynamicResource WarningBrush}"/>
                     </StackPanel>
-                </ui:Card>
+                </Border>
 
-                <ui:Card Grid.Column="6" Padding="16">
+                <Border Style="{StaticResource PlannerCard}" Padding="16">
                     <StackPanel>
                         <TextBlock Text="Ср. настроение" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock Text="{Binding AvgMood, StringFormat={}{0:F1}}" FontSize="28" FontWeight="Bold"
                                    Foreground="{DynamicResource SuccessBrush}"/>
                     </StackPanel>
-                </ui:Card>
+                </Border>
             </Grid>
 
             <!-- Week Comparison -->
-            <ui:Card Margin="0,0,0,16" Padding="20">
+            <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,16" Padding="20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                         <ui:SymbolIcon Symbol="ArrowTrendingLines24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
@@ -148,10 +148,10 @@
                         </StackPanel>
                     </Grid>
                 </StackPanel>
-            </ui:Card>
+            </Border>
 
             <!-- Weekly Progress Bars -->
-            <ui:Card Margin="0,0,0,16" Padding="20">
+            <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,16" Padding="20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                         <ui:SymbolIcon Symbol="DataBarVertical24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
@@ -174,7 +174,7 @@
                                                 MaxWidth="300">
                                             <Border.Background>
                                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                                    <GradientStop Color="#7C5CFC" Offset="0"/>
+                                                    <GradientStop Color="#cba6f7" Offset="0"/>
                                                     <GradientStop Color="#34D399" Offset="1"/>
                                                 </LinearGradientBrush>
                                             </Border.Background>
@@ -185,10 +185,10 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </StackPanel>
-            </ui:Card>
+            </Border>
 
             <!-- Habit Heatmap -->
-            <ui:Card Margin="0,0,0,16" Padding="20">
+            <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,16" Padding="20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                         <ui:SymbolIcon Symbol="Grid24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
@@ -209,10 +209,10 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </StackPanel>
-            </ui:Card>
+            </Border>
 
             <!-- Habit Streaks -->
-            <ui:Card Padding="20">
+            <Border Style="{StaticResource PlannerCard}" Padding="20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                         <ui:SymbolIcon Symbol="Fire24" FontSize="18" Foreground="{DynamicResource WarningBrush}" Margin="0,0,10,0"/>
@@ -233,7 +233,7 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </StackPanel>
-            </ui:Card>
+            </Border>
 
         </StackPanel>
     </ScrollViewer>

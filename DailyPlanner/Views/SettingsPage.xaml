@@ -3,7 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:conv="clr-namespace:DailyPlanner.Converters"
-      Foreground="{DynamicResource TextFillColorPrimaryBrush}">
+      Foreground="{DynamicResource TextPrimaryBrush}">
 
     <Page.Resources>
         <conv:BoolToVisibilityConverter x:Key="VisConv"/>
@@ -17,7 +17,7 @@
                        FontFamily="Segoe UI Variable, Segoe UI"/>
 
             <!-- Theme Toggle -->
-            <ui:Card Margin="0,0,0,12" Padding="20">
+            <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,12" Padding="20">
                 <DockPanel>
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
                         <ui:SymbolIcon Symbol="DarkTheme24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
@@ -31,10 +31,10 @@
                                Content="Переключить" Appearance="Primary"
                                Command="{Binding ToggleThemeCommand}"/>
                 </DockPanel>
-            </ui:Card>
+            </Border>
 
             <!-- Export -->
-            <ui:Card Margin="0,0,0,12" Padding="20">
+            <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,12" Padding="20">
                 <DockPanel>
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
                         <ui:SymbolIcon Symbol="ArrowDownload24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
@@ -49,10 +49,10 @@
                                Command="{Binding ExportToExcelCommand}"
                                Icon="{ui:SymbolIcon ArrowDownload24}"/>
                 </DockPanel>
-            </ui:Card>
+            </Border>
 
             <!-- Color Themes -->
-            <ui:Card Margin="0,0,0,12" Padding="20">
+            <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,12" Padding="20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                         <ui:SymbolIcon Symbol="Color24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
@@ -79,10 +79,10 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </StackPanel>
-            </ui:Card>
+            </Border>
 
             <!-- Auto Start -->
-            <ui:Card Margin="0,0,0,12" Padding="20">
+            <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,12" Padding="20">
                 <DockPanel>
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
                         <ui:SymbolIcon Symbol="Power24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
@@ -95,10 +95,10 @@
                     <CheckBox DockPanel.Dock="Right" HorizontalAlignment="Right" VerticalAlignment="Center"
                               IsChecked="{Binding IsAutoStartEnabled}"/>
                 </DockPanel>
-            </ui:Card>
+            </Border>
 
             <!-- Updates -->
-            <ui:Card Margin="0,0,0,12" Padding="20">
+            <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,12" Padding="20">
                 <StackPanel>
                     <DockPanel Margin="0,0,0,12">
                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
@@ -123,10 +123,10 @@
                                  Background="{DynamicResource InputBgBrush}"
                                  BorderThickness="0"/>
                 </StackPanel>
-            </ui:Card>
+            </Border>
 
             <!-- Backup / Restore -->
-            <ui:Card Margin="0,0,0,12" Padding="20">
+            <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,12" Padding="20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                         <ui:SymbolIcon Symbol="DatabaseArrowDown20" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
@@ -145,10 +145,10 @@
                                    Icon="{ui:SymbolIcon ArrowUpload24}"/>
                     </StackPanel>
                 </StackPanel>
-            </ui:Card>
+            </Border>
 
             <!-- Reminders -->
-            <ui:Card Margin="0,0,0,12" Padding="20">
+            <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,12" Padding="20">
                 <StackPanel>
                     <DockPanel Margin="0,0,0,12">
                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
@@ -196,10 +196,10 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </StackPanel>
-            </ui:Card>
+            </Border>
 
             <!-- Recurring Templates -->
-            <ui:Card Margin="0,0,0,12" Padding="20">
+            <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,12" Padding="20">
                 <StackPanel>
                     <DockPanel Margin="0,0,0,12">
                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
@@ -235,10 +235,10 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </StackPanel>
-            </ui:Card>
+            </Border>
 
             <!-- App Info -->
-            <ui:Card Margin="0,0,0,12" Padding="20">
+            <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,12" Padding="20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                         <ui:SymbolIcon Symbol="Info24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
@@ -271,10 +271,10 @@
                                    Foreground="{DynamicResource AccentBrush}" FontFamily="Cascadia Code, Consolas" FontSize="12"/>
                     </Grid>
                 </StackPanel>
-            </ui:Card>
+            </Border>
 
             <!-- Keyboard Shortcuts -->
-            <ui:Card Margin="0,0,0,12" Padding="20">
+            <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,12" Padding="20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                         <ui:SymbolIcon Symbol="Keyboard24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
@@ -332,10 +332,10 @@
                         <TextBlock Grid.Row="5" Grid.Column="1" Text="Открыть настройки" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
                     </Grid>
                 </StackPanel>
-            </ui:Card>
+            </Border>
 
             <!-- Description -->
-            <ui:Card Padding="20">
+            <Border Style="{StaticResource PlannerCard}" Padding="20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                         <ui:SymbolIcon Symbol="BookOpen24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
@@ -350,7 +350,7 @@
                         поиск по задачам и визуализацию прогресса через круговую диаграмму.
                     </TextBlock>
                 </StackPanel>
-            </ui:Card>
+            </Border>
         </StackPanel>
     </ScrollViewer>
 </Page>

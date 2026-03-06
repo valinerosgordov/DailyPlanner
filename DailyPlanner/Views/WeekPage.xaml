@@ -4,7 +4,7 @@
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:views="clr-namespace:DailyPlanner.Views"
       xmlns:conv="clr-namespace:DailyPlanner.Converters"
-      Foreground="{DynamicResource TextFillColorPrimaryBrush}">
+      Foreground="{DynamicResource TextPrimaryBrush}">
 
     <Page.Resources>
         <conv:BoolToStrikethroughConverter x:Key="StrikethroughConv"/>
@@ -33,7 +33,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Total -->
-                <ui:Card Grid.Column="0" Padding="18" ToolTip="Количество задач с текстом за неделю">
+                <Border Style="{StaticResource PlannerCard}" Grid.Column="0" Padding="18" ToolTip="Количество задач с текстом за неделю">
                     <DockPanel>
                         <Border DockPanel.Dock="Left" Width="44" Height="44" CornerRadius="12" Margin="0,0,14,0">
                             <Border.Background>
@@ -43,14 +43,14 @@
                         </Border>
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="{Binding TotalTasks}" Style="{StaticResource StatValue}"
-                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Text="Всего задач" Style="{StaticResource StatLabel}"/>
                         </StackPanel>
                     </DockPanel>
-                </ui:Card>
+                </Border>
 
                 <!-- Completed -->
-                <ui:Card Grid.Column="2" Padding="18" ToolTip="Задач, отмеченных как выполненные">
+                <Border Style="{StaticResource PlannerCard}" Grid.Column="2" Padding="18" ToolTip="Задач, отмеченных как выполненные">
                     <DockPanel>
                         <Border DockPanel.Dock="Left" Width="44" Height="44" CornerRadius="12" Margin="0,0,14,0">
                             <Border.Background>
@@ -64,10 +64,10 @@
                             <TextBlock Text="Выполнено" Style="{StaticResource StatLabel}"/>
                         </StackPanel>
                     </DockPanel>
-                </ui:Card>
+                </Border>
 
                 <!-- Not completed -->
-                <ui:Card Grid.Column="4" Padding="18" ToolTip="Задач, которые ещё не выполнены">
+                <Border Style="{StaticResource PlannerCard}" Grid.Column="4" Padding="18" ToolTip="Задач, которые ещё не выполнены">
                     <DockPanel>
                         <Border DockPanel.Dock="Left" Width="44" Height="44" CornerRadius="12" Margin="0,0,14,0">
                             <Border.Background>
@@ -81,10 +81,10 @@
                             <TextBlock Text="Не выполнено" Style="{StaticResource StatLabel}"/>
                         </StackPanel>
                     </DockPanel>
-                </ui:Card>
+                </Border>
 
                 <!-- Goals -->
-                <ui:Card Grid.Column="6" Padding="18" ToolTip="Выполненных целей из 4">
+                <Border Style="{StaticResource PlannerCard}" Grid.Column="6" Padding="18" ToolTip="Выполненных целей из 4">
                     <DockPanel>
                         <Border DockPanel.Dock="Left" Width="44" Height="44" CornerRadius="12" Margin="0,0,14,0">
                             <Border.Background>
@@ -99,7 +99,7 @@
                             <TextBlock Text="Целей достигнуто" Style="{StaticResource StatLabel}"/>
                         </StackPanel>
                     </DockPanel>
-                </ui:Card>
+                </Border>
             </Grid>
 
             <!-- WEEKLY SUMMARY -->
@@ -108,7 +108,7 @@
                     <ui:SymbolIcon Symbol="Lightbulb24" FontSize="15" Foreground="{DynamicResource WarningBrush}"
                                    DockPanel.Dock="Left" Margin="0,0,10,0" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding WeeklySummary}" FontSize="12"
-                               Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
                                VerticalAlignment="Center" TextWrapping="Wrap"/>
                 </DockPanel>
             </Border>
