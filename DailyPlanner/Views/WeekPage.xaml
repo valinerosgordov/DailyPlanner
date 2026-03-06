@@ -11,7 +11,7 @@
         <conv:BoolToOpacityConverter x:Key="OpacityConv"/>
         <conv:BoolToVisibilityConverter x:Key="VisConv"/>
         <conv:PriorityToBrushConverter x:Key="PriorityBrush"/>
-        <conv:PriorityToSymbolConverter x:Key="PrioritySymbol"/>
+
         <conv:CategoryToBrushConverter x:Key="CatBrush"/>
         <conv:CategoryToLabelConverter x:Key="CatLabel"/>
         <conv:NonZeroToVisibilityConverter x:Key="NonZeroVis"/>

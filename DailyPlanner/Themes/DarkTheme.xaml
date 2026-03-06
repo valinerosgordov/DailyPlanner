@@ -141,7 +141,7 @@
                     <Border x:Name="Bd" Width="20" Height="20" CornerRadius="6"
                             BorderBrush="{DynamicResource CheckBorderBrush}" BorderThickness="1.5" Background="Transparent">
                         <Path x:Name="Check" Data="M4,8 L7.5,11.5 L13,5"
-                              Stroke="White" StrokeThickness="2"
+                              Stroke="{DynamicResource TextPrimaryBrush}" StrokeThickness="2"
                               StrokeStartLineCap="Round" StrokeEndLineCap="Round"
                               StrokeLineJoin="Round" Visibility="Collapsed" Margin="1"/>
                     </Border>
@@ -152,8 +152,8 @@
                             <Setter TargetName="Bd" Property="Background">
                                 <Setter.Value>
                                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                        <GradientStop Color="#cba6f7" Offset="0"/>
-                                        <GradientStop Color="#9399b2" Offset="1"/>
+                                        <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+                                        <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="1"/>
                                     </LinearGradientBrush>
                                 </Setter.Value>
                             </Setter>
@@ -322,8 +322,8 @@
                         <Border x:Name="PART_Indicator" HorizontalAlignment="Left" CornerRadius="1.5">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                    <GradientStop Color="#cba6f7" Offset="0"/>
-                                    <GradientStop Color="#a6e3a1" Offset="1"/>
+                                    <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+                                    <GradientStop Color="{DynamicResource SuccessColor}" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.Background>
                         </Border>
@@ -347,8 +347,8 @@
                         <Border x:Name="PART_Indicator" HorizontalAlignment="Left" CornerRadius="3">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                    <GradientStop Color="#9399b2" Offset="0"/>
-                                    <GradientStop Color="#cba6f7" Offset="1"/>
+                                    <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="0"/>
+                                    <GradientStop Color="{DynamicResource AccentColor}" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.Background>
                         </Border>

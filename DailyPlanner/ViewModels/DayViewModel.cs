@@ -68,7 +68,7 @@ public sealed partial class DayViewModel : ObservableObject
 
     public ObservableCollection<TaskViewModel> Tasks { get; }
 
-    public int CompletedCount => Tasks.Count(t => t.IsCompleted);
+    public int CompletedCount => Tasks.Count(t => t.IsCompleted && !string.IsNullOrWhiteSpace(t.Text));
     public int TotalWithText => Tasks.Count(t => !string.IsNullOrWhiteSpace(t.Text));
     public int NotCompletedCount => TotalWithText - CompletedCount;
     public double ProgressPercent => TotalWithText > 0 ? (double)CompletedCount / TotalWithText * 100 : 0;

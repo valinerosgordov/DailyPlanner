@@ -205,16 +205,6 @@ public sealed partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void ToggleTheme()
-    {
-        // Legacy: cycle to next palette
-        var keys = PaletteNames;
-        var idx = Array.IndexOf(keys, SelectedThemePreset);
-        var next = keys[(idx + 1) % keys.Length];
-        ApplyThemePreset(next);
-    }
-
-    [RelayCommand]
     private void ExportToExcel()
     {
         if (SelectedWeek is null) return;
@@ -374,7 +364,7 @@ public sealed partial class MainViewModel : ObservableObject
     }
 
     // Palette presets
-    [ObservableProperty] private string _selectedThemePreset = "Catppuccin Mocha";
+    [ObservableProperty] private string _selectedThemePreset = ThemeService.CurrentPalette;
 
     public string[] ThemePresets { get; } = [.. ThemeService.Palettes.Keys];
 

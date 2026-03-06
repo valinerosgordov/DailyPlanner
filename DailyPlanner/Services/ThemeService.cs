@@ -1,3 +1,4 @@
+using System.IO;
 using System.Windows;
 using System.Windows.Media;
 using Wpf.Ui.Appearance;
@@ -16,14 +17,40 @@ public record ThemePalette(
 
 public static class ThemeService
 {
-    private static string _currentPalette = "Catppuccin Mocha";
+    private static string _currentPalette = LoadSavedPalette();
 
     public static string CurrentPalette => _currentPalette;
-    public static bool IsDark => Palettes[_currentPalette].IsDark;
-
-    public static event Action? ThemeChanged;
 
     private static Color Hex(string hex) => (Color)ColorConverter.ConvertFromString(hex);
+
+    private static string SettingsPath => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "DailyPlanner", "theme.txt");
+
+    private static string LoadSavedPalette()
+    {
+        try
+        {
+            if (File.Exists(SettingsPath))
+            {
+                var name = File.ReadAllText(SettingsPath).Trim();
+                if (Palettes.ContainsKey(name)) return name;
+            }
+        }
+        catch { /* fallback to default */ }
+        return "Catppuccin Mocha";
+    }
+
+    private static void SavePalette(string name)
+    {
+        try
+        {
+            var dir = Path.GetDirectoryName(SettingsPath)!;
+            Directory.CreateDirectory(dir);
+            File.WriteAllText(SettingsPath, name);
+        }
+        catch { /* non-critical */ }
+    }
 
     public static readonly Dictionary<string, ThemePalette> Palettes = new()
     {
@@ -72,6 +99,7 @@ public static class ThemeService
     {
         if (!Palettes.TryGetValue(name, out var p)) return;
         _currentPalette = name;
+        SavePalette(name);
 
         ApplicationThemeManager.Apply(p.IsDark ? ApplicationTheme.Dark : ApplicationTheme.Light);
 
@@ -118,10 +146,7 @@ public static class ThemeService
         // Other
         res["ProgressTrackBrush"] = new SolidColorBrush(p.ProgressTrack);
         res["KeyboardShortcutBg"] = new SolidColorBrush(p.KeyboardBg);
-
-        ThemeChanged?.Invoke();
     }
 
-    // Backward compat
     public static void Apply() => ApplyPalette(_currentPalette);
 }

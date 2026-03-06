@@ -240,7 +240,7 @@
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Версия" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="0" Grid.Column="1" Text="2.1.0" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="2.5.0" VerticalAlignment="Center"/>
 
                         <TextBlock Grid.Row="1" Grid.Column="0" Text="Платформа" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="1" Grid.Column="1" Text="WPF (.NET 10)" VerticalAlignment="Center"/>

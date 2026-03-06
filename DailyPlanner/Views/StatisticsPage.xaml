@@ -38,14 +38,14 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Style="{StaticResource PlannerCard}" Padding="16">
+                <Border Grid.Column="0" Style="{StaticResource PlannerCard}" Padding="16">
                     <StackPanel>
                         <TextBlock Text="Всего задач" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock Text="{Binding MonthTotalTasks}" FontSize="28" FontWeight="Bold"/>
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource PlannerCard}" Padding="16">
+                <Border Grid.Column="2" Style="{StaticResource PlannerCard}" Padding="16">
                     <StackPanel>
                         <TextBlock Text="Выполнено" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock Text="{Binding MonthCompletedTasks}" FontSize="28" FontWeight="Bold"
@@ -53,7 +53,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource PlannerCard}" Padding="16">
+                <Border Grid.Column="4" Style="{StaticResource PlannerCard}" Padding="16">
                     <StackPanel>
                         <TextBlock Text="Продуктивность" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock FontSize="28" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">
@@ -62,7 +62,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource PlannerCard}" Padding="16">
+                <Border Grid.Column="6" Style="{StaticResource PlannerCard}" Padding="16">
                     <StackPanel>
                         <TextBlock Text="Лучший день" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock Text="{Binding MostProductiveDay}" FontSize="20" FontWeight="Bold"/>
@@ -82,7 +82,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Style="{StaticResource PlannerCard}" Padding="16">
+                <Border Grid.Column="0" Style="{StaticResource PlannerCard}" Padding="16">
                     <StackPanel>
                         <TextBlock Text="Цели" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock FontSize="28" FontWeight="Bold">
@@ -91,7 +91,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource PlannerCard}" Padding="16">
+                <Border Grid.Column="2" Style="{StaticResource PlannerCard}" Padding="16">
                     <StackPanel>
                         <TextBlock Text="Ср. сон" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock Text="{Binding AvgSleep, StringFormat={}{0:F1}}" FontSize="28" FontWeight="Bold"
@@ -99,7 +99,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource PlannerCard}" Padding="16">
+                <Border Grid.Column="4" Style="{StaticResource PlannerCard}" Padding="16">
                     <StackPanel>
                         <TextBlock Text="Ср. энергия" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock Text="{Binding AvgEnergy, StringFormat={}{0:F1}}" FontSize="28" FontWeight="Bold"
@@ -107,7 +107,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource PlannerCard}" Padding="16">
+                <Border Grid.Column="6" Style="{StaticResource PlannerCard}" Padding="16">
                     <StackPanel>
                         <TextBlock Text="Ср. настроение" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock Text="{Binding AvgMood, StringFormat={}{0:F1}}" FontSize="28" FontWeight="Bold"
@@ -120,8 +120,8 @@
             <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,16" Padding="20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                        <ui:SymbolIcon Symbol="ArrowTrendingLines24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
-                        <TextBlock Text="Сравнение недель" FontSize="15" FontWeight="SemiBold"/>
+                        <ui:SymbolIcon Symbol="ArrowTrendingLines24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBlock Text="Сравнение недель" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -154,8 +154,8 @@
             <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,16" Padding="20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                        <ui:SymbolIcon Symbol="DataBarVertical24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
-                        <TextBlock Text="Продуктивность по неделям" FontSize="15" FontWeight="SemiBold"/>
+                        <ui:SymbolIcon Symbol="DataBarVertical24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBlock Text="Продуктивность по неделям" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
                     <ItemsControl ItemsSource="{Binding WeeklyBars}">
                         <ItemsControl.ItemTemplate>
@@ -174,8 +174,8 @@
                                                 MaxWidth="300">
                                             <Border.Background>
                                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                                    <GradientStop Color="#cba6f7" Offset="0"/>
-                                                    <GradientStop Color="#34D399" Offset="1"/>
+                                                    <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+                                                    <GradientStop Color="{DynamicResource SuccessColor}" Offset="1"/>
                                                 </LinearGradientBrush>
                                             </Border.Background>
                                         </Border>
@@ -191,8 +191,8 @@
             <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,16" Padding="20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                        <ui:SymbolIcon Symbol="Grid24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
-                        <TextBlock Text="Привычки — Heatmap (30 дней)" FontSize="15" FontWeight="SemiBold"/>
+                        <ui:SymbolIcon Symbol="Grid24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBlock Text="Привычки — Heatmap (30 дней)" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
                     <ItemsControl ItemsSource="{Binding HeatmapData}">
                         <ItemsControl.ItemsPanel>
@@ -215,8 +215,8 @@
             <Border Style="{StaticResource PlannerCard}" Padding="20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                        <ui:SymbolIcon Symbol="Fire24" FontSize="18" Foreground="{DynamicResource WarningBrush}" Margin="0,0,10,0"/>
-                        <TextBlock Text="Серии привычек" FontSize="15" FontWeight="SemiBold"/>
+                        <ui:SymbolIcon Symbol="Fire24" FontSize="18" Foreground="{DynamicResource WarningBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBlock Text="Серии привычек" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
                     <ItemsControl ItemsSource="{Binding Streaks}">
                         <ItemsControl.ItemTemplate>
