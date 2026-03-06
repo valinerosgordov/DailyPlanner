@@ -10,7 +10,7 @@ public sealed class PomodoroService
     private bool _isWork = true;
     private bool _isFocusMode;
 
-    public int WorkMinutes { get; set; } = 25;
+    public int WorkMinutes { get; set; } = 45;
     public int BreakMinutes { get; set; } = 5;
     public int FocusAlertMinutes { get; set; } = 45;
     public int SessionsCompleted { get; private set; }
