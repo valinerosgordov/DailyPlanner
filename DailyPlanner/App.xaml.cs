@@ -81,6 +81,34 @@ public partial class App : Application
         splash.Content = border;
         splash.Show();
 
+        // Auto-backup before migration (keep last 5)
+        await Task.Run(() =>
+        {
+            try
+            {
+                var dbPath = System.IO.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "DailyPlanner", "planner.db");
+                if (System.IO.File.Exists(dbPath))
+                {
+                    var backupDir = System.IO.Path.Combine(
+                        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                        "DailyPlanner", "backups");
+                    System.IO.Directory.CreateDirectory(backupDir);
+                    var backupName = $"planner_{DateTime.Now:yyyyMMdd_HHmmss}.db";
+                    System.IO.File.Copy(dbPath, System.IO.Path.Combine(backupDir, backupName), true);
+
+                    // Rotate: keep only last 5 backups
+                    var old = System.IO.Directory.GetFiles(backupDir, "planner_*.db")
+                        .OrderByDescending(f => f)
+                        .Skip(5);
+                    foreach (var f in old)
+                        try { System.IO.File.Delete(f); } catch { }
+                }
+            }
+            catch { /* non-critical */ }
+        });
+
         // Initialize DB
         try
         {
