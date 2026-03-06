@@ -94,24 +94,23 @@ public static class ThemeService
         }
         else
         {
-            // Catppuccin Latte palette (light theme)
-            // Base: #eff1f5, Mantle: #e6e9ef, Crust: #dce0e8
-            // Surface 0: #ccd0da, Surface 1: #bcc0cc, Surface 2: #acb0be
-            // Overlay 0: #9ca0b0, Text: #4c4f69, Subtext 1: #5c5f77
+            // Clean modern light palette (Linear / Apple inspired)
+            // Page bg: #f8f9fc, Cards: white, Sidebar: #eef0f6
+            // Borders: #e2e4eb, Text: #1a1c23, Muted: #6b7085
             res["CardBg"] = new SolidColorBrush(Colors.White);
-            res["CardBorderBrush"] = new SolidColorBrush(Color.FromRgb(0xcc, 0xd0, 0xda));    // Surface 0
-            res["InputBgBrush"] = new SolidColorBrush(Color.FromRgb(0xef, 0xf1, 0xf5));       // Base
-            res["MutedBrush"] = new SolidColorBrush(Color.FromRgb(0x9c, 0xa0, 0xb0));         // Overlay 0
-            res["TextPrimaryBrush"] = new SolidColorBrush(Color.FromRgb(0x4c, 0x4f, 0x69));   // Text
-            res["CheckBorderBrush"] = new SolidColorBrush(Color.FromRgb(0xbc, 0xc0, 0xcc));   // Surface 1
-            res["SubtleBgBrush"] = new SolidColorBrush(Color.FromRgb(0xef, 0xf1, 0xf5));      // Base
-            res["FocusBgBrush"] = new SolidColorBrush(_accentColor) { Opacity = 0.1 };
-            res["HoverBgBrush"] = new SolidColorBrush(Color.FromRgb(0xcc, 0xd0, 0xda)) { Opacity = 0.5 };
-            res["ProgressTrackBrush"] = new SolidColorBrush(Color.FromRgb(0xe6, 0xe9, 0xef)); // Mantle
-            res["KeyboardShortcutBg"] = new SolidColorBrush(Color.FromRgb(0xe6, 0xe9, 0xef)); // Mantle
-            res["SidebarBgBrush"] = new SolidColorBrush(Color.FromRgb(0xe6, 0xe9, 0xef));     // Mantle
-            res["MonthHoverBrush"] = new SolidColorBrush(_accentColor) { Opacity = 0.12 };
-            res["MonthPressedBrush"] = new SolidColorBrush(Color.FromRgb(0xcc, 0xd0, 0xda)) { Opacity = 0.5 };
+            res["CardBorderBrush"] = new SolidColorBrush(Color.FromRgb(0xe2, 0xe4, 0xeb));
+            res["InputBgBrush"] = new SolidColorBrush(Color.FromRgb(0xf2, 0xf3, 0xf7));
+            res["MutedBrush"] = new SolidColorBrush(Color.FromRgb(0x6b, 0x70, 0x85));
+            res["TextPrimaryBrush"] = new SolidColorBrush(Color.FromRgb(0x1a, 0x1c, 0x23));
+            res["CheckBorderBrush"] = new SolidColorBrush(Color.FromRgb(0xc8, 0xca, 0xd5));
+            res["SubtleBgBrush"] = new SolidColorBrush(Color.FromRgb(0xf0, 0xf1, 0xf6));
+            res["FocusBgBrush"] = new SolidColorBrush(_accentColor) { Opacity = 0.08 };
+            res["HoverBgBrush"] = new SolidColorBrush(Color.FromRgb(0xea, 0xeb, 0xf0)) { Opacity = 0.7 };
+            res["ProgressTrackBrush"] = new SolidColorBrush(Color.FromRgb(0xe5, 0xe7, 0xee));
+            res["KeyboardShortcutBg"] = new SolidColorBrush(Color.FromRgb(0xe8, 0xea, 0xf0));
+            res["SidebarBgBrush"] = new SolidColorBrush(Color.FromRgb(0xee, 0xf0, 0xf6));
+            res["MonthHoverBrush"] = new SolidColorBrush(_accentColor) { Opacity = 0.10 };
+            res["MonthPressedBrush"] = new SolidColorBrush(Color.FromRgb(0xd8, 0xda, 0xe3)) { Opacity = 0.6 };
         }
 
         ThemeChanged?.Invoke();
