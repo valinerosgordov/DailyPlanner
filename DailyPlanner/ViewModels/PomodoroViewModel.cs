@@ -8,19 +8,45 @@ public sealed partial class PomodoroViewModel : ObservableObject
 {
     private readonly PomodoroService _pomodoro = new();
 
-    [ObservableProperty] private string _timeDisplay = "25:00";
+    [ObservableProperty] private string _timeDisplay = "45:00";
     [ObservableProperty] private double _progressPercent;
     [ObservableProperty] private bool _isRunning;
     [ObservableProperty] private string _phaseLabel = "Работа";
     [ObservableProperty] private int _sessionsCompleted;
     [ObservableProperty] private bool _isFocusMode;
     [ObservableProperty] private string _modeLabel = "Помодоро";
+    [ObservableProperty] private int _workMinutes = 45;
+    [ObservableProperty] private int _breakMinutes = 5;
+    [ObservableProperty] private int _focusAlertMinutes = 45;
 
     public PomodoroViewModel()
     {
         _pomodoro.Tick += OnTick;
         _pomodoro.PhaseCompleted += OnPhaseCompleted;
         _pomodoro.FocusAlert += OnFocusAlert;
+    }
+
+    partial void OnWorkMinutesChanged(int value)
+    {
+        if (value < 1) { WorkMinutes = 1; return; }
+        _pomodoro.WorkMinutes = value;
+        if (!_pomodoro.IsRunning && _pomodoro.IsWorkPhase && !_pomodoro.IsFocusMode)
+        {
+            _pomodoro.Reset();
+            TimeDisplay = _pomodoro.TimeDisplay;
+        }
+    }
+
+    partial void OnBreakMinutesChanged(int value)
+    {
+        if (value < 1) { BreakMinutes = 1; return; }
+        _pomodoro.BreakMinutes = value;
+    }
+
+    partial void OnFocusAlertMinutesChanged(int value)
+    {
+        if (value < 1) { FocusAlertMinutes = 1; return; }
+        _pomodoro.FocusAlertMinutes = value;
     }
 
     private void OnTick()
