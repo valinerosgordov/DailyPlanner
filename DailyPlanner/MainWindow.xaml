@@ -93,7 +93,7 @@
                                Appearance="Transparent" HorizontalAlignment="Stretch"
                                Command="{Binding ExportToExcelCommand}" Margin="0,0,0,4"/>
                     <ui:Button Content="Сегодня" Icon="{ui:SymbolIcon CalendarToday24}"
-                               Appearance="Primary" HorizontalAlignment="Stretch"
+                               Appearance="Transparent" HorizontalAlignment="Stretch"
                                Command="{Binding GoToTodayCommand}" Margin="0,0,0,4"/>
                     <ui:Button Content="Настройки" Icon="{ui:SymbolIcon Settings24}"
                                Appearance="Secondary" HorizontalAlignment="Stretch"
