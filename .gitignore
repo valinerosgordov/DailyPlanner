@@ -21,6 +21,9 @@ installer_output/
 *.db-shm
 *.db-wal
 
+## Tools
+.claude/
+
 ## OS
 Thumbs.db
 .DS_Store
