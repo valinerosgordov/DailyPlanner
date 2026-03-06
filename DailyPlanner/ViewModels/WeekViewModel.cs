@@ -76,7 +76,7 @@ public sealed partial class WeekViewModel : ObservableObject
             var parts = new List<string>
             {
                 $"Задачи: {CompletedTasks}/{TotalTasks}",
-                $"Цели: {CompletedGoals}/4",
+                $"Цели: {CompletedGoals}/{Goals.Count}",
                 $"Лучший день: {MostProductiveDay}"
             };
             if (AverageProgress >= 80) parts.Add("\u2b50 Отличная неделя!");
@@ -137,7 +137,7 @@ public sealed partial class WeekViewModel : ObservableObject
     {
         if (habit is null) return;
 
-        var model = _model.Habits.FirstOrDefault(h => h.Order == habit.Order);
+        var model = _model.Habits.FirstOrDefault(h => h.Id == habit.Model.Id);
         if (model is not null)
         {
             _model.Habits.Remove(model);

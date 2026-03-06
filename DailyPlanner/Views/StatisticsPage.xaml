@@ -49,14 +49,14 @@
                     <StackPanel>
                         <TextBlock Text="Выполнено" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock Text="{Binding MonthCompletedTasks}" FontSize="28" FontWeight="Bold"
-                                   Foreground="{StaticResource SuccessBrush}"/>
+                                   Foreground="{DynamicResource SuccessBrush}"/>
                     </StackPanel>
                 </ui:Card>
 
                 <ui:Card Grid.Column="4" Padding="16">
                     <StackPanel>
                         <TextBlock Text="Продуктивность" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
-                        <TextBlock FontSize="28" FontWeight="Bold" Foreground="{StaticResource AccentBrush}">
+                        <TextBlock FontSize="28" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">
                             <Run Text="{Binding MonthCompletionRate, StringFormat={}{0}%, Mode=OneWay}"/>
                         </TextBlock>
                     </StackPanel>
@@ -95,7 +95,7 @@
                     <StackPanel>
                         <TextBlock Text="Ср. сон" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock Text="{Binding AvgSleep, StringFormat={}{0:F1}}" FontSize="28" FontWeight="Bold"
-                                   Foreground="{StaticResource InfoBrush}"/>
+                                   Foreground="{DynamicResource InfoBrush}"/>
                     </StackPanel>
                 </ui:Card>
 
@@ -103,7 +103,7 @@
                     <StackPanel>
                         <TextBlock Text="Ср. энергия" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock Text="{Binding AvgEnergy, StringFormat={}{0:F1}}" FontSize="28" FontWeight="Bold"
-                                   Foreground="{StaticResource WarningBrush}"/>
+                                   Foreground="{DynamicResource WarningBrush}"/>
                     </StackPanel>
                 </ui:Card>
 
@@ -111,7 +111,7 @@
                     <StackPanel>
                         <TextBlock Text="Ср. настроение" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock Text="{Binding AvgMood, StringFormat={}{0:F1}}" FontSize="28" FontWeight="Bold"
-                                   Foreground="{StaticResource SuccessBrush}"/>
+                                   Foreground="{DynamicResource SuccessBrush}"/>
                     </StackPanel>
                 </ui:Card>
             </Grid>
@@ -120,7 +120,7 @@
             <ui:Card Margin="0,0,0,16" Padding="20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                        <ui:SymbolIcon Symbol="ArrowTrendingLines24" FontSize="18" Foreground="{StaticResource AccentBrush}" Margin="0,0,10,0"/>
+                        <ui:SymbolIcon Symbol="ArrowTrendingLines24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
                         <TextBlock Text="Сравнение недель" FontSize="15" FontWeight="SemiBold"/>
                     </StackPanel>
                     <Grid>
@@ -138,7 +138,7 @@
                         <StackPanel Grid.Column="1" HorizontalAlignment="Center">
                             <TextBlock Text="Тренд" FontSize="11" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center"/>
                             <TextBlock Text="{Binding WeekTrend}" FontSize="18" FontWeight="Bold"
-                                       Foreground="{StaticResource AccentBrush}" HorizontalAlignment="Center"/>
+                                       Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2" HorizontalAlignment="Center">
                             <TextBlock Text="Текущая неделя" FontSize="11" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center"/>
@@ -154,7 +154,7 @@
             <ui:Card Margin="0,0,0,16" Padding="20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                        <ui:SymbolIcon Symbol="DataBarVertical24" FontSize="18" Foreground="{StaticResource AccentBrush}" Margin="0,0,10,0"/>
+                        <ui:SymbolIcon Symbol="DataBarVertical24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
                         <TextBlock Text="Продуктивность по неделям" FontSize="15" FontWeight="SemiBold"/>
                     </StackPanel>
                     <ItemsControl ItemsSource="{Binding WeeklyBars}">
@@ -191,7 +191,7 @@
             <ui:Card Margin="0,0,0,16" Padding="20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                        <ui:SymbolIcon Symbol="Grid24" FontSize="18" Foreground="{StaticResource AccentBrush}" Margin="0,0,10,0"/>
+                        <ui:SymbolIcon Symbol="Grid24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
                         <TextBlock Text="Привычки — Heatmap (30 дней)" FontSize="15" FontWeight="SemiBold"/>
                     </StackPanel>
                     <ItemsControl ItemsSource="{Binding HeatmapData}">
@@ -215,7 +215,7 @@
             <ui:Card Padding="20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                        <ui:SymbolIcon Symbol="Fire24" FontSize="18" Foreground="{StaticResource WarningBrush}" Margin="0,0,10,0"/>
+                        <ui:SymbolIcon Symbol="Fire24" FontSize="18" Foreground="{DynamicResource WarningBrush}" Margin="0,0,10,0"/>
                         <TextBlock Text="Серии привычек" FontSize="15" FontWeight="SemiBold"/>
                     </StackPanel>
                     <ItemsControl ItemsSource="{Binding Streaks}">
@@ -226,7 +226,7 @@
                                     <Border DockPanel.Dock="Right" HorizontalAlignment="Right"
                                             Background="{DynamicResource KeyboardShortcutBg}" CornerRadius="8" Padding="10,4">
                                         <TextBlock Text="{Binding StreakText}" FontSize="12" FontWeight="SemiBold"
-                                                   Foreground="{StaticResource WarningBrush}"/>
+                                                   Foreground="{DynamicResource WarningBrush}"/>
                                     </Border>
                                 </DockPanel>
                             </DataTemplate>

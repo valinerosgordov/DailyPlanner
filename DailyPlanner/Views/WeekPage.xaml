@@ -37,9 +37,9 @@
                     <DockPanel>
                         <Border DockPanel.Dock="Left" Width="44" Height="44" CornerRadius="12" Margin="0,0,14,0">
                             <Border.Background>
-                                <SolidColorBrush Color="{StaticResource AccentColor}" Opacity="0.12"/>
+                                <SolidColorBrush Color="{DynamicResource AccentColor}" Opacity="0.12"/>
                             </Border.Background>
-                            <ui:SymbolIcon Symbol="TaskListLtr24" FontSize="20" Foreground="{StaticResource AccentBrush}"/>
+                            <ui:SymbolIcon Symbol="TaskListLtr24" FontSize="20" Foreground="{DynamicResource AccentBrush}"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="{Binding TotalTasks}" Style="{StaticResource StatValue}"
@@ -54,13 +54,13 @@
                     <DockPanel>
                         <Border DockPanel.Dock="Left" Width="44" Height="44" CornerRadius="12" Margin="0,0,14,0">
                             <Border.Background>
-                                <SolidColorBrush Color="{StaticResource SuccessColor}" Opacity="0.12"/>
+                                <SolidColorBrush Color="{DynamicResource SuccessColor}" Opacity="0.12"/>
                             </Border.Background>
-                            <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="20" Foreground="{StaticResource SuccessBrush}"/>
+                            <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="20" Foreground="{DynamicResource SuccessBrush}"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="{Binding CompletedTasks}" Style="{StaticResource StatValue}"
-                                       Foreground="{StaticResource SuccessBrush}"/>
+                                       Foreground="{DynamicResource SuccessBrush}"/>
                             <TextBlock Text="Выполнено" Style="{StaticResource StatLabel}"/>
                         </StackPanel>
                     </DockPanel>
@@ -71,13 +71,13 @@
                     <DockPanel>
                         <Border DockPanel.Dock="Left" Width="44" Height="44" CornerRadius="12" Margin="0,0,14,0">
                             <Border.Background>
-                                <SolidColorBrush Color="{StaticResource DangerColor}" Opacity="0.12"/>
+                                <SolidColorBrush Color="{DynamicResource DangerColor}" Opacity="0.12"/>
                             </Border.Background>
-                            <ui:SymbolIcon Symbol="DismissCircle24" FontSize="20" Foreground="{StaticResource DangerBrush}"/>
+                            <ui:SymbolIcon Symbol="DismissCircle24" FontSize="20" Foreground="{DynamicResource DangerBrush}"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="{Binding NotCompletedTasks}" Style="{StaticResource StatValue}"
-                                       Foreground="{StaticResource DangerBrush}"/>
+                                       Foreground="{DynamicResource DangerBrush}"/>
                             <TextBlock Text="Не выполнено" Style="{StaticResource StatLabel}"/>
                         </StackPanel>
                     </DockPanel>
@@ -88,12 +88,12 @@
                     <DockPanel>
                         <Border DockPanel.Dock="Left" Width="44" Height="44" CornerRadius="12" Margin="0,0,14,0">
                             <Border.Background>
-                                <SolidColorBrush Color="{StaticResource WarningColor}" Opacity="0.12"/>
+                                <SolidColorBrush Color="{DynamicResource WarningColor}" Opacity="0.12"/>
                             </Border.Background>
-                            <ui:SymbolIcon Symbol="Star24" FontSize="20" Foreground="{StaticResource WarningBrush}"/>
+                            <ui:SymbolIcon Symbol="Star24" FontSize="20" Foreground="{DynamicResource WarningBrush}"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Style="{StaticResource StatValue}" Foreground="{StaticResource WarningBrush}">
+                            <TextBlock Style="{StaticResource StatValue}" Foreground="{DynamicResource WarningBrush}">
                                 <Run Text="{Binding CompletedGoals, Mode=OneWay}"/><Run Text="/4"/>
                             </TextBlock>
                             <TextBlock Text="Целей достигнуто" Style="{StaticResource StatLabel}"/>
@@ -105,7 +105,7 @@
             <!-- WEEKLY SUMMARY -->
             <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,20" Padding="14,10">
                 <DockPanel>
-                    <ui:SymbolIcon Symbol="Lightbulb24" FontSize="15" Foreground="{StaticResource WarningBrush}"
+                    <ui:SymbolIcon Symbol="Lightbulb24" FontSize="15" Foreground="{DynamicResource WarningBrush}"
                                    DockPanel.Dock="Left" Margin="0,0,10,0" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding WeeklySummary}" FontSize="12"
                                Foreground="{DynamicResource TextFillColorPrimaryBrush}"
@@ -127,7 +127,7 @@
                 <Border Grid.Column="0" Style="{StaticResource PlannerCard}">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                            <ui:SymbolIcon Symbol="Star24" FontSize="15" Foreground="{StaticResource AccentBrush}" Margin="0,0,8,0"/>
+                            <ui:SymbolIcon Symbol="Star24" FontSize="15" Foreground="{DynamicResource AccentBrush}" Margin="0,0,8,0"/>
                             <TextBlock Text="ЦЕЛИ НЕДЕЛИ" Style="{StaticResource SectionHeader}" Margin="0"/>
                         </StackPanel>
                         <ItemsControl ItemsSource="{Binding Goals}">
@@ -160,7 +160,7 @@
                     <StackPanel>
                         <DockPanel Margin="0,0,0,12">
                             <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                                <ui:SymbolIcon Symbol="Note24" FontSize="15" Foreground="{StaticResource AccentBrush}" Margin="0,0,8,0"/>
+                                <ui:SymbolIcon Symbol="Note24" FontSize="15" Foreground="{DynamicResource AccentBrush}" Margin="0,0,8,0"/>
                                 <TextBlock Text="ЗАМЕТКИ" Style="{StaticResource SectionHeader}" Margin="0"/>
                             </StackPanel>
                             <Button Style="{StaticResource SmallIconButton}" DockPanel.Dock="Right"
@@ -197,7 +197,7 @@
                 <Border Grid.Column="4" Style="{StaticResource GlowCard}">
                     <StackPanel HorizontalAlignment="Center">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <ui:SymbolIcon Symbol="DataPie24" FontSize="15" Foreground="{StaticResource AccentBrush}" Margin="0,0,8,0"/>
+                            <ui:SymbolIcon Symbol="DataPie24" FontSize="15" Foreground="{DynamicResource AccentBrush}" Margin="0,0,8,0"/>
                             <TextBlock Text="ПРОГРЕСС" Style="{StaticResource SectionHeader}" Margin="0"/>
                         </StackPanel>
 
@@ -205,7 +205,7 @@
                                           Value="{Binding AverageProgress}"
                                           Maximum="100" RingThickness="10"
                                           TrackBrush="{DynamicResource ProgressTrackBrush}"
-                                          ValueBrush="{StaticResource AccentBrush}"
+                                          ValueBrush="{DynamicResource AccentBrush}"
                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                           CenterText="{Binding AverageProgress, StringFormat='{}{0}%'}"
                                           SubText="прогресс"/>
@@ -216,12 +216,12 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" HorizontalAlignment="Center">
-                                <TextBlock Text="{Binding MostProductiveDay}" Foreground="{StaticResource WarningBrush}"
+                                <TextBlock Text="{Binding MostProductiveDay}" Foreground="{DynamicResource WarningBrush}"
                                            FontWeight="Bold" FontSize="14" HorizontalAlignment="Center"/>
                                 <TextBlock Text="лучший день" Style="{StaticResource StatLabel}" HorizontalAlignment="Center"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1" HorizontalAlignment="Center">
-                                <TextBlock Foreground="{StaticResource SuccessBrush}" FontWeight="Bold" FontSize="14"
+                                <TextBlock Foreground="{DynamicResource SuccessBrush}" FontWeight="Bold" FontSize="14"
                                            HorizontalAlignment="Center">
                                     <Run Text="{Binding CompletedGoals, Mode=OneWay}"/><Run Text="/4"/>
                                 </TextBlock>
@@ -234,7 +234,7 @@
 
             <!-- DAYS -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                <ui:SymbolIcon Symbol="CalendarLtr24" FontSize="15" Foreground="{StaticResource AccentBrush}" Margin="0,0,8,0"/>
+                <ui:SymbolIcon Symbol="CalendarLtr24" FontSize="15" Foreground="{DynamicResource AccentBrush}" Margin="0,0,8,0"/>
                 <TextBlock Text="ЗАДАЧИ НА НЕДЕЛЮ" Style="{StaticResource SectionHeader}" Margin="0"/>
             </StackPanel>
 
@@ -251,11 +251,11 @@
                                 <Style TargetType="Border" BasedOn="{StaticResource PlannerCard}">
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsToday}" Value="True">
-                                            <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                             <Setter Property="BorderThickness" Value="1.5"/>
                                             <Setter Property="Effect">
                                                 <Setter.Value>
-                                                    <DropShadowEffect Color="{StaticResource AccentColor}"
+                                                    <DropShadowEffect Color="{DynamicResource AccentColor}"
                                                                       BlurRadius="18" ShadowDepth="0" Opacity="0.22"/>
                                                 </Setter.Value>
                                             </Setter>
@@ -271,10 +271,10 @@
                                         <Border CornerRadius="4" Padding="6,1" Margin="6,0,0,0"
                                                 Visibility="{Binding IsToday, Converter={StaticResource VisConv}}">
                                             <Border.Background>
-                                                <SolidColorBrush Color="{StaticResource AccentColor}" Opacity="0.2"/>
+                                                <SolidColorBrush Color="{DynamicResource AccentColor}" Opacity="0.2"/>
                                             </Border.Background>
                                             <TextBlock Text="СЕГОДНЯ" FontSize="8" FontWeight="Bold"
-                                                       Foreground="{StaticResource AccentLightBrush}"/>
+                                                       Foreground="{DynamicResource AccentLightBrush}"/>
                                         </Border>
                                     </StackPanel>
                                     <TextBlock Text="{Binding DateFormatted}" Foreground="{DynamicResource MutedBrush}"
@@ -328,14 +328,14 @@
                                 </ItemsControl>
                                 <Border CornerRadius="8" Padding="10,6" Margin="0,10,0,0">
                                     <Border.Background>
-                                        <SolidColorBrush Color="{StaticResource AccentColor}" Opacity="0.06"/>
+                                        <SolidColorBrush Color="{DynamicResource AccentColor}" Opacity="0.06"/>
                                     </Border.Background>
                                     <DockPanel>
                                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
                                             <ui:SymbolIcon Symbol="CheckmarkCircle16" FontSize="12"
-                                                           Foreground="{StaticResource SuccessBrush}" Margin="0,0,4,0"/>
+                                                           Foreground="{DynamicResource SuccessBrush}" Margin="0,0,4,0"/>
                                             <TextBlock Text="{Binding CompletedCount, Mode=OneWay}" FontSize="11"
-                                                       Foreground="{StaticResource SuccessBrush}" FontWeight="SemiBold"/>
+                                                       Foreground="{DynamicResource SuccessBrush}" FontWeight="SemiBold"/>
                                         </StackPanel>
                                         <TextBlock DockPanel.Dock="Right" FontSize="11" HorizontalAlignment="Right"
                                                    Foreground="{DynamicResource MutedBrush}">
@@ -369,7 +369,7 @@
                     <StackPanel>
                         <DockPanel Margin="0,0,0,12">
                             <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                                <ui:SymbolIcon Symbol="Ribbon24" FontSize="15" Foreground="{StaticResource AccentBrush}" Margin="0,0,8,0"/>
+                                <ui:SymbolIcon Symbol="Ribbon24" FontSize="15" Foreground="{DynamicResource AccentBrush}" Margin="0,0,8,0"/>
                                 <TextBlock Text="ТРЕКЕР ПРИВЫЧЕК" Style="{StaticResource SectionHeader}" Margin="0"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" HorizontalAlignment="Right">
@@ -437,7 +437,7 @@
                 <Border Grid.Column="2" Style="{StaticResource PlannerCard}">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                            <ui:SymbolIcon Symbol="HeartPulse24" FontSize="15" Foreground="{StaticResource AccentBrush}" Margin="0,0,8,0"/>
+                            <ui:SymbolIcon Symbol="HeartPulse24" FontSize="15" Foreground="{DynamicResource AccentBrush}" Margin="0,0,8,0"/>
                             <TextBlock Text="ТРЕКЕР СОСТОЯНИЯ" Style="{StaticResource SectionHeader}" Margin="0"/>
                         </StackPanel>
                         <Grid Margin="0,0,0,6">
@@ -445,9 +445,9 @@
                                 <ColumnDefinition Width="38"/>
                                 <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="1" Text="Сон" Foreground="{StaticResource InfoBrush}" FontSize="10" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="2" Text="Энергия" Foreground="{StaticResource WarningBrush}" FontSize="10" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="3" Text="Настрой" Foreground="{StaticResource SuccessBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="Сон" Foreground="{DynamicResource InfoBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="Энергия" Foreground="{DynamicResource WarningBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="3" Text="Настрой" Foreground="{DynamicResource SuccessBrush}" FontSize="10" HorizontalAlignment="Center"/>
                         </Grid>
                         <ItemsControl ItemsSource="{Binding Days}">
                             <ItemsControl.ItemTemplate>

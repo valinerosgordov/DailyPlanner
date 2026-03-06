@@ -23,6 +23,7 @@ public sealed partial class HabitViewModel : ObservableObject
             entry.PropertyChanged += (_, _) => OnPropertyChanged(nameof(Progress));
     }
 
+    public HabitDefinition Model => _model;
     public int Order => _model.Order;
 
     [ObservableProperty]
