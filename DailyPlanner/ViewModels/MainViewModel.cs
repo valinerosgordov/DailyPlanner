@@ -35,8 +35,7 @@ public sealed partial class MainViewModel : ObservableObject
     public PlannerService Service => _service;
     public string DailyQuote { get; } = QuoteService.GetDailyQuote();
 
-    // TODO: Replace with your GitHub repo URL (e.g. "https://github.com/user/DailyPlanner")
-    private readonly UpdateService _updateService = new("https://github.com/user/DailyPlanner");
+    private readonly UpdateService _updateService = new("https://github.com/valinerosgordov/DailyPlanner");
     [ObservableProperty] private string _updateStatus = string.Empty;
     [ObservableProperty] private bool _isUpdateAvailable;
     [ObservableProperty] private int _updateProgress;
