@@ -9,7 +9,8 @@ namespace DailyPlanner.Services;
 public static class NotificationService
 {
     private static readonly DispatcherTimer _checkTimer = new() { Interval = TimeSpan.FromMinutes(1) };
-    private static readonly HashSet<string> _notifiedToday = [];
+    private static readonly HashSet<string> _notifiedToday = new(StringComparer.Ordinal);
+    private static readonly object _lock = new();
     private static DateOnly _lastCheckDate;
 
     public static event Action<string, string>? NotificationTriggered;
@@ -28,7 +29,7 @@ public static class NotificationService
         var today = DateOnly.FromDateTime(DateTime.Today);
         if (today != _lastCheckDate)
         {
-            _notifiedToday.Clear();
+            lock (_lock) { _notifiedToday.Clear(); }
             _lastCheckDate = today;
         }
         // Notification check delegated to MainViewModel
@@ -37,7 +38,7 @@ public static class NotificationService
     public static void ShowToast(string title, string message)
     {
         var key = $"{title}:{message}";
-        if (!_notifiedToday.Add(key)) return;
+        lock (_lock) { if (!_notifiedToday.Add(key)) return; }
         NotificationTriggered?.Invoke(title, message);
 
         if (Application.Current?.Dispatcher is null) return;

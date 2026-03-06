@@ -27,7 +27,8 @@ public static class ThemeService
 
     public static void SetAccentColor(string hex)
     {
-        _accentColor = (Color)ColorConverter.ConvertFromString(hex);
+        try { _accentColor = (Color)ColorConverter.ConvertFromString(hex); }
+        catch (FormatException) { return; }
         var light = Color.FromArgb(255,
             (byte)Math.Min(_accentColor.R + 40, 255),
             (byte)Math.Min(_accentColor.G + 40, 255),

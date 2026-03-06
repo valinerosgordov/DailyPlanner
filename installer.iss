@@ -1,7 +1,7 @@
 [Setup]
-AppId={{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}
+AppId={{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}}
 AppName=Daily Planner
-AppVersion=2.0.0
+AppVersion=2.1.1
 AppPublisher=DailyPlanner
 DefaultDirName={autopf}\DailyPlanner
 DefaultGroupName=Daily Planner

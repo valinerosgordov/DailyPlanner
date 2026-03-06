@@ -40,9 +40,9 @@
                 <!-- Header -->
                 <StackPanel DockPanel.Dock="Top" Margin="20,48,20,8">
                     <StackPanel Orientation="Horizontal">
-                        <ui:SymbolIcon Symbol="CalendarLtr24" FontSize="22" Foreground="{StaticResource AccentBrush}" Margin="0,0,10,0"/>
+                        <ui:SymbolIcon Symbol="CalendarLtr24" FontSize="22" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
                         <TextBlock FontSize="18" FontWeight="Bold" FontFamily="{StaticResource MainFont}">
-                            <Run Text="Daily" Foreground="{StaticResource AccentBrush}"/>
+                            <Run Text="Daily" Foreground="{DynamicResource AccentBrush}"/>
                             <Run Text="Planner" Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
                         </TextBlock>
                     </StackPanel>
@@ -53,14 +53,14 @@
                 <!-- Today Mini Widget -->
                 <Border DockPanel.Dock="Bottom" Margin="12,0,12,8" CornerRadius="8" Padding="10,8">
                     <Border.Background>
-                        <SolidColorBrush Color="{StaticResource AccentColor}" Opacity="0.06"/>
+                        <SolidColorBrush Color="{DynamicResource AccentColor}" Opacity="0.06"/>
                     </Border.Background>
                     <StackPanel>
                         <DockPanel Margin="0,0,0,4">
                             <ui:SymbolIcon Symbol="CalendarToday24" FontSize="12"
-                                           Foreground="{StaticResource AccentBrush}" DockPanel.Dock="Left" Margin="0,0,6,0"/>
+                                           Foreground="{DynamicResource AccentBrush}" DockPanel.Dock="Left" Margin="0,0,6,0"/>
                             <TextBlock Text="СЕГОДНЯ" FontSize="9" FontWeight="Bold"
-                                       Foreground="{StaticResource AccentBrush}" VerticalAlignment="Center"/>
+                                       Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
                             <TextBlock Text="{Binding TodayProgress}" FontSize="9"
                                        Foreground="{DynamicResource MutedBrush}"
                                        HorizontalAlignment="Right" VerticalAlignment="Center"/>
@@ -174,7 +174,7 @@
                                         Background="{DynamicResource CardBg}">
                                     <DockPanel>
                                         <ui:SymbolIcon Symbol="TaskListLtr24" FontSize="12"
-                                                       Foreground="{StaticResource AccentBrush}"
+                                                       Foreground="{DynamicResource AccentBrush}"
                                                        DockPanel.Dock="Left" Margin="0,0,8,0"/>
                                         <TextBlock DockPanel.Dock="Right" FontSize="10"
                                                    Foreground="{DynamicResource MutedBrush}"
@@ -296,7 +296,7 @@
                 <TextBlock Text="{Binding ModeLabel}" FontSize="10" FontWeight="SemiBold"
                            Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center" Margin="0,0,0,2"/>
                 <TextBlock Text="{Binding PhaseLabel}" FontSize="11" FontWeight="SemiBold"
-                           Foreground="{StaticResource AccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                           Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                 <TextBlock Text="{Binding TimeDisplay}" FontSize="42" FontWeight="Bold"
                            HorizontalAlignment="Center" FontFamily="Cascadia Code, Consolas"
                            Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
