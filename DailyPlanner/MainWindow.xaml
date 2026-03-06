@@ -293,7 +293,7 @@
             <Border.Effect>
                 <DropShadowEffect Color="#cba6f7" BlurRadius="30" ShadowDepth="0" Opacity="0.2"/>
             </Border.Effect>
-            <StackPanel DataContext="{Binding Pomodoro}" Width="220">
+            <StackPanel DataContext="{Binding Pomodoro}" Width="280">
                 <TextBlock Text="{Binding ModeLabel}" FontSize="10" FontWeight="SemiBold"
                            Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center" Margin="0,0,0,2"/>
                 <TextBlock Text="{Binding PhaseLabel}" FontSize="11" FontWeight="SemiBold"
@@ -308,9 +308,9 @@
                 <Grid Margin="0,0,0,8" Visibility="{Binding IsRunning, Converter={StaticResource InvVisConv}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="12"/>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="12"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
@@ -318,24 +318,26 @@
                         <RowDefinition/>
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Column="0" Text="Работа" FontSize="9" HorizontalAlignment="Center"
-                               Foreground="{DynamicResource MutedBrush}"/>
+                               Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,4"/>
                     <TextBlock Grid.Column="2" Text="Перерыв" FontSize="9" HorizontalAlignment="Center"
-                               Foreground="{DynamicResource MutedBrush}"/>
+                               Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,4"/>
                     <TextBlock Grid.Column="4" Text="Фокус" FontSize="9" HorizontalAlignment="Center"
-                               Foreground="{DynamicResource MutedBrush}"/>
+                               Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,4"/>
                     <ui:NumberBox Grid.Row="1" Grid.Column="0" Value="{Binding WorkMinutes, Mode=TwoWay}"
-                                  Minimum="1" Maximum="120" SpinButtonPlacementMode="Compact"
-                                  Height="28" FontSize="12" Margin="0,2,4,0"/>
+                                  Minimum="1" Maximum="120" SpinButtonPlacementMode="Hidden"
+                                  Height="32" FontSize="14" HorizontalContentAlignment="Center"/>
                     <TextBlock Grid.Row="1" Grid.Column="1" Text="/" VerticalAlignment="Center"
-                               Foreground="{DynamicResource MutedBrush}" FontSize="11"/>
+                               HorizontalAlignment="Center"
+                               Foreground="{DynamicResource MutedBrush}" FontSize="14"/>
                     <ui:NumberBox Grid.Row="1" Grid.Column="2" Value="{Binding BreakMinutes, Mode=TwoWay}"
-                                  Minimum="1" Maximum="60" SpinButtonPlacementMode="Compact"
-                                  Height="28" FontSize="12" Margin="4,2,4,0"/>
+                                  Minimum="1" Maximum="60" SpinButtonPlacementMode="Hidden"
+                                  Height="32" FontSize="14" HorizontalContentAlignment="Center"/>
                     <TextBlock Grid.Row="1" Grid.Column="3" Text="/" VerticalAlignment="Center"
-                               Foreground="{DynamicResource MutedBrush}" FontSize="11"/>
+                               HorizontalAlignment="Center"
+                               Foreground="{DynamicResource MutedBrush}" FontSize="14"/>
                     <ui:NumberBox Grid.Row="1" Grid.Column="4" Value="{Binding FocusAlertMinutes, Mode=TwoWay}"
-                                  Minimum="1" Maximum="180" SpinButtonPlacementMode="Compact"
-                                  Height="28" FontSize="12" Margin="4,2,0,0"/>
+                                  Minimum="1" Maximum="180" SpinButtonPlacementMode="Hidden"
+                                  Height="32" FontSize="14" HorizontalContentAlignment="Center"/>
                 </Grid>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
