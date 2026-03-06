@@ -82,11 +82,25 @@ public partial class App : Application
         splash.Show();
 
         // Initialize DB
-        await Task.Run(() =>
+        try
         {
-            using var db = PlannerDbContextFactory.Create();
-            db.Database.Migrate();
-        });
+            await Task.Run(() =>
+            {
+                using var db = PlannerDbContextFactory.Create();
+                db.Database.Migrate();
+            });
+        }
+        catch (Exception ex)
+        {
+            splash.Close();
+            System.Windows.MessageBox.Show(
+                $"Ошибка инициализации базы данных:\n{ex.Message}",
+                "Daily Planner",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+            Shutdown(1);
+            return;
+        }
 
         splash.Close();
     }

@@ -22,32 +22,6 @@ public sealed class BoolToOpacityConverter : IValueConverter
         => throw new NotSupportedException();
 }
 
-public sealed class ProgressToWidthConverter : IMultiValueConverter
-{
-    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-    {
-        if (values.Length == 2 && values[0] is int completed && values[1] is int total && total > 0)
-            return (double)completed / total * 100;
-        return 0.0;
-    }
-
-    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        => throw new NotSupportedException();
-}
-
-public sealed class RatingToStarsConverter : IValueConverter
-{
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        var rating = value is int r ? r : 0;
-        var maxStars = parameter is string p && int.TryParse(p, out var m) ? m : 5;
-        return string.Concat(Enumerable.Repeat("\u2605", rating))
-             + string.Concat(Enumerable.Repeat("\u2606", maxStars - rating));
-    }
-
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        => throw new NotSupportedException();
-}
 
 public sealed class BoolToVisibilityConverter : IValueConverter
 {
@@ -80,18 +54,6 @@ public sealed class MonthIsSelectedConverter : IMultiValueConverter
         => throw new NotSupportedException();
 }
 
-public sealed class DoubleToPercentWidthConverter : IValueConverter
-{
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        if (value is double percent)
-            return new System.Windows.GridLength(Math.Max(percent, 0), System.Windows.GridUnitType.Star);
-        return new System.Windows.GridLength(0, System.Windows.GridUnitType.Star);
-    }
-
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        => throw new NotSupportedException();
-}
 
 public sealed class PriorityToBrushConverter : IValueConverter
 {
@@ -110,22 +72,6 @@ public sealed class PriorityToBrushConverter : IValueConverter
         => throw new NotSupportedException();
 }
 
-public sealed class PriorityToSymbolConverter : IValueConverter
-{
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        return value is DailyPlanner.Models.TaskPriority p ? p switch
-        {
-            DailyPlanner.Models.TaskPriority.High => "!!!",
-            DailyPlanner.Models.TaskPriority.Medium => "!!",
-            DailyPlanner.Models.TaskPriority.Low => "!",
-            _ => ""
-        } : "";
-    }
-
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        => throw new NotSupportedException();
-}
 
 public sealed class CategoryToLabelConverter : IValueConverter
 {
@@ -169,15 +115,29 @@ public sealed class HeatmapIntensityToBrushConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
+        var res = Application.Current?.Resources;
+        var trackColor = res?["ProgressTrackBrush"] is System.Windows.Media.SolidColorBrush track
+            ? track.Color
+            : System.Windows.Media.Color.FromRgb(0x1E, 0x1E, 0x2E);
+        var successColor = res?["SuccessBrush"] is System.Windows.Media.SolidColorBrush success
+            ? success.Color
+            : System.Windows.Media.Color.FromRgb(0x34, 0xD3, 0x99);
+
         if (value is double intensity)
         {
-            if (intensity <= 0) return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x1E, 0x1E, 0x2E));
-            if (intensity < 0.33) return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x2D, 0x40, 0x2D));
-            if (intensity < 0.66) return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x26, 0x6B, 0x26));
-            return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x34, 0xD3, 0x99));
+            if (intensity <= 0) return new System.Windows.Media.SolidColorBrush(trackColor);
+            if (intensity < 0.33) return new System.Windows.Media.SolidColorBrush(BlendColors(trackColor, successColor, 0.25));
+            if (intensity < 0.66) return new System.Windows.Media.SolidColorBrush(BlendColors(trackColor, successColor, 0.55));
+            return new System.Windows.Media.SolidColorBrush(successColor);
         }
-        return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x1E, 0x1E, 0x2E));
+        return new System.Windows.Media.SolidColorBrush(trackColor);
     }
+
+    private static System.Windows.Media.Color BlendColors(System.Windows.Media.Color a, System.Windows.Media.Color b, double t)
+        => System.Windows.Media.Color.FromRgb(
+            (byte)(a.R + (b.R - a.R) * t),
+            (byte)(a.G + (b.G - a.G) * t),
+            (byte)(a.B + (b.B - a.B) * t));
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         => throw new NotSupportedException();
@@ -205,11 +165,3 @@ public sealed class BoolToPlayPauseConverter : IValueConverter
         => throw new NotSupportedException();
 }
 
-public sealed class BoolToThemeLabelConverter : IValueConverter
-{
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        => value is true ? "Текущая: Тёмная" : "Текущая: Светлая";
-
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        => throw new NotSupportedException();
-}

@@ -251,12 +251,12 @@
                                                         <Setter TargetName="Bd" Property="Background">
                                                             <Setter.Value>
                                                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                                                    <GradientStop Color="#cba6f7" Offset="0"/>
-                                                                    <GradientStop Color="#9399b2" Offset="1"/>
+                                                                    <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+                                                                    <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="1"/>
                                                                 </LinearGradientBrush>
                                                             </Setter.Value>
                                                         </Setter>
-                                                        <Setter Property="Foreground" Value="White"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                                                         <Setter Property="FontWeight" Value="SemiBold"/>
                                                     </Trigger>
                                                     <Trigger Property="IsMouseOver" Value="True">
@@ -291,7 +291,7 @@
                 BorderBrush="{DynamicResource AccentBrush}"
                 BorderThickness="1">
             <Border.Effect>
-                <DropShadowEffect Color="#cba6f7" BlurRadius="30" ShadowDepth="0" Opacity="0.2"/>
+                <DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="30" ShadowDepth="0" Opacity="0.2"/>
             </Border.Effect>
             <StackPanel DataContext="{Binding Pomodoro}" Width="280">
                 <TextBlock Text="{Binding ModeLabel}" FontSize="10" FontWeight="SemiBold"
