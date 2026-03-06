@@ -127,7 +127,7 @@
                 <Border Grid.Column="0" Style="{StaticResource PlannerCard}">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                            <ui:SymbolIcon Symbol="Star24" FontSize="15" Foreground="{DynamicResource AccentBrush}" Margin="0,0,8,0"/>
+                            <ui:SymbolIcon Symbol="Star24" FontSize="15" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <TextBlock Text="ЦЕЛИ НЕДЕЛИ" Style="{StaticResource SectionHeader}" Margin="0"/>
                         </StackPanel>
                         <ItemsControl ItemsSource="{Binding Goals}">
@@ -160,7 +160,7 @@
                     <StackPanel>
                         <DockPanel Margin="0,0,0,12">
                             <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                                <ui:SymbolIcon Symbol="Note24" FontSize="15" Foreground="{DynamicResource AccentBrush}" Margin="0,0,8,0"/>
+                                <ui:SymbolIcon Symbol="Note24" FontSize="15" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                                 <TextBlock Text="ЗАМЕТКИ" Style="{StaticResource SectionHeader}" Margin="0"/>
                             </StackPanel>
                             <Button Style="{StaticResource SmallIconButton}" DockPanel.Dock="Right"
@@ -197,7 +197,7 @@
                 <Border Grid.Column="4" Style="{StaticResource GlowCard}">
                     <StackPanel HorizontalAlignment="Center">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <ui:SymbolIcon Symbol="DataPie24" FontSize="15" Foreground="{DynamicResource AccentBrush}" Margin="0,0,8,0"/>
+                            <ui:SymbolIcon Symbol="DataPie24" FontSize="15" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <TextBlock Text="ПРОГРЕСС" Style="{StaticResource SectionHeader}" Margin="0"/>
                         </StackPanel>
 
@@ -234,7 +234,7 @@
 
             <!-- DAYS -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                <ui:SymbolIcon Symbol="CalendarLtr24" FontSize="15" Foreground="{DynamicResource AccentBrush}" Margin="0,0,8,0"/>
+                <ui:SymbolIcon Symbol="CalendarLtr24" FontSize="15" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                 <TextBlock Text="ЗАДАЧИ НА НЕДЕЛЮ" Style="{StaticResource SectionHeader}" Margin="0"/>
             </StackPanel>
 
@@ -369,7 +369,7 @@
                     <StackPanel>
                         <DockPanel Margin="0,0,0,12">
                             <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                                <ui:SymbolIcon Symbol="Ribbon24" FontSize="15" Foreground="{DynamicResource AccentBrush}" Margin="0,0,8,0"/>
+                                <ui:SymbolIcon Symbol="Ribbon24" FontSize="15" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                                 <TextBlock Text="ТРЕКЕР ПРИВЫЧЕК" Style="{StaticResource SectionHeader}" Margin="0"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" HorizontalAlignment="Right">
@@ -437,7 +437,7 @@
                 <Border Grid.Column="2" Style="{StaticResource PlannerCard}">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                            <ui:SymbolIcon Symbol="HeartPulse24" FontSize="15" Foreground="{DynamicResource AccentBrush}" Margin="0,0,8,0"/>
+                            <ui:SymbolIcon Symbol="HeartPulse24" FontSize="15" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <TextBlock Text="ТРЕКЕР СОСТОЯНИЯ" Style="{StaticResource SectionHeader}" Margin="0"/>
                         </StackPanel>
                         <Grid Margin="0,0,0,6">

@@ -4,115 +4,124 @@ using Wpf.Ui.Appearance;
 
 namespace DailyPlanner.Services;
 
+public record ThemePalette(
+    string Name,
+    bool IsDark,
+    Color Accent, Color AccentLight, Color AccentDark,
+    Color PageBg, Color CardBg, Color CardBorder,
+    Color SidebarBg, Color InputBg, Color SubtleBg,
+    Color Text, Color Muted, Color CheckBorder,
+    Color HoverBg, Color ProgressTrack, Color KeyboardBg,
+    Color Success, Color Warning, Color Danger, Color Info);
+
 public static class ThemeService
 {
-    private static bool _isDark = true;
-    private static Color _accentColor = (Color)ColorConverter.ConvertFromString("#cba6f7");
+    private static string _currentPalette = "Catppuccin Mocha";
 
-    public static bool IsDark => _isDark;
+    public static string CurrentPalette => _currentPalette;
+    public static bool IsDark => Palettes[_currentPalette].IsDark;
 
     public static event Action? ThemeChanged;
 
-    public static void ToggleTheme()
-    {
-        _isDark = !_isDark;
-        Apply();
-    }
+    private static Color Hex(string hex) => (Color)ColorConverter.ConvertFromString(hex);
 
-    public static void SetTheme(bool dark)
+    public static readonly Dictionary<string, ThemePalette> Palettes = new()
     {
-        _isDark = dark;
-        Apply();
-    }
+        ["Catppuccin Mocha"] = new("Catppuccin Mocha", true,
+            Accent: Hex("#cba6f7"), AccentLight: Hex("#b4befe"), AccentDark: Hex("#9399b2"),
+            PageBg: Hex("#1e1e2e"), CardBg: Hex("#313244"), CardBorder: Hex("#45475a"),
+            SidebarBg: Hex("#11111b"), InputBg: Hex("#1e1e2e"), SubtleBg: Hex("#45475a"),
+            Text: Hex("#cdd6f4"), Muted: Hex("#6c7086"), CheckBorder: Hex("#585b70"),
+            HoverBg: Hex("#585b70"), ProgressTrack: Hex("#1e1e2e"), KeyboardBg: Hex("#45475a"),
+            Success: Hex("#a6e3a1"), Warning: Hex("#f9e2af"), Danger: Hex("#f38ba8"), Info: Hex("#89dceb")),
 
-    public static void SetAccentColor(string hex)
-    {
-        try { _accentColor = (Color)ColorConverter.ConvertFromString(hex); }
-        catch (FormatException) { return; }
-        var light = Color.FromArgb(255,
-            (byte)Math.Min(_accentColor.R + 40, 255),
-            (byte)Math.Min(_accentColor.G + 40, 255),
-            (byte)Math.Min(_accentColor.B + 40, 255));
-        var dark = Color.FromArgb(255,
-            (byte)Math.Max(_accentColor.R - 30, 0),
-            (byte)Math.Max(_accentColor.G - 30, 0),
-            (byte)Math.Max(_accentColor.B - 30, 0));
-        ApplyAccentColors(_accentColor, light, dark);
-    }
+        ["Catppuccin Frappe"] = new("Catppuccin Frappe", true,
+            Accent: Hex("#ca9ee6"), AccentLight: Hex("#babbf1"), AccentDark: Hex("#838ba7"),
+            PageBg: Hex("#303446"), CardBg: Hex("#414559"), CardBorder: Hex("#51576d"),
+            SidebarBg: Hex("#232634"), InputBg: Hex("#303446"), SubtleBg: Hex("#51576d"),
+            Text: Hex("#c6d0f5"), Muted: Hex("#737994"), CheckBorder: Hex("#626880"),
+            HoverBg: Hex("#626880"), ProgressTrack: Hex("#303446"), KeyboardBg: Hex("#51576d"),
+            Success: Hex("#a6d189"), Warning: Hex("#e5c890"), Danger: Hex("#e78284"), Info: Hex("#99d1db")),
 
-    public static void SetFullAccentColor(string accentHex, string lightHex, string darkHex)
-    {
-        _accentColor = (Color)ColorConverter.ConvertFromString(accentHex);
-        var light = (Color)ColorConverter.ConvertFromString(lightHex);
-        var dark = (Color)ColorConverter.ConvertFromString(darkHex);
-        ApplyAccentColors(_accentColor, light, dark);
-    }
+        ["Catppuccin Macchiato"] = new("Catppuccin Macchiato", true,
+            Accent: Hex("#c6a0f6"), AccentLight: Hex("#b7bdf8"), AccentDark: Hex("#8087a2"),
+            PageBg: Hex("#24273a"), CardBg: Hex("#363a4f"), CardBorder: Hex("#494d64"),
+            SidebarBg: Hex("#181926"), InputBg: Hex("#24273a"), SubtleBg: Hex("#494d64"),
+            Text: Hex("#cad3f5"), Muted: Hex("#6e738d"), CheckBorder: Hex("#5b6078"),
+            HoverBg: Hex("#5b6078"), ProgressTrack: Hex("#24273a"), KeyboardBg: Hex("#494d64"),
+            Success: Hex("#a6da95"), Warning: Hex("#eed49f"), Danger: Hex("#ed8796"), Info: Hex("#91d7e3")),
 
-    private static void ApplyAccentColors(Color accent, Color light, Color dark)
-    {
-        if (Application.Current is null) return;
-        var res = Application.Current.Resources;
-        res["AccentBrush"] = new SolidColorBrush(accent);
-        res["AccentColor"] = accent;
-        res["TodayGlowBrush"] = new SolidColorBrush(accent);
-        res["AccentLightBrush"] = new SolidColorBrush(light);
-        res["AccentLightColor"] = light;
-        res["AccentDarkColor"] = dark;
-        res["FocusBgBrush"] = new SolidColorBrush(accent) { Opacity = 0.1 };
-        res["MonthHoverBrush"] = new SolidColorBrush(accent) { Opacity = 0.15 };
-        ThemeChanged?.Invoke();
-    }
+        ["Nord"] = new("Nord", true,
+            Accent: Hex("#88c0d0"), AccentLight: Hex("#8fbcbb"), AccentDark: Hex("#5e81ac"),
+            PageBg: Hex("#2e3440"), CardBg: Hex("#3b4252"), CardBorder: Hex("#434c5e"),
+            SidebarBg: Hex("#272c36"), InputBg: Hex("#2e3440"), SubtleBg: Hex("#434c5e"),
+            Text: Hex("#eceff4"), Muted: Hex("#7b88a1"), CheckBorder: Hex("#4c566a"),
+            HoverBg: Hex("#4c566a"), ProgressTrack: Hex("#2e3440"), KeyboardBg: Hex("#434c5e"),
+            Success: Hex("#a3be8c"), Warning: Hex("#ebcb8b"), Danger: Hex("#bf616a"), Info: Hex("#81a1c1")),
 
-    public static void Apply()
+        ["Светлая"] = new("Светлая", false,
+            Accent: Hex("#7c5cfc"), AccentLight: Hex("#a78bfa"), AccentDark: Hex("#5b3fd6"),
+            PageBg: Hex("#f5f6fa"), CardBg: Hex("#ffffff"), CardBorder: Hex("#e2e4eb"),
+            SidebarBg: Hex("#eaecf3"), InputBg: Hex("#f0f1f6"), SubtleBg: Hex("#f0f1f6"),
+            Text: Hex("#1a1c23"), Muted: Hex("#6b7085"), CheckBorder: Hex("#c8cad5"),
+            HoverBg: Hex("#e4e5ec"), ProgressTrack: Hex("#e5e7ee"), KeyboardBg: Hex("#e8eaf0"),
+            Success: Hex("#16a34a"), Warning: Hex("#ca8a04"), Danger: Hex("#dc2626"), Info: Hex("#0284c7")),
+    };
+
+    public static void ApplyPalette(string name)
     {
-        ApplicationThemeManager.Apply(
-            _isDark ? ApplicationTheme.Dark : ApplicationTheme.Light);
+        if (!Palettes.TryGetValue(name, out var p)) return;
+        _currentPalette = name;
+
+        ApplicationThemeManager.Apply(p.IsDark ? ApplicationTheme.Dark : ApplicationTheme.Light);
 
         if (Application.Current is null) return;
         var res = Application.Current.Resources;
 
-        if (_isDark)
-        {
-            // Catppuccin Mocha palette
-            // Base: #1e1e2e, Mantle: #181825, Crust: #11111b
-            // Surface 0: #313244, Surface 1: #45475a, Surface 2: #585b70
-            // Overlay 0: #6c7086, Text: #cdd6f4, Subtext 1: #bac2de
-            res["CardBg"] = new SolidColorBrush(Color.FromRgb(0x31, 0x32, 0x44));             // Surface 0
-            res["CardBorderBrush"] = new SolidColorBrush(Color.FromRgb(0x45, 0x47, 0x5a));    // Surface 1
-            res["InputBgBrush"] = new SolidColorBrush(Color.FromRgb(0x1e, 0x1e, 0x2e));       // Base
-            res["MutedBrush"] = new SolidColorBrush(Color.FromRgb(0x6c, 0x70, 0x86));         // Overlay 0
-            res["TextPrimaryBrush"] = new SolidColorBrush(Color.FromRgb(0xcd, 0xd6, 0xf4));   // Text
-            res["CheckBorderBrush"] = new SolidColorBrush(Color.FromRgb(0x58, 0x5b, 0x70));   // Surface 2
-            res["SubtleBgBrush"] = new SolidColorBrush(Color.FromRgb(0x45, 0x47, 0x5a));      // Surface 1
-            res["FocusBgBrush"] = new SolidColorBrush(_accentColor) { Opacity = 0.1 };
-            res["HoverBgBrush"] = new SolidColorBrush(Color.FromRgb(0x58, 0x5b, 0x70)) { Opacity = 0.3 };
-            res["ProgressTrackBrush"] = new SolidColorBrush(Color.FromRgb(0x1e, 0x1e, 0x2e)); // Base
-            res["KeyboardShortcutBg"] = new SolidColorBrush(Color.FromRgb(0x45, 0x47, 0x5a)); // Surface 1
-            res["SidebarBgBrush"] = new SolidColorBrush(Color.FromRgb(0x11, 0x11, 0x1b));     // Crust
-            res["MonthHoverBrush"] = new SolidColorBrush(_accentColor) { Opacity = 0.15 };
-            res["MonthPressedBrush"] = new SolidColorBrush(Color.FromRgb(0x58, 0x5b, 0x70)) { Opacity = 0.4 };
-        }
-        else
-        {
-            // Clean modern light palette (Linear / Apple inspired)
-            // Page bg: #f8f9fc, Cards: white, Sidebar: #eef0f6
-            // Borders: #e2e4eb, Text: #1a1c23, Muted: #6b7085
-            res["CardBg"] = new SolidColorBrush(Colors.White);
-            res["CardBorderBrush"] = new SolidColorBrush(Color.FromRgb(0xe2, 0xe4, 0xeb));
-            res["InputBgBrush"] = new SolidColorBrush(Color.FromRgb(0xf2, 0xf3, 0xf7));
-            res["MutedBrush"] = new SolidColorBrush(Color.FromRgb(0x6b, 0x70, 0x85));
-            res["TextPrimaryBrush"] = new SolidColorBrush(Color.FromRgb(0x1a, 0x1c, 0x23));
-            res["CheckBorderBrush"] = new SolidColorBrush(Color.FromRgb(0xc8, 0xca, 0xd5));
-            res["SubtleBgBrush"] = new SolidColorBrush(Color.FromRgb(0xf0, 0xf1, 0xf6));
-            res["FocusBgBrush"] = new SolidColorBrush(_accentColor) { Opacity = 0.08 };
-            res["HoverBgBrush"] = new SolidColorBrush(Color.FromRgb(0xea, 0xeb, 0xf0)) { Opacity = 0.7 };
-            res["ProgressTrackBrush"] = new SolidColorBrush(Color.FromRgb(0xe5, 0xe7, 0xee));
-            res["KeyboardShortcutBg"] = new SolidColorBrush(Color.FromRgb(0xe8, 0xea, 0xf0));
-            res["SidebarBgBrush"] = new SolidColorBrush(Color.FromRgb(0xee, 0xf0, 0xf6));
-            res["MonthHoverBrush"] = new SolidColorBrush(_accentColor) { Opacity = 0.10 };
-            res["MonthPressedBrush"] = new SolidColorBrush(Color.FromRgb(0xd8, 0xda, 0xe3)) { Opacity = 0.6 };
-        }
+        // Accent colors
+        res["AccentBrush"] = new SolidColorBrush(p.Accent);
+        res["AccentColor"] = p.Accent;
+        res["TodayGlowBrush"] = new SolidColorBrush(p.Accent);
+        res["AccentLightBrush"] = new SolidColorBrush(p.AccentLight);
+        res["AccentLightColor"] = p.AccentLight;
+        res["AccentDarkColor"] = p.AccentDark;
+
+        // Semantic colors
+        res["SuccessBrush"] = new SolidColorBrush(p.Success);
+        res["SuccessColor"] = p.Success;
+        res["WarningBrush"] = new SolidColorBrush(p.Warning);
+        res["WarningColor"] = p.Warning;
+        res["DangerBrush"] = new SolidColorBrush(p.Danger);
+        res["DangerColor"] = p.Danger;
+        res["InfoBrush"] = new SolidColorBrush(p.Info);
+        res["InfoColor"] = p.Info;
+
+        // Background layers
+        res["PageBgBrush"] = new SolidColorBrush(p.PageBg);
+        res["CardBg"] = new SolidColorBrush(p.CardBg);
+        res["CardBorderBrush"] = new SolidColorBrush(p.CardBorder);
+        res["SidebarBgBrush"] = new SolidColorBrush(p.SidebarBg);
+        res["InputBgBrush"] = new SolidColorBrush(p.InputBg);
+        res["SubtleBgBrush"] = new SolidColorBrush(p.SubtleBg);
+
+        // Text
+        res["TextPrimaryBrush"] = new SolidColorBrush(p.Text);
+        res["MutedBrush"] = new SolidColorBrush(p.Muted);
+        res["CheckBorderBrush"] = new SolidColorBrush(p.CheckBorder);
+
+        // Interactive states
+        res["FocusBgBrush"] = new SolidColorBrush(p.Accent) { Opacity = p.IsDark ? 0.1 : 0.08 };
+        res["HoverBgBrush"] = new SolidColorBrush(p.HoverBg) { Opacity = p.IsDark ? 0.3 : 0.7 };
+        res["MonthHoverBrush"] = new SolidColorBrush(p.Accent) { Opacity = p.IsDark ? 0.15 : 0.10 };
+        res["MonthPressedBrush"] = new SolidColorBrush(p.HoverBg) { Opacity = p.IsDark ? 0.4 : 0.6 };
+
+        // Other
+        res["ProgressTrackBrush"] = new SolidColorBrush(p.ProgressTrack);
+        res["KeyboardShortcutBg"] = new SolidColorBrush(p.KeyboardBg);
 
         ThemeChanged?.Invoke();
     }
+
+    // Backward compat
+    public static void Apply() => ApplyPalette(_currentPalette);
 }

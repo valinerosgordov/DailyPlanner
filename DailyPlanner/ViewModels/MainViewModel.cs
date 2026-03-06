@@ -19,9 +19,7 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty] private bool _isSettingsOpen;
     [ObservableProperty] private bool _isSearchOpen;
     [ObservableProperty] private string _searchQuery = string.Empty;
-    [ObservableProperty] private bool _isDarkTheme = true;
     [ObservableProperty] private bool _isPomodoroOpen;
-    [ObservableProperty] private string _selectedAccentColor = "#cba6f7";
     [ObservableProperty] private bool _isAutoStartEnabled;
     [ObservableProperty] private TaskCategory _filterCategory = TaskCategory.None;
 
@@ -47,11 +45,7 @@ public sealed partial class MainViewModel : ObservableObject
         Statistics = new StatisticsViewModel(_service);
     }
 
-    public string[] AccentColors { get; } =
-    [
-        "#cba6f7", "#89b4fa", "#a6e3a1", "#f38ba8",
-        "#f9e2af", "#f5c2e7", "#b4befe", "#89dceb"
-    ];
+    public string[] PaletteNames { get; } = [.. ThemeService.Palettes.Keys];
 
     public MonthItem[] Months { get; } =
     [
@@ -213,15 +207,11 @@ public sealed partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void ToggleTheme()
     {
-        IsDarkTheme = !IsDarkTheme;
-        ThemeService.SetTheme(IsDarkTheme);
-    }
-
-    [RelayCommand]
-    private void SetAccentColor(string color)
-    {
-        SelectedAccentColor = color;
-        ThemeService.SetAccentColor(color);
+        // Legacy: cycle to next palette
+        var keys = PaletteNames;
+        var idx = Array.IndexOf(keys, SelectedThemePreset);
+        var next = keys[(idx + 1) % keys.Length];
+        ApplyThemePreset(next);
     }
 
     [RelayCommand]
@@ -383,33 +373,17 @@ public sealed partial class MainViewModel : ObservableObject
         Reminders.Remove(vm);
     }
 
-    // Color themes
-    [ObservableProperty] private string _selectedThemePreset = "Фиолетовая";
+    // Palette presets
+    [ObservableProperty] private string _selectedThemePreset = "Catppuccin Mocha";
 
-    public string[] ThemePresets { get; } =
-    [
-        "Фиолетовая", "Синяя", "Зелёная", "Розовая",
-        "Оранжевая", "Бирюзовая", "Красная", "Золотая"
-    ];
+    public string[] ThemePresets { get; } = [.. ThemeService.Palettes.Keys];
 
     [RelayCommand]
     private void ApplyThemePreset(string? preset)
     {
         if (preset is null) return;
         SelectedThemePreset = preset;
-        var (accent, light, dark) = preset switch
-        {
-            "Синяя"      => ("#3B82F6", "#60A5FA", "#2563EB"),
-            "Зелёная"    => ("#10B981", "#34D399", "#059669"),
-            "Розовая"    => ("#EC4899", "#F472B6", "#DB2777"),
-            "Оранжевая"  => ("#F59E0B", "#FBBF24", "#D97706"),
-            "Бирюзовая"  => ("#06B6D4", "#22D3EE", "#0891B2"),
-            "Красная"    => ("#EF4444", "#F87171", "#DC2626"),
-            "Золотая"    => ("#D4A017", "#EAB308", "#A16207"),
-            _            => ("#7C5CFC", "#A78BFA", "#5B3FD6") // Фиолетовая
-        };
-        SelectedAccentColor = accent;
-        ThemeService.SetFullAccentColor(accent, light, dark);
+        ThemeService.ApplyPalette(preset);
     }
 
     public async Task InitializeAsync()
