@@ -35,3 +35,58 @@ Name: "{autodesktop}\Daily Planner"; Filename: "{app}\DailyPlanner.exe"; IconFil
 
 [Run]
 Filename: "{app}\DailyPlanner.exe"; Description: "{cm:LaunchProgram,Daily Planner}"; Flags: nowait postinstall skipifsilent
+
+[Code]
+function GetUninstallString(): String;
+var
+  sUnInstPath: String;
+  sUnInstallString: String;
+begin
+  sUnInstPath := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#SetupSetting("AppId")}_is1';
+  sUnInstallString := '';
+  if not RegQueryStringValue(HKLM, sUnInstPath, 'UninstallString', sUnInstallString) then
+    RegQueryStringValue(HKCU, sUnInstPath, 'UninstallString', sUnInstallString);
+  Result := sUnInstallString;
+end;
+
+function IsUpgrade(): Boolean;
+begin
+  Result := (GetUninstallString() <> '');
+end;
+
+function UninstallOldVersion(): Integer;
+var
+  sUnInstallString: String;
+  iResultCode: Integer;
+begin
+  Result := 0;
+  sUnInstallString := GetUninstallString();
+  if sUnInstallString <> '' then begin
+    sUnInstallString := RemoveQuotes(sUnInstallString);
+    if Exec(sUnInstallString, '/SILENT /NORESTART /SUPPRESSMSGBOXES', '', SW_HIDE, ewWaitUntilTerminated, iResultCode) then
+      Result := 3
+    else
+      Result := 2;
+  end else
+    Result := 1;
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if (CurStep = ssInstall) then begin
+    if (IsUpgrade()) then
+      UninstallOldVersion();
+  end;
+end;
+
+function InitializeSetup(): Boolean;
+begin
+  Result := True;
+  if IsUpgrade() then begin
+    if MsgBox('Daily Planner уже установлен на этом компьютере.' + #13#10 + #13#10 +
+              'Удалить старую версию и установить новую?' + #13#10 +
+              '(Ваши данные сохранятся)',
+              mbConfirmation, MB_YESNO) = IDNO then
+      Result := False;
+  end;
+end;
