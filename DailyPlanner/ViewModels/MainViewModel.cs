@@ -32,6 +32,7 @@ public sealed partial class MainViewModel : ObservableObject
     public StatisticsViewModel Statistics { get; }
     public PlannerService Service => _service;
     public string DailyQuote { get; } = QuoteService.GetDailyQuote();
+    public string AppVersion { get; } = typeof(MainViewModel).Assembly.GetName().Version?.ToString(3) ?? "?";
 
     private readonly UpdateService _updateService = new("https://github.com/valinerosgordov/DailyPlanner");
     [ObservableProperty] private string _updateStatus = string.Empty;
