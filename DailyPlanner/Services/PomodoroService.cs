@@ -105,8 +105,8 @@ public sealed class PomodoroService
         if (_remaining <= TimeSpan.Zero)
         {
             _timer.Stop();
-            PhaseCompleted?.Invoke(_isWork);
             if (_isWork) SessionsCompleted++;
+            PhaseCompleted?.Invoke(_isWork);
             SwitchPhase();
         }
         Tick?.Invoke();

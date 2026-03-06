@@ -45,8 +45,6 @@ public sealed partial class MainViewModel : ObservableObject
         Statistics = new StatisticsViewModel(_service);
     }
 
-    public string[] PaletteNames { get; } = [.. ThemeService.Palettes.Keys];
-
     public MonthItem[] Months { get; } =
     [
         new(1, "Январь"), new(2, "Февраль"), new(3, "Март"), new(4, "Апрель"),
@@ -166,7 +164,7 @@ public sealed partial class MainViewModel : ObservableObject
     {
         DebounceService.Debounce("search", () =>
         {
-            PerformSearch(value);
+            System.Windows.Application.Current?.Dispatcher.Invoke(() => PerformSearch(value));
             return Task.CompletedTask;
         }, 200);
     }
@@ -454,12 +452,21 @@ public sealed partial class MainViewModel : ObservableObject
     }
 
     private readonly HashSet<string> _firedReminders = [];
+    private DateOnly _lastReminderDate = DateOnly.FromDateTime(DateTime.Today);
 
     private void CheckReminders()
     {
         var now = TimeOnly.FromDateTime(DateTime.Now);
         var today = DateTime.Today.DayOfWeek;
-        var dateKey = DateOnly.FromDateTime(DateTime.Today).ToString();
+        var currentDate = DateOnly.FromDateTime(DateTime.Today);
+
+        if (currentDate != _lastReminderDate)
+        {
+            _firedReminders.Clear();
+            _lastReminderDate = currentDate;
+        }
+
+        var dateKey = currentDate.ToString();
 
         foreach (var vm in Reminders)
         {
