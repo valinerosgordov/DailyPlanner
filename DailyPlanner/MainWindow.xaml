@@ -142,7 +142,7 @@
         </Border>
 
         <!-- MAIN CONTENT -->
-        <DockPanel Grid.Column="1">
+        <DockPanel Grid.Column="1" Background="{DynamicResource PageBgBrush}">
             <!-- Title Bar -->
             <ui:TitleBar DockPanel.Dock="Top" Title="" ShowMaximize="True" ShowMinimize="True"/>
 

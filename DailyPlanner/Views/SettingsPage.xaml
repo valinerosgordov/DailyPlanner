@@ -7,7 +7,6 @@
 
     <Page.Resources>
         <conv:BoolToVisibilityConverter x:Key="VisConv"/>
-        <conv:BoolToThemeLabelConverter x:Key="ThemeLabelConv"/>
     </Page.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -16,28 +15,11 @@
             <TextBlock Text="Настройки" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,24"
                        FontFamily="Segoe UI Variable, Segoe UI"/>
 
-            <!-- Theme Toggle -->
-            <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,12" Padding="20">
-                <DockPanel>
-                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
-                        <ui:SymbolIcon Symbol="DarkTheme24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
-                        <StackPanel>
-                            <TextBlock Text="Тема оформления" FontSize="15" FontWeight="SemiBold"/>
-                            <TextBlock FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"
-                                       Text="{Binding IsDarkTheme, Mode=OneWay, Converter={StaticResource ThemeLabelConv}}"/>
-                        </StackPanel>
-                    </StackPanel>
-                    <ui:Button DockPanel.Dock="Right" HorizontalAlignment="Right"
-                               Content="Переключить" Appearance="Primary"
-                               Command="{Binding ToggleThemeCommand}"/>
-                </DockPanel>
-            </Border>
-
             <!-- Export -->
             <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,12" Padding="20">
                 <DockPanel>
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
-                        <ui:SymbolIcon Symbol="ArrowDownload24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
+                        <ui:SymbolIcon Symbol="ArrowDownload24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <StackPanel>
                             <TextBlock Text="Экспорт в Excel" FontSize="15" FontWeight="SemiBold"/>
                             <TextBlock Text="Выгрузить текущую неделю в .xlsx файл" FontSize="11"
@@ -55,9 +37,9 @@
             <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,12" Padding="20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                        <ui:SymbolIcon Symbol="Color24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
-                        <StackPanel>
-                            <TextBlock Text="Цветовая тема" FontSize="15" FontWeight="SemiBold"/>
+                        <ui:SymbolIcon Symbol="PaintBrush24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Палитра" FontSize="15" FontWeight="SemiBold"/>
                             <TextBlock FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0">
                                 <Run Text="Текущая: "/><Run Text="{Binding SelectedThemePreset, Mode=OneWay}"/>
                             </TextBlock>
@@ -85,7 +67,7 @@
             <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,12" Padding="20">
                 <DockPanel>
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
-                        <ui:SymbolIcon Symbol="Power24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
+                        <ui:SymbolIcon Symbol="Power24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <StackPanel>
                             <TextBlock Text="Автозапуск" FontSize="15" FontWeight="SemiBold"/>
                             <TextBlock Text="Запускать приложение при входе в Windows" FontSize="11"
@@ -102,7 +84,7 @@
                 <StackPanel>
                     <DockPanel Margin="0,0,0,12">
                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
-                            <ui:SymbolIcon Symbol="ArrowSync24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
+                            <ui:SymbolIcon Symbol="ArrowSync24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <StackPanel>
                                 <TextBlock Text="Обновления" FontSize="15" FontWeight="SemiBold"/>
                                 <TextBlock Text="{Binding UpdateStatus}" FontSize="11"
@@ -129,7 +111,7 @@
             <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,12" Padding="20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                        <ui:SymbolIcon Symbol="DatabaseArrowDown20" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
+                        <ui:SymbolIcon Symbol="DatabaseArrowDown20" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <StackPanel>
                             <TextBlock Text="Резервное копирование" FontSize="15" FontWeight="SemiBold"/>
                             <TextBlock Text="Создайте копию или восстановите базу данных" FontSize="11"
@@ -152,7 +134,7 @@
                 <StackPanel>
                     <DockPanel Margin="0,0,0,12">
                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                            <ui:SymbolIcon Symbol="Alert24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
+                            <ui:SymbolIcon Symbol="Alert24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <StackPanel>
                                 <TextBlock Text="Напоминания" FontSize="15" FontWeight="SemiBold"/>
                                 <TextBlock Text="Уведомления в заданное время" FontSize="11"
@@ -203,7 +185,7 @@
                 <StackPanel>
                     <DockPanel Margin="0,0,0,12">
                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                            <ui:SymbolIcon Symbol="ArrowRepeatAll24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
+                            <ui:SymbolIcon Symbol="ArrowRepeatAll24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <StackPanel>
                                 <TextBlock Text="Повторяющиеся задачи" FontSize="15" FontWeight="SemiBold"/>
                                 <TextBlock Text="Шаблоны автоматически добавляются каждую неделю" FontSize="11"
@@ -241,7 +223,7 @@
             <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,12" Padding="20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                        <ui:SymbolIcon Symbol="Info24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
+                        <ui:SymbolIcon Symbol="Info24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <TextBlock Text="О приложении" FontSize="15" FontWeight="SemiBold"/>
                     </StackPanel>
 
@@ -277,7 +259,7 @@
             <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,12" Padding="20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                        <ui:SymbolIcon Symbol="Keyboard24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
+                        <ui:SymbolIcon Symbol="Keyboard24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <TextBlock Text="Горячие клавиши" FontSize="15" FontWeight="SemiBold"/>
                     </StackPanel>
 
@@ -338,7 +320,7 @@
             <Border Style="{StaticResource PlannerCard}" Padding="20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                        <ui:SymbolIcon Symbol="BookOpen24" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
+                        <ui:SymbolIcon Symbol="BookOpen24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <TextBlock Text="Описание" FontSize="15" FontWeight="SemiBold"/>
                     </StackPanel>
                     <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" FontSize="13" LineHeight="22">

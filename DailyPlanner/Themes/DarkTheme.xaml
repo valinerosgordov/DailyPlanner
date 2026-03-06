@@ -20,6 +20,7 @@
     <SolidColorBrush x:Key="HoverBgBrush" Color="#585b70" Opacity="0.3"/>
     <SolidColorBrush x:Key="ProgressTrackBrush" Color="#1e1e2e"/>
     <SolidColorBrush x:Key="KeyboardShortcutBg" Color="#45475a"/>
+    <SolidColorBrush x:Key="PageBgBrush" Color="#1e1e2e"/>
     <SolidColorBrush x:Key="SidebarBgBrush" Color="#11111b"/>
     <SolidColorBrush x:Key="MonthHoverBrush" Color="#cba6f7" Opacity="0.15"/>
     <SolidColorBrush x:Key="MonthPressedBrush" Color="#585b70" Opacity="0.4"/>
@@ -98,6 +99,7 @@
         <Setter Property="FontSize" Value="11"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Margin" Value="0,0,0,12"/>
     </Style>
 
