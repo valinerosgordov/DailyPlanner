@@ -1,36 +1,36 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- Custom accent brushes (supplements WPF-UI theme) -->
-    <SolidColorBrush x:Key="AccentBrush" Color="#7C5CFC"/>
-    <SolidColorBrush x:Key="AccentLightBrush" Color="#A78BFA"/>
-    <SolidColorBrush x:Key="SuccessBrush" Color="#34D399"/>
-    <SolidColorBrush x:Key="WarningBrush" Color="#FBBF24"/>
-    <SolidColorBrush x:Key="DangerBrush" Color="#FB7185"/>
-    <SolidColorBrush x:Key="InfoBrush" Color="#38BDF8"/>
-    <SolidColorBrush x:Key="MutedBrush" Color="#585878"/>
-    <SolidColorBrush x:Key="CardBg" Color="#181825"/>
-    <SolidColorBrush x:Key="CardBorderBrush" Color="#252540"/>
-    <SolidColorBrush x:Key="InputBgBrush" Color="#12121C"/>
-    <SolidColorBrush x:Key="TodayGlowBrush" Color="#7C5CFC"/>
-    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#F0F0F8"/>
-    <SolidColorBrush x:Key="CheckBorderBrush" Color="#32325A"/>
-    <SolidColorBrush x:Key="SubtleBgBrush" Color="#FFFFFF" Opacity="0.05"/>
-    <SolidColorBrush x:Key="FocusBgBrush" Color="#7C5CFC" Opacity="0.06"/>
-    <SolidColorBrush x:Key="HoverBgBrush" Color="#FFFFFF" Opacity="0.02"/>
-    <SolidColorBrush x:Key="ProgressTrackBrush" Color="#1E1E2E"/>
-    <SolidColorBrush x:Key="KeyboardShortcutBg" Color="#252540"/>
-    <SolidColorBrush x:Key="SidebarBgBrush" Color="#0A0A12" Opacity="0.8"/>
-    <SolidColorBrush x:Key="MonthHoverBrush" Color="#7C5CFC" Opacity="0.12"/>
-    <SolidColorBrush x:Key="MonthPressedBrush" Color="#FFFFFF" Opacity="0.04"/>
+    <!-- Catppuccin Mocha inspired palette + custom accent -->
+    <SolidColorBrush x:Key="AccentBrush" Color="#cba6f7"/>
+    <SolidColorBrush x:Key="AccentLightBrush" Color="#b4befe"/>
+    <SolidColorBrush x:Key="SuccessBrush" Color="#a6e3a1"/>
+    <SolidColorBrush x:Key="WarningBrush" Color="#f9e2af"/>
+    <SolidColorBrush x:Key="DangerBrush" Color="#f38ba8"/>
+    <SolidColorBrush x:Key="InfoBrush" Color="#89dceb"/>
+    <SolidColorBrush x:Key="MutedBrush" Color="#6c7086"/>
+    <SolidColorBrush x:Key="CardBg" Color="#313244"/>
+    <SolidColorBrush x:Key="CardBorderBrush" Color="#45475a"/>
+    <SolidColorBrush x:Key="InputBgBrush" Color="#1e1e2e"/>
+    <SolidColorBrush x:Key="TodayGlowBrush" Color="#cba6f7"/>
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#cdd6f4"/>
+    <SolidColorBrush x:Key="CheckBorderBrush" Color="#585b70"/>
+    <SolidColorBrush x:Key="SubtleBgBrush" Color="#45475a"/>
+    <SolidColorBrush x:Key="FocusBgBrush" Color="#cba6f7" Opacity="0.1"/>
+    <SolidColorBrush x:Key="HoverBgBrush" Color="#585b70" Opacity="0.3"/>
+    <SolidColorBrush x:Key="ProgressTrackBrush" Color="#1e1e2e"/>
+    <SolidColorBrush x:Key="KeyboardShortcutBg" Color="#45475a"/>
+    <SolidColorBrush x:Key="SidebarBgBrush" Color="#11111b"/>
+    <SolidColorBrush x:Key="MonthHoverBrush" Color="#cba6f7" Opacity="0.15"/>
+    <SolidColorBrush x:Key="MonthPressedBrush" Color="#585b70" Opacity="0.4"/>
 
-    <Color x:Key="AccentColor">#7C5CFC</Color>
-    <Color x:Key="AccentLightColor">#A78BFA</Color>
-    <Color x:Key="AccentDarkColor">#5B3FD6</Color>
-    <Color x:Key="SuccessColor">#34D399</Color>
-    <Color x:Key="WarningColor">#FBBF24</Color>
-    <Color x:Key="DangerColor">#FB7185</Color>
-    <Color x:Key="InfoColor">#38BDF8</Color>
+    <Color x:Key="AccentColor">#cba6f7</Color>
+    <Color x:Key="AccentLightColor">#b4befe</Color>
+    <Color x:Key="AccentDarkColor">#9399b2</Color>
+    <Color x:Key="SuccessColor">#a6e3a1</Color>
+    <Color x:Key="WarningColor">#f9e2af</Color>
+    <Color x:Key="DangerColor">#f38ba8</Color>
+    <Color x:Key="InfoColor">#89dceb</Color>
 
     <FontFamily x:Key="MainFont">Segoe UI Variable, Segoe UI, sans-serif</FontFamily>
 
@@ -75,7 +75,7 @@
         <Setter Property="Effect">
             <Setter.Value>
                 <DropShadowEffect Color="{StaticResource AccentColor}" BlurRadius="24"
-                                  ShadowDepth="0" Opacity="0.1"/>
+                                  ShadowDepth="0" Opacity="0.15"/>
             </Setter.Value>
         </Setter>
     </Style>
@@ -87,7 +87,7 @@
         <Setter Property="Effect">
             <Setter.Value>
                 <DropShadowEffect Color="{StaticResource AccentColor}" BlurRadius="20"
-                                  ShadowDepth="0" Opacity="0.25"/>
+                                  ShadowDepth="0" Opacity="0.3"/>
             </Setter.Value>
         </Setter>
     </Style>
@@ -150,8 +150,8 @@
                             <Setter TargetName="Bd" Property="Background">
                                 <Setter.Value>
                                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                        <GradientStop Color="#7C5CFC" Offset="0"/>
-                                        <GradientStop Color="#5B3FD6" Offset="1"/>
+                                        <GradientStop Color="#cba6f7" Offset="0"/>
+                                        <GradientStop Color="#9399b2" Offset="1"/>
                                     </LinearGradientBrush>
                                 </Setter.Value>
                             </Setter>
@@ -320,8 +320,8 @@
                         <Border x:Name="PART_Indicator" HorizontalAlignment="Left" CornerRadius="1.5">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                    <GradientStop Color="#7C5CFC" Offset="0"/>
-                                    <GradientStop Color="#34D399" Offset="1"/>
+                                    <GradientStop Color="#cba6f7" Offset="0"/>
+                                    <GradientStop Color="#a6e3a1" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.Background>
                         </Border>
@@ -345,8 +345,8 @@
                         <Border x:Name="PART_Indicator" HorizontalAlignment="Left" CornerRadius="3">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                    <GradientStop Color="#5B3FD6" Offset="0"/>
-                                    <GradientStop Color="#A78BFA" Offset="1"/>
+                                    <GradientStop Color="#9399b2" Offset="0"/>
+                                    <GradientStop Color="#cba6f7" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.Background>
                         </Border>

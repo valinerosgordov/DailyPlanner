@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Media;
 using DailyPlanner.Data;
+using DailyPlanner.Services;
 using Microsoft.EntityFrameworkCore;
 using Velopack;
 
@@ -14,6 +15,9 @@ public partial class App : Application
 
         // Velopack: handle install/uninstall/update hooks (creates shortcuts, etc.)
         VelopackApp.Build().Run();
+
+        // Apply theme resources (must run AFTER WPF-UI loads but BEFORE window renders)
+        ThemeService.Apply();
 
         // Show splash
         var splash = new Window

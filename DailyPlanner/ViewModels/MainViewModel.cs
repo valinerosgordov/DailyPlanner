@@ -21,7 +21,7 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty] private string _searchQuery = string.Empty;
     [ObservableProperty] private bool _isDarkTheme = true;
     [ObservableProperty] private bool _isPomodoroOpen;
-    [ObservableProperty] private string _selectedAccentColor = "#7C5CFC";
+    [ObservableProperty] private string _selectedAccentColor = "#cba6f7";
     [ObservableProperty] private bool _isAutoStartEnabled;
     [ObservableProperty] private TaskCategory _filterCategory = TaskCategory.None;
 
@@ -49,8 +49,8 @@ public sealed partial class MainViewModel : ObservableObject
 
     public string[] AccentColors { get; } =
     [
-        "#7C5CFC", "#3B82F6", "#10B981", "#EF4444",
-        "#F59E0B", "#EC4899", "#8B5CF6", "#06B6D4"
+        "#cba6f7", "#89b4fa", "#a6e3a1", "#f38ba8",
+        "#f9e2af", "#f5c2e7", "#b4befe", "#89dceb"
     ];
 
     public MonthItem[] Months { get; } =
