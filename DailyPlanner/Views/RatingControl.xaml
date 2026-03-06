@@ -1,0 +1,5 @@
+<UserControl x:Class="DailyPlanner.Views.RatingControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel Orientation="Horizontal" x:Name="StarsPanel"/>
+</UserControl>

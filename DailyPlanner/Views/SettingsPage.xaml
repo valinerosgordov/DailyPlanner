@@ -1,0 +1,356 @@
+<Page x:Class="DailyPlanner.Views.SettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:conv="clr-namespace:DailyPlanner.Converters"
+      Foreground="{DynamicResource TextFillColorPrimaryBrush}">
+
+    <Page.Resources>
+        <conv:BoolToVisibilityConverter x:Key="VisConv"/>
+        <conv:BoolToThemeLabelConverter x:Key="ThemeLabelConv"/>
+    </Page.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="8,0,8,24" MaxWidth="700" HorizontalAlignment="Left">
+
+            <TextBlock Text="Настройки" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,24"
+                       FontFamily="Segoe UI Variable, Segoe UI"/>
+
+            <!-- Theme Toggle -->
+            <ui:Card Margin="0,0,0,12" Padding="20">
+                <DockPanel>
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                        <ui:SymbolIcon Symbol="DarkTheme24" FontSize="18" Foreground="{StaticResource AccentBrush}" Margin="0,0,10,0"/>
+                        <StackPanel>
+                            <TextBlock Text="Тема оформления" FontSize="15" FontWeight="SemiBold"/>
+                            <TextBlock FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"
+                                       Text="{Binding IsDarkTheme, Mode=OneWay, Converter={StaticResource ThemeLabelConv}}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <ui:Button DockPanel.Dock="Right" HorizontalAlignment="Right"
+                               Content="Переключить" Appearance="Primary"
+                               Command="{Binding ToggleThemeCommand}"/>
+                </DockPanel>
+            </ui:Card>
+
+            <!-- Export -->
+            <ui:Card Margin="0,0,0,12" Padding="20">
+                <DockPanel>
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                        <ui:SymbolIcon Symbol="ArrowDownload24" FontSize="18" Foreground="{StaticResource AccentBrush}" Margin="0,0,10,0"/>
+                        <StackPanel>
+                            <TextBlock Text="Экспорт в Excel" FontSize="15" FontWeight="SemiBold"/>
+                            <TextBlock Text="Выгрузить текущую неделю в .xlsx файл" FontSize="11"
+                                       Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <ui:Button DockPanel.Dock="Right" HorizontalAlignment="Right"
+                               Content="Экспорт" Appearance="Secondary"
+                               Command="{Binding ExportToExcelCommand}"
+                               Icon="{ui:SymbolIcon ArrowDownload24}"/>
+                </DockPanel>
+            </ui:Card>
+
+            <!-- Color Themes -->
+            <ui:Card Margin="0,0,0,12" Padding="20">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <ui:SymbolIcon Symbol="Color24" FontSize="18" Foreground="{StaticResource AccentBrush}" Margin="0,0,10,0"/>
+                        <StackPanel>
+                            <TextBlock Text="Цветовая тема" FontSize="15" FontWeight="SemiBold"/>
+                            <TextBlock FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0">
+                                <Run Text="Текущая: "/><Run Text="{Binding SelectedThemePreset, Mode=OneWay}"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+                    <ItemsControl ItemsSource="{Binding ThemePresets}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <ui:Button Content="{Binding}" Appearance="Secondary"
+                                           Margin="0,0,6,6" Padding="12,6"
+                                           Command="{Binding DataContext.ApplyThemePresetCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                           CommandParameter="{Binding}"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ui:Card>
+
+            <!-- Auto Start -->
+            <ui:Card Margin="0,0,0,12" Padding="20">
+                <DockPanel>
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                        <ui:SymbolIcon Symbol="Power24" FontSize="18" Foreground="{StaticResource AccentBrush}" Margin="0,0,10,0"/>
+                        <StackPanel>
+                            <TextBlock Text="Автозапуск" FontSize="15" FontWeight="SemiBold"/>
+                            <TextBlock Text="Запускать приложение при входе в Windows" FontSize="11"
+                                       Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <CheckBox DockPanel.Dock="Right" HorizontalAlignment="Right" VerticalAlignment="Center"
+                              IsChecked="{Binding IsAutoStartEnabled}"/>
+                </DockPanel>
+            </ui:Card>
+
+            <!-- Updates -->
+            <ui:Card Margin="0,0,0,12" Padding="20">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,12">
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                            <ui:SymbolIcon Symbol="ArrowSync24" FontSize="18" Foreground="{StaticResource AccentBrush}" Margin="0,0,10,0"/>
+                            <StackPanel>
+                                <TextBlock Text="Обновления" FontSize="15" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding UpdateStatus}" FontSize="11"
+                                           Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right" Orientation="Horizontal">
+                            <ui:Button Content="Проверить" Appearance="Secondary" Margin="0,0,8,0"
+                                       Command="{Binding CheckForUpdatesCommand}"/>
+                            <ui:Button Content="Обновить" Appearance="Primary"
+                                       Command="{Binding DownloadAndInstallUpdateCommand}"
+                                       Visibility="{Binding IsUpdateAvailable, Converter={StaticResource VisConv}}"/>
+                        </StackPanel>
+                    </DockPanel>
+                    <ProgressBar Value="{Binding UpdateProgress}" Maximum="100" Height="3"
+                                 Visibility="{Binding IsUpdateAvailable, Converter={StaticResource VisConv}}"
+                                 Foreground="{StaticResource AccentBrush}"
+                                 Background="{DynamicResource InputBgBrush}"
+                                 BorderThickness="0"/>
+                </StackPanel>
+            </ui:Card>
+
+            <!-- Backup / Restore -->
+            <ui:Card Margin="0,0,0,12" Padding="20">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <ui:SymbolIcon Symbol="DatabaseArrowDown20" FontSize="18" Foreground="{StaticResource AccentBrush}" Margin="0,0,10,0"/>
+                        <StackPanel>
+                            <TextBlock Text="Резервное копирование" FontSize="15" FontWeight="SemiBold"/>
+                            <TextBlock Text="Создайте копию или восстановите базу данных" FontSize="11"
+                                       Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <ui:Button Content="Создать копию" Appearance="Secondary" Margin="0,0,8,0"
+                                   Command="{Binding BackupDatabaseCommand}"
+                                   Icon="{ui:SymbolIcon ArrowDownload24}"/>
+                        <ui:Button Content="Восстановить" Appearance="Caution"
+                                   Command="{Binding RestoreDatabaseCommand}"
+                                   Icon="{ui:SymbolIcon ArrowUpload24}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:Card>
+
+            <!-- Reminders -->
+            <ui:Card Margin="0,0,0,12" Padding="20">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,12">
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                            <ui:SymbolIcon Symbol="Alert24" FontSize="18" Foreground="{StaticResource AccentBrush}" Margin="0,0,10,0"/>
+                            <StackPanel>
+                                <TextBlock Text="Напоминания" FontSize="15" FontWeight="SemiBold"/>
+                                <TextBlock Text="Уведомления в заданное время" FontSize="11"
+                                           Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <ui:Button DockPanel.Dock="Right" HorizontalAlignment="Right"
+                                   Content="Добавить" Appearance="Primary"
+                                   Command="{Binding AddReminderCommand}"/>
+                    </DockPanel>
+                    <ItemsControl ItemsSource="{Binding Reminders}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="80"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsEnabled}"
+                                              VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBox Grid.Column="1" Style="{StaticResource TaskTextBox}"
+                                             Text="{Binding TimeText, UpdateSourceTrigger=LostFocus}"
+                                             FontSize="13" FontFamily="Cascadia Code, Consolas"
+                                             ToolTip="Время (ЧЧ:ММ)"/>
+                                    <TextBox Grid.Column="2" Style="{StaticResource TaskTextBox}"
+                                             Text="{Binding Title, UpdateSourceTrigger=LostFocus}"
+                                             FontSize="13" Margin="4,0" ToolTip="Заголовок"/>
+                                    <TextBox Grid.Column="3" Style="{StaticResource TaskTextBox}"
+                                             Text="{Binding Message, UpdateSourceTrigger=LostFocus}"
+                                             FontSize="13" ToolTip="Сообщение"/>
+                                    <Button Grid.Column="4" Style="{StaticResource SmallIconButton}"
+                                            Command="{Binding DataContext.RemoveReminderCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}" Margin="4,0,0,0">
+                                        <ui:SymbolIcon Symbol="Delete16" FontSize="12"/>
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ui:Card>
+
+            <!-- Recurring Templates -->
+            <ui:Card Margin="0,0,0,12" Padding="20">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,12">
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                            <ui:SymbolIcon Symbol="ArrowRepeatAll24" FontSize="18" Foreground="{StaticResource AccentBrush}" Margin="0,0,10,0"/>
+                            <StackPanel>
+                                <TextBlock Text="Повторяющиеся задачи" FontSize="15" FontWeight="SemiBold"/>
+                                <TextBlock Text="Шаблоны автоматически добавляются каждую неделю" FontSize="11"
+                                           Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <ui:Button DockPanel.Dock="Right" HorizontalAlignment="Right"
+                                   Content="Добавить" Appearance="Primary"
+                                   Command="{Binding AddTemplateCommand}"/>
+                    </DockPanel>
+                    <ItemsControl ItemsSource="{Binding Templates}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0" Style="{StaticResource TaskTextBox}"
+                                             Text="{Binding Text, UpdateSourceTrigger=LostFocus}"
+                                             FontSize="13"/>
+                                    <Button Grid.Column="1" Style="{StaticResource SmallIconButton}"
+                                            Command="{Binding DataContext.RemoveTemplateCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}" Margin="4,0,0,0">
+                                        <ui:SymbolIcon Symbol="Delete16" FontSize="12"/>
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ui:Card>
+
+            <!-- App Info -->
+            <ui:Card Margin="0,0,0,12" Padding="20">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <ui:SymbolIcon Symbol="Info24" FontSize="18" Foreground="{StaticResource AccentBrush}" Margin="0,0,10,0"/>
+                        <TextBlock Text="О приложении" FontSize="15" FontWeight="SemiBold"/>
+                    </StackPanel>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="32"/>
+                            <RowDefinition Height="32"/>
+                            <RowDefinition Height="32"/>
+                            <RowDefinition Height="32"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Версия" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="2.1.0" VerticalAlignment="Center"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Платформа" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="WPF (.NET 10)" VerticalAlignment="Center"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="База данных" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="SQLite (локальная)" VerticalAlignment="Center"/>
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Хранение" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="%LOCALAPPDATA%\DailyPlanner" VerticalAlignment="Center"
+                                   Foreground="{StaticResource AccentBrush}" FontFamily="Cascadia Code, Consolas" FontSize="12"/>
+                    </Grid>
+                </StackPanel>
+            </ui:Card>
+
+            <!-- Keyboard Shortcuts -->
+            <ui:Card Margin="0,0,0,12" Padding="20">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <ui:SymbolIcon Symbol="Keyboard24" FontSize="18" Foreground="{StaticResource AccentBrush}" Margin="0,0,10,0"/>
+                        <TextBlock Text="Горячие клавиши" FontSize="15" FontWeight="SemiBold"/>
+                    </StackPanel>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="180"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="32"/>
+                            <RowDefinition Height="32"/>
+                            <RowDefinition Height="32"/>
+                            <RowDefinition Height="32"/>
+                            <RowDefinition Height="32"/>
+                            <RowDefinition Height="32"/>
+                        </Grid.RowDefinitions>
+
+                        <Border Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                Background="{DynamicResource KeyboardShortcutBg}" CornerRadius="4" Padding="8,3">
+                            <TextBlock Text="Ctrl + Left / Right" FontFamily="Cascadia Code, Consolas" FontSize="11"/>
+                        </Border>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Переключить месяц" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
+
+                        <Border Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                Background="{DynamicResource KeyboardShortcutBg}" CornerRadius="4" Padding="8,3">
+                            <TextBlock Text="Ctrl + T" FontFamily="Cascadia Code, Consolas" FontSize="11"/>
+                        </Border>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="Перейти к сегодня" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
+
+                        <Border Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                Background="{DynamicResource KeyboardShortcutBg}" CornerRadius="4" Padding="8,3">
+                            <TextBlock Text="Ctrl + F" FontFamily="Cascadia Code, Consolas" FontSize="11"/>
+                        </Border>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="Поиск по задачам" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
+
+                        <Border Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                Background="{DynamicResource KeyboardShortcutBg}" CornerRadius="4" Padding="8,3">
+                            <TextBlock Text="Ctrl + P" FontFamily="Cascadia Code, Consolas" FontSize="11"/>
+                        </Border>
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="Помодоро таймер" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
+
+                        <Border Grid.Row="4" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                Background="{DynamicResource KeyboardShortcutBg}" CornerRadius="4" Padding="8,3">
+                            <TextBlock Text="Ctrl + E" FontFamily="Cascadia Code, Consolas" FontSize="11"/>
+                        </Border>
+                        <TextBlock Grid.Row="4" Grid.Column="1" Text="Экспорт в Excel" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
+
+                        <Border Grid.Row="5" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                Background="{DynamicResource KeyboardShortcutBg}" CornerRadius="4" Padding="8,3">
+                            <TextBlock Text="Ctrl + ," FontFamily="Cascadia Code, Consolas" FontSize="11"/>
+                        </Border>
+                        <TextBlock Grid.Row="5" Grid.Column="1" Text="Открыть настройки" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
+                    </Grid>
+                </StackPanel>
+            </ui:Card>
+
+            <!-- Description -->
+            <ui:Card Padding="20">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <ui:SymbolIcon Symbol="BookOpen24" FontSize="18" Foreground="{StaticResource AccentBrush}" Margin="0,0,10,0"/>
+                        <TextBlock Text="Описание" FontSize="15" FontWeight="SemiBold"/>
+                    </StackPanel>
+                    <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" FontSize="13" LineHeight="22">
+                        Daily Planner — недельный планер с трекером привычек, аналитикой продуктивности
+                        и мониторингом состояния (сон, энергия, настроение).
+                        Все данные хранятся локально в SQLite базе данных.
+                        Приложение поддерживает навигацию по месяцам и неделям,
+                        автоматический подсчёт статистики, экспорт в Excel,
+                        поиск по задачам и визуализацию прогресса через круговую диаграмму.
+                    </TextBlock>
+                </StackPanel>
+            </ui:Card>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

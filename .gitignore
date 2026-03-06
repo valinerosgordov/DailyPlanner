@@ -1,0 +1,26 @@
+## .NET
+bin/
+obj/
+publish/
+releases/
+installer_output/
+
+## IDE
+.vs/
+.vscode/
+*.user
+*.suo
+*.cache
+
+## Build artifacts
+*.zip
+*.nupkg
+
+## SQLite
+*.db
+*.db-shm
+*.db-wal
+
+## OS
+Thumbs.db
+.DS_Store

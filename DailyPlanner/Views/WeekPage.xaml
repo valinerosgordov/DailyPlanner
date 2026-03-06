@@ -1,0 +1,477 @@
+<Page x:Class="DailyPlanner.Views.WeekPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:views="clr-namespace:DailyPlanner.Views"
+      xmlns:conv="clr-namespace:DailyPlanner.Converters"
+      Foreground="{DynamicResource TextFillColorPrimaryBrush}">
+
+    <Page.Resources>
+        <conv:BoolToStrikethroughConverter x:Key="StrikethroughConv"/>
+        <conv:BoolToOpacityConverter x:Key="OpacityConv"/>
+        <conv:BoolToVisibilityConverter x:Key="VisConv"/>
+        <conv:PriorityToBrushConverter x:Key="PriorityBrush"/>
+        <conv:PriorityToSymbolConverter x:Key="PrioritySymbol"/>
+        <conv:CategoryToBrushConverter x:Key="CatBrush"/>
+        <conv:CategoryToLabelConverter x:Key="CatLabel"/>
+        <conv:NonZeroToVisibilityConverter x:Key="NonZeroVis"/>
+    </Page.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="8,0,8,24" DataContext="{Binding SelectedWeek}">
+
+            <!-- STAT CARDS with tooltips -->
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Total -->
+                <ui:Card Grid.Column="0" Padding="18" ToolTip="Количество задач с текстом за неделю">
+                    <DockPanel>
+                        <Border DockPanel.Dock="Left" Width="44" Height="44" CornerRadius="12" Margin="0,0,14,0">
+                            <Border.Background>
+                                <SolidColorBrush Color="{StaticResource AccentColor}" Opacity="0.12"/>
+                            </Border.Background>
+                            <ui:SymbolIcon Symbol="TaskListLtr24" FontSize="20" Foreground="{StaticResource AccentBrush}"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{Binding TotalTasks}" Style="{StaticResource StatValue}"
+                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="Всего задач" Style="{StaticResource StatLabel}"/>
+                        </StackPanel>
+                    </DockPanel>
+                </ui:Card>
+
+                <!-- Completed -->
+                <ui:Card Grid.Column="2" Padding="18" ToolTip="Задач, отмеченных как выполненные">
+                    <DockPanel>
+                        <Border DockPanel.Dock="Left" Width="44" Height="44" CornerRadius="12" Margin="0,0,14,0">
+                            <Border.Background>
+                                <SolidColorBrush Color="{StaticResource SuccessColor}" Opacity="0.12"/>
+                            </Border.Background>
+                            <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="20" Foreground="{StaticResource SuccessBrush}"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{Binding CompletedTasks}" Style="{StaticResource StatValue}"
+                                       Foreground="{StaticResource SuccessBrush}"/>
+                            <TextBlock Text="Выполнено" Style="{StaticResource StatLabel}"/>
+                        </StackPanel>
+                    </DockPanel>
+                </ui:Card>
+
+                <!-- Not completed -->
+                <ui:Card Grid.Column="4" Padding="18" ToolTip="Задач, которые ещё не выполнены">
+                    <DockPanel>
+                        <Border DockPanel.Dock="Left" Width="44" Height="44" CornerRadius="12" Margin="0,0,14,0">
+                            <Border.Background>
+                                <SolidColorBrush Color="{StaticResource DangerColor}" Opacity="0.12"/>
+                            </Border.Background>
+                            <ui:SymbolIcon Symbol="DismissCircle24" FontSize="20" Foreground="{StaticResource DangerBrush}"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{Binding NotCompletedTasks}" Style="{StaticResource StatValue}"
+                                       Foreground="{StaticResource DangerBrush}"/>
+                            <TextBlock Text="Не выполнено" Style="{StaticResource StatLabel}"/>
+                        </StackPanel>
+                    </DockPanel>
+                </ui:Card>
+
+                <!-- Goals -->
+                <ui:Card Grid.Column="6" Padding="18" ToolTip="Выполненных целей из 4">
+                    <DockPanel>
+                        <Border DockPanel.Dock="Left" Width="44" Height="44" CornerRadius="12" Margin="0,0,14,0">
+                            <Border.Background>
+                                <SolidColorBrush Color="{StaticResource WarningColor}" Opacity="0.12"/>
+                            </Border.Background>
+                            <ui:SymbolIcon Symbol="Star24" FontSize="20" Foreground="{StaticResource WarningBrush}"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Style="{StaticResource StatValue}" Foreground="{StaticResource WarningBrush}">
+                                <Run Text="{Binding CompletedGoals, Mode=OneWay}"/><Run Text="/4"/>
+                            </TextBlock>
+                            <TextBlock Text="Целей достигнуто" Style="{StaticResource StatLabel}"/>
+                        </StackPanel>
+                    </DockPanel>
+                </ui:Card>
+            </Grid>
+
+            <!-- WEEKLY SUMMARY -->
+            <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,20" Padding="14,10">
+                <DockPanel>
+                    <ui:SymbolIcon Symbol="Lightbulb24" FontSize="15" Foreground="{StaticResource WarningBrush}"
+                                   DockPanel.Dock="Left" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding WeeklySummary}" FontSize="12"
+                               Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                               VerticalAlignment="Center" TextWrapping="Wrap"/>
+                </DockPanel>
+            </Border>
+
+            <!-- GOALS + NOTES + DONUT -->
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="280"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Goals -->
+                <Border Grid.Column="0" Style="{StaticResource PlannerCard}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <ui:SymbolIcon Symbol="Star24" FontSize="15" Foreground="{StaticResource AccentBrush}" Margin="0,0,8,0"/>
+                            <TextBlock Text="ЦЕЛИ НЕДЕЛИ" Style="{StaticResource SectionHeader}" Margin="0"/>
+                        </StackPanel>
+                        <ItemsControl ItemsSource="{Binding Goals}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,3">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Order, StringFormat='{}{0}.'}"
+                                                   Foreground="{DynamicResource MutedBrush}" FontSize="12"
+                                                   VerticalAlignment="Center" Width="22" Margin="0,0,4,0"/>
+                                        <CheckBox Grid.Column="1" Style="{StaticResource PlannerCheckBox}"
+                                                  IsChecked="{Binding IsCompleted}" Margin="0,0,10,0"/>
+                                        <TextBox Grid.Column="2" Style="{StaticResource TaskTextBox}"
+                                                 Text="{Binding Text, UpdateSourceTrigger=LostFocus}"
+                                                 TextDecorations="{Binding IsCompleted, Converter={StaticResource StrikethroughConv}}"
+                                                 Opacity="{Binding IsCompleted, Converter={StaticResource OpacityConv}}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- Notes -->
+                <Border Grid.Column="2" Style="{StaticResource PlannerCard}">
+                    <StackPanel>
+                        <DockPanel Margin="0,0,0,12">
+                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                                <ui:SymbolIcon Symbol="Note24" FontSize="15" Foreground="{StaticResource AccentBrush}" Margin="0,0,8,0"/>
+                                <TextBlock Text="ЗАМЕТКИ" Style="{StaticResource SectionHeader}" Margin="0"/>
+                            </StackPanel>
+                            <Button Style="{StaticResource SmallIconButton}" DockPanel.Dock="Right"
+                                    HorizontalAlignment="Right" ToolTip="Добавить заметку"
+                                    Command="{Binding AddNoteCommand}">
+                                <ui:SymbolIcon Symbol="Add16" FontSize="14"/>
+                            </Button>
+                        </DockPanel>
+                        <ItemsControl ItemsSource="{Binding WeeklyNotes}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox Grid.Column="0" Style="{StaticResource NotesTextBox}"
+                                                 Text="{Binding Text, UpdateSourceTrigger=LostFocus}"
+                                                 MinHeight="50"/>
+                                        <Button Grid.Column="1" Style="{StaticResource SmallIconButton}"
+                                                VerticalAlignment="Top" Margin="4,0,0,0"
+                                                Command="{Binding DataContext.RemoveNoteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding}" ToolTip="Удалить">
+                                            <ui:SymbolIcon Symbol="Delete16" FontSize="12"/>
+                                        </Button>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- Donut Chart -->
+                <Border Grid.Column="4" Style="{StaticResource GlowCard}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <ui:SymbolIcon Symbol="DataPie24" FontSize="15" Foreground="{StaticResource AccentBrush}" Margin="0,0,8,0"/>
+                            <TextBlock Text="ПРОГРЕСС" Style="{StaticResource SectionHeader}" Margin="0"/>
+                        </StackPanel>
+
+                        <views:DonutChart Width="140" Height="140" Margin="0,8"
+                                          Value="{Binding AverageProgress}"
+                                          Maximum="100" RingThickness="10"
+                                          TrackBrush="{DynamicResource ProgressTrackBrush}"
+                                          ValueBrush="{StaticResource AccentBrush}"
+                                          Foreground="{DynamicResource TextPrimaryBrush}"
+                                          CenterText="{Binding AverageProgress, StringFormat='{}{0}%'}"
+                                          SubText="прогресс"/>
+
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding MostProductiveDay}" Foreground="{StaticResource WarningBrush}"
+                                           FontWeight="Bold" FontSize="14" HorizontalAlignment="Center"/>
+                                <TextBlock Text="лучший день" Style="{StaticResource StatLabel}" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                                <TextBlock Foreground="{StaticResource SuccessBrush}" FontWeight="Bold" FontSize="14"
+                                           HorizontalAlignment="Center">
+                                    <Run Text="{Binding CompletedGoals, Mode=OneWay}"/><Run Text="/4"/>
+                                </TextBlock>
+                                <TextBlock Text="целей" Style="{StaticResource StatLabel}" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- DAYS -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                <ui:SymbolIcon Symbol="CalendarLtr24" FontSize="15" Foreground="{StaticResource AccentBrush}" Margin="0,0,8,0"/>
+                <TextBlock Text="ЗАДАЧИ НА НЕДЕЛЮ" Style="{StaticResource SectionHeader}" Margin="0"/>
+            </StackPanel>
+
+            <ItemsControl ItemsSource="{Binding Days}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Rows="1"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Margin="4,0" Padding="12,14">
+                            <Border.Style>
+                                <Style TargetType="Border" BasedOn="{StaticResource PlannerCard}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsToday}" Value="True">
+                                            <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                            <Setter Property="BorderThickness" Value="1.5"/>
+                                            <Setter Property="Effect">
+                                                <Setter.Value>
+                                                    <DropShadowEffect Color="{StaticResource AccentColor}"
+                                                                      BlurRadius="18" ShadowDepth="0" Opacity="0.22"/>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,4">
+                                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                                        <TextBlock Text="{Binding DayName}" Style="{StaticResource DayHeader}" FontSize="12"/>
+                                        <!-- Today badge -->
+                                        <Border CornerRadius="4" Padding="6,1" Margin="6,0,0,0"
+                                                Visibility="{Binding IsToday, Converter={StaticResource VisConv}}">
+                                            <Border.Background>
+                                                <SolidColorBrush Color="{StaticResource AccentColor}" Opacity="0.2"/>
+                                            </Border.Background>
+                                            <TextBlock Text="СЕГОДНЯ" FontSize="8" FontWeight="Bold"
+                                                       Foreground="{StaticResource AccentLightBrush}"/>
+                                        </Border>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding DateFormatted}" Foreground="{DynamicResource MutedBrush}"
+                                               FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </DockPanel>
+
+                                <!-- Day progress bar -->
+                                <ProgressBar Style="{StaticResource DayProgressBar}"
+                                             Value="{Binding ProgressPercent, Mode=OneWay}"
+                                             Maximum="100" Margin="0,0,0,8"/>
+
+                                <ItemsControl ItemsSource="{Binding Tasks}" AllowDrop="True"
+                                              Tag="{Binding}"
+                                              DragOver="Day_DragOver" Drop="Day_Drop">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,1"
+                                                  PreviewMouseLeftButtonDown="Task_PreviewMouseLeftButtonDown"
+                                                  PreviewMouseMove="Task_PreviewMouseMove">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <!-- Priority dot -->
+                                                <Border Grid.Column="0" Width="4" Height="16" CornerRadius="2" Margin="0,0,3,0"
+                                                        Background="{Binding Priority, Converter={StaticResource PriorityBrush}}"
+                                                        Visibility="{Binding Priority, Converter={StaticResource NonZeroVis}}"
+                                                        ToolTip="{Binding Priority}" Cursor="Hand"
+                                                        MouseLeftButtonDown="PriorityCycle_Click"/>
+                                                <CheckBox Grid.Column="1" Style="{StaticResource PlannerCheckBox}"
+                                                          IsChecked="{Binding IsCompleted}" Margin="0,0,4,0"
+                                                          VerticalAlignment="Center"/>
+                                                <!-- Category icon -->
+                                                <TextBlock Grid.Column="2" FontFamily="Segoe MDL2 Assets" FontSize="10"
+                                                           Text="{Binding Category, Converter={StaticResource CatLabel}}"
+                                                           Foreground="{Binding Category, Converter={StaticResource CatBrush}}"
+                                                           Visibility="{Binding Category, Converter={StaticResource NonZeroVis}}"
+                                                           VerticalAlignment="Center" Margin="0,0,3,0"
+                                                           ToolTip="{Binding Category}" Cursor="Hand"
+                                                           MouseLeftButtonDown="CategoryCycle_Click"/>
+                                                <TextBox Grid.Column="3" Style="{StaticResource TaskTextBox}"
+                                                         Text="{Binding Text, UpdateSourceTrigger=LostFocus}"
+                                                         TextDecorations="{Binding IsCompleted, Converter={StaticResource StrikethroughConv}}"
+                                                         Opacity="{Binding IsCompleted, Converter={StaticResource OpacityConv}}"
+                                                         FontSize="11.5"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <Border CornerRadius="8" Padding="10,6" Margin="0,10,0,0">
+                                    <Border.Background>
+                                        <SolidColorBrush Color="{StaticResource AccentColor}" Opacity="0.06"/>
+                                    </Border.Background>
+                                    <DockPanel>
+                                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                                            <ui:SymbolIcon Symbol="CheckmarkCircle16" FontSize="12"
+                                                           Foreground="{StaticResource SuccessBrush}" Margin="0,0,4,0"/>
+                                            <TextBlock Text="{Binding CompletedCount, Mode=OneWay}" FontSize="11"
+                                                       Foreground="{StaticResource SuccessBrush}" FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                        <TextBlock DockPanel.Dock="Right" FontSize="11" HorizontalAlignment="Right"
+                                                   Foreground="{DynamicResource MutedBrush}">
+                                            <Run Text="{Binding NotCompletedCount, Mode=OneWay}"/>
+                                            <Run Text="осталось"/>
+                                        </TextBlock>
+                                    </DockPanel>
+                                </Border>
+                                <!-- Carry-over button -->
+                                <Button Style="{StaticResource SmallIconButton}" HorizontalAlignment="Right"
+                                        Margin="0,4,0,0" ToolTip="Перенести незавершённые на завтра"
+                                        Click="CarryOver_Click" Tag="{Binding}">
+                                    <ui:SymbolIcon Symbol="ArrowForward16" FontSize="12"/>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- HABITS + STATE -->
+            <Grid Margin="0,20,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="360"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Habits -->
+                <Border Grid.Column="0" Style="{StaticResource PlannerCard}">
+                    <StackPanel>
+                        <DockPanel Margin="0,0,0,12">
+                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                                <ui:SymbolIcon Symbol="Ribbon24" FontSize="15" Foreground="{StaticResource AccentBrush}" Margin="0,0,8,0"/>
+                                <TextBlock Text="ТРЕКЕР ПРИВЫЧЕК" Style="{StaticResource SectionHeader}" Margin="0"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" HorizontalAlignment="Right">
+                                <Button Style="{StaticResource SmallIconButton}" ToolTip="Добавить привычку"
+                                        Command="{Binding AddHabitCommand}">
+                                    <ui:SymbolIcon Symbol="Add16" FontSize="14"/>
+                                </Button>
+                            </StackPanel>
+                        </DockPanel>
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="28"/><ColumnDefinition Width="28"/>
+                                <ColumnDefinition Width="28"/><ColumnDefinition Width="28"/>
+                                <ColumnDefinition Width="28"/><ColumnDefinition Width="28"/>
+                                <ColumnDefinition Width="28"/><ColumnDefinition Width="70"/>
+                                <ColumnDefinition Width="28"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Привычка" Foreground="{DynamicResource MutedBrush}" FontSize="10" Margin="4,0,0,0"/>
+                            <TextBlock Grid.Column="1" Text="Пн" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="Вт" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="3" Text="Ср" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="4" Text="Чт" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="5" Text="Пт" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="6" Text="Сб" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="7" Text="Вс" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="8" Text="Прогресс" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding Habits}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,3">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="28"/><ColumnDefinition Width="28"/>
+                                            <ColumnDefinition Width="28"/><ColumnDefinition Width="28"/>
+                                            <ColumnDefinition Width="28"/><ColumnDefinition Width="28"/>
+                                            <ColumnDefinition Width="28"/><ColumnDefinition Width="70"/>
+                                            <ColumnDefinition Width="28"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox Grid.Column="0" Style="{StaticResource TaskTextBox}"
+                                                 Text="{Binding Name, UpdateSourceTrigger=LostFocus}" FontSize="11.5"/>
+                                        <CheckBox Grid.Column="1" Style="{StaticResource PlannerCheckBox}" IsChecked="{Binding Entries[0].IsCompleted}" HorizontalAlignment="Center"/>
+                                        <CheckBox Grid.Column="2" Style="{StaticResource PlannerCheckBox}" IsChecked="{Binding Entries[1].IsCompleted}" HorizontalAlignment="Center"/>
+                                        <CheckBox Grid.Column="3" Style="{StaticResource PlannerCheckBox}" IsChecked="{Binding Entries[2].IsCompleted}" HorizontalAlignment="Center"/>
+                                        <CheckBox Grid.Column="4" Style="{StaticResource PlannerCheckBox}" IsChecked="{Binding Entries[3].IsCompleted}" HorizontalAlignment="Center"/>
+                                        <CheckBox Grid.Column="5" Style="{StaticResource PlannerCheckBox}" IsChecked="{Binding Entries[4].IsCompleted}" HorizontalAlignment="Center"/>
+                                        <CheckBox Grid.Column="6" Style="{StaticResource PlannerCheckBox}" IsChecked="{Binding Entries[5].IsCompleted}" HorizontalAlignment="Center"/>
+                                        <CheckBox Grid.Column="7" Style="{StaticResource PlannerCheckBox}" IsChecked="{Binding Entries[6].IsCompleted}" HorizontalAlignment="Center"/>
+                                        <ProgressBar Grid.Column="8" Value="{Binding Progress, Mode=OneWay}" Maximum="7"
+                                                     Style="{StaticResource AccentProgressBar}" VerticalAlignment="Center" Margin="6,0"/>
+                                        <Button Grid.Column="9" Style="{StaticResource SmallIconButton}" ToolTip="Удалить"
+                                                Command="{Binding DataContext.RemoveHabitCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding}">
+                                            <ui:SymbolIcon Symbol="Delete16" FontSize="12"/>
+                                        </Button>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- State -->
+                <Border Grid.Column="2" Style="{StaticResource PlannerCard}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <ui:SymbolIcon Symbol="HeartPulse24" FontSize="15" Foreground="{StaticResource AccentBrush}" Margin="0,0,8,0"/>
+                            <TextBlock Text="ТРЕКЕР СОСТОЯНИЯ" Style="{StaticResource SectionHeader}" Margin="0"/>
+                        </StackPanel>
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="38"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="1" Text="Сон" Foreground="{StaticResource InfoBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="Энергия" Foreground="{StaticResource WarningBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="3" Text="Настрой" Foreground="{StaticResource SuccessBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding Days}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="38"/>
+                                            <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding ShortDayName}"
+                                                   Foreground="{DynamicResource MutedBrush}" FontSize="11"
+                                                   VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                        <views:RatingControl Grid.Column="1" Value="{Binding Sleep}" MaxValue="5" HorizontalAlignment="Center"/>
+                                        <views:RatingControl Grid.Column="2" Value="{Binding Energy}" MaxValue="5" HorizontalAlignment="Center"/>
+                                        <views:RatingControl Grid.Column="3" Value="{Binding Mood}" MaxValue="5" HorizontalAlignment="Center"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Border Height="28"/>
+        </StackPanel>
+    </ScrollViewer>
+</Page>
