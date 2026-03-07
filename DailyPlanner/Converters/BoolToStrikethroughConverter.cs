@@ -156,6 +156,38 @@ public sealed class NonZeroToVisibilityConverter : IValueConverter
         => throw new NotSupportedException();
 }
 
+public sealed class PriorityToTooltipConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        => value is DailyPlanner.Models.TaskPriority p ? p switch
+        {
+            DailyPlanner.Models.TaskPriority.High => "Высокий приоритет (клик — сменить)",
+            DailyPlanner.Models.TaskPriority.Medium => "Средний приоритет (клик — сменить)",
+            DailyPlanner.Models.TaskPriority.Low => "Низкий приоритет (клик — сменить)",
+            _ => "Без приоритета"
+        } : "Без приоритета";
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
+public sealed class CategoryToTooltipConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        => value is DailyPlanner.Models.TaskCategory c ? c switch
+        {
+            DailyPlanner.Models.TaskCategory.Work => "Работа (клик — сменить)",
+            DailyPlanner.Models.TaskCategory.Study => "Учёба (клик — сменить)",
+            DailyPlanner.Models.TaskCategory.Personal => "Личное (клик — сменить)",
+            DailyPlanner.Models.TaskCategory.Health => "Здоровье (клик — сменить)",
+            DailyPlanner.Models.TaskCategory.Other => "Другое (клик — сменить)",
+            _ => ""
+        } : "";
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
 public sealed class BoolToPlayPauseConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

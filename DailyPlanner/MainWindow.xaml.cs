@@ -107,9 +107,17 @@ public partial class MainWindow : FluentWindow
         }
         else
         {
+            _viewModel.Statistics.SelectedYear = _viewModel.SelectedYear;
+            _viewModel.Statistics.SelectedMonth = _viewModel.SelectedMonth;
             _statisticsPage = new StatisticsPage(_viewModel.Statistics);
             NavigateWithAnimation(_statisticsPage);
         }
+    }
+
+    private void SearchResult_Click(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is FrameworkElement { Tag: ViewModels.SearchResultItem item })
+            _viewModel.NavigateToSearchResultCommand.Execute(item);
     }
 
     private void MonthBorder_Click(object sender, MouseButtonEventArgs e)

@@ -176,8 +176,9 @@ public sealed partial class MainViewModel : ObservableObject
         if (string.IsNullOrWhiteSpace(query) || query.Length < 2) return;
 
         var q = query.Trim().ToLowerInvariant();
-        foreach (var week in Weeks)
+        for (var i = 0; i < Weeks.Count; i++)
         {
+            var week = Weeks[i];
             foreach (var day in week.Days)
             {
                 foreach (var task in day.Tasks)
@@ -186,7 +187,7 @@ public sealed partial class MainViewModel : ObservableObject
                         task.Text.Contains(q, StringComparison.OrdinalIgnoreCase))
                     {
                         SearchResults.Add(new SearchResultItem(
-                            task.Text, $"{day.DayName} ({day.DateFormatted})", week.WeekRange));
+                            task.Text, $"{day.DayName} ({day.DateFormatted})", week.WeekRange, i, day.Date));
                     }
                 }
             }
@@ -197,10 +198,21 @@ public sealed partial class MainViewModel : ObservableObject
                     goal.Text.Contains(q, StringComparison.OrdinalIgnoreCase))
                 {
                     SearchResults.Add(new SearchResultItem(
-                        goal.Text, "Цель", week.WeekRange));
+                        goal.Text, "Цель", week.WeekRange, i, null));
                 }
             }
         }
+    }
+
+    [RelayCommand]
+    private void NavigateToSearchResult(SearchResultItem? item)
+    {
+        if (item is null) return;
+        if (item.WeekIndex >= 0 && item.WeekIndex < Weeks.Count)
+            SelectedWeekIndex = item.WeekIndex;
+        IsSearchOpen = false;
+        SearchQuery = string.Empty;
+        SearchResults.Clear();
     }
 
     [RelayCommand]
@@ -502,4 +514,4 @@ public sealed partial class MainViewModel : ObservableObject
 
 public sealed record MonthItem(int Number, string Name);
 
-public sealed record SearchResultItem(string Text, string Context, string Week);
+public sealed record SearchResultItem(string Text, string Context, string Week, int WeekIndex, DateOnly? DayDate);
