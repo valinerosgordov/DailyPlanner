@@ -49,6 +49,7 @@ public sealed partial class WeekViewModel : ObservableObject
     public ObservableCollection<DayViewModel> Days { get; }
     public ObservableCollection<HabitViewModel> Habits { get; }
     public ObservableCollection<NoteViewModel> WeeklyNotes { get; }
+    public bool HasNoHabits => Habits.Count == 0;
 
     [ObservableProperty]
     private string _notes;
@@ -107,6 +108,7 @@ public sealed partial class WeekViewModel : ObservableObject
 
         var vm = new HabitViewModel(habit, _service);
         Habits.Add(vm);
+        OnPropertyChanged(nameof(HasNoHabits));
     }
 
     [RelayCommand]
@@ -144,6 +146,7 @@ public sealed partial class WeekViewModel : ObservableObject
             await _service.RemoveHabitAsync(model);
         }
         Habits.Remove(habit);
+        OnPropertyChanged(nameof(HasNoHabits));
     }
 
     private void RefreshAnalytics()

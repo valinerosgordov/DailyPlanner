@@ -96,7 +96,11 @@ public partial class WeekPage : Page
 
         // Move: copy text to first empty slot in target, clear source
         var emptySlot = targetDay.Tasks.FirstOrDefault(t => string.IsNullOrWhiteSpace(t.Text));
-        if (emptySlot is null) return;
+        if (emptySlot is null)
+        {
+            Services.NotificationService.ShowToast("Перемещение", "Нет свободных слотов в этом дне");
+            return;
+        }
 
         emptySlot.Text = sourceTask.Text;
         emptySlot.Priority = sourceTask.Priority;

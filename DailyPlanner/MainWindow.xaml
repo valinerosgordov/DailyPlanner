@@ -171,8 +171,10 @@
                     <ItemsControl ItemsSource="{Binding SearchResults}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Padding="10,6" Margin="0,1" CornerRadius="6"
-                                        Background="{DynamicResource CardBg}">
+                                <Border Padding="10,6" Margin="0,1" CornerRadius="6" Cursor="Hand"
+                                        Background="{DynamicResource CardBg}"
+                                        MouseLeftButtonDown="SearchResult_Click"
+                                        Tag="{Binding}">
                                     <DockPanel>
                                         <ui:SymbolIcon Symbol="TaskListLtr24" FontSize="12"
                                                        Foreground="{DynamicResource AccentBrush}"

@@ -15,6 +15,8 @@
         <conv:CategoryToBrushConverter x:Key="CatBrush"/>
         <conv:CategoryToLabelConverter x:Key="CatLabel"/>
         <conv:NonZeroToVisibilityConverter x:Key="NonZeroVis"/>
+        <conv:PriorityToTooltipConverter x:Key="PriorityTip"/>
+        <conv:CategoryToTooltipConverter x:Key="CatTip"/>
     </Page.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -304,7 +306,7 @@
                                                 <Border Grid.Column="0" Width="4" Height="16" CornerRadius="2" Margin="0,0,3,0"
                                                         Background="{Binding Priority, Converter={StaticResource PriorityBrush}}"
                                                         Visibility="{Binding Priority, Converter={StaticResource NonZeroVis}}"
-                                                        ToolTip="{Binding Priority}" Cursor="Hand"
+                                                        ToolTip="{Binding Priority, Converter={StaticResource PriorityTip}}" Cursor="Hand"
                                                         MouseLeftButtonDown="PriorityCycle_Click"/>
                                                 <CheckBox Grid.Column="1" Style="{StaticResource PlannerCheckBox}"
                                                           IsChecked="{Binding IsCompleted}" Margin="0,0,4,0"
@@ -315,7 +317,7 @@
                                                            Foreground="{Binding Category, Converter={StaticResource CatBrush}}"
                                                            Visibility="{Binding Category, Converter={StaticResource NonZeroVis}}"
                                                            VerticalAlignment="Center" Margin="0,0,3,0"
-                                                           ToolTip="{Binding Category}" Cursor="Hand"
+                                                           ToolTip="{Binding Category, Converter={StaticResource CatTip}}" Cursor="Hand"
                                                            MouseLeftButtonDown="CategoryCycle_Click"/>
                                                 <TextBox Grid.Column="3" Style="{StaticResource TaskTextBox}"
                                                          Text="{Binding Text, UpdateSourceTrigger=LostFocus}"
@@ -398,6 +400,11 @@
                             <TextBlock Grid.Column="7" Text="Вс" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
                             <TextBlock Grid.Column="8" Text="Прогресс" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
                         </Grid>
+                        <!-- Empty state -->
+                        <TextBlock Text="Нажмите + чтобы добавить привычку" FontSize="11"
+                                   Foreground="{DynamicResource MutedBrush}" FontStyle="Italic"
+                                   HorizontalAlignment="Center" Margin="0,12"
+                                   Visibility="{Binding HasNoHabits, Converter={StaticResource VisConv}}"/>
                         <ItemsControl ItemsSource="{Binding Habits}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
