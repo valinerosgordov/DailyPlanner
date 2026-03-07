@@ -58,7 +58,7 @@ public partial class App : Application
 
         var subtitle = new System.Windows.Controls.TextBlock
         {
-            Text = "Загрузка данных...",
+            Text = Loc.Get("Loading"),
             Foreground = new SolidColorBrush(Color.FromRgb(0x58, 0x58, 0x78)),
             FontSize = 13,
             HorizontalAlignment = HorizontalAlignment.Center
@@ -122,7 +122,7 @@ public partial class App : Application
         {
             splash.Close();
             System.Windows.MessageBox.Show(
-                $"Ошибка инициализации базы данных:\n{ex.Message}",
+                string.Format(Loc.Get("DbError"), ex.Message),
                 "Daily Planner",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);

@@ -4,6 +4,7 @@
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:views="clr-namespace:DailyPlanner.Views"
       xmlns:conv="clr-namespace:DailyPlanner.Converters"
+      xmlns:svc="clr-namespace:DailyPlanner.Services"
       Foreground="{DynamicResource TextPrimaryBrush}">
 
     <Page.Resources>
@@ -35,7 +36,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Total -->
-                <Border Style="{StaticResource PlannerCard}" Grid.Column="0" Padding="18" ToolTip="Количество задач с текстом за неделю">
+                <Border Style="{StaticResource PlannerCard}" Grid.Column="0" Padding="18" ToolTip="{Binding [TotalTasksTip], Source={x:Static svc:Loc.Instance}}">
                     <DockPanel>
                         <Border DockPanel.Dock="Left" Width="44" Height="44" CornerRadius="12" Margin="0,0,14,0">
                             <Border.Background>
@@ -46,13 +47,13 @@
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="{Binding TotalTasks}" Style="{StaticResource StatValue}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
-                            <TextBlock Text="Всего задач" Style="{StaticResource StatLabel}"/>
+                            <TextBlock Text="{Binding [TotalTasks], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource StatLabel}"/>
                         </StackPanel>
                     </DockPanel>
                 </Border>
 
                 <!-- Completed -->
-                <Border Style="{StaticResource PlannerCard}" Grid.Column="2" Padding="18" ToolTip="Задач, отмеченных как выполненные">
+                <Border Style="{StaticResource PlannerCard}" Grid.Column="2" Padding="18" ToolTip="{Binding [CompletedTip], Source={x:Static svc:Loc.Instance}}">
                     <DockPanel>
                         <Border DockPanel.Dock="Left" Width="44" Height="44" CornerRadius="12" Margin="0,0,14,0">
                             <Border.Background>
@@ -63,13 +64,13 @@
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="{Binding CompletedTasks}" Style="{StaticResource StatValue}"
                                        Foreground="{DynamicResource SuccessBrush}"/>
-                            <TextBlock Text="Выполнено" Style="{StaticResource StatLabel}"/>
+                            <TextBlock Text="{Binding [CompletedLabel], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource StatLabel}"/>
                         </StackPanel>
                     </DockPanel>
                 </Border>
 
                 <!-- Not completed -->
-                <Border Style="{StaticResource PlannerCard}" Grid.Column="4" Padding="18" ToolTip="Задач, которые ещё не выполнены">
+                <Border Style="{StaticResource PlannerCard}" Grid.Column="4" Padding="18" ToolTip="{Binding [NotCompletedTip], Source={x:Static svc:Loc.Instance}}">
                     <DockPanel>
                         <Border DockPanel.Dock="Left" Width="44" Height="44" CornerRadius="12" Margin="0,0,14,0">
                             <Border.Background>
@@ -80,13 +81,13 @@
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="{Binding NotCompletedTasks}" Style="{StaticResource StatValue}"
                                        Foreground="{DynamicResource DangerBrush}"/>
-                            <TextBlock Text="Не выполнено" Style="{StaticResource StatLabel}"/>
+                            <TextBlock Text="{Binding [NotCompleted], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource StatLabel}"/>
                         </StackPanel>
                     </DockPanel>
                 </Border>
 
                 <!-- Goals -->
-                <Border Style="{StaticResource PlannerCard}" Grid.Column="6" Padding="18" ToolTip="Выполненных целей из 4">
+                <Border Style="{StaticResource PlannerCard}" Grid.Column="6" Padding="18" ToolTip="{Binding [GoalsTip], Source={x:Static svc:Loc.Instance}}">
                     <DockPanel>
                         <Border DockPanel.Dock="Left" Width="44" Height="44" CornerRadius="12" Margin="0,0,14,0">
                             <Border.Background>
@@ -98,7 +99,7 @@
                             <TextBlock Style="{StaticResource StatValue}" Foreground="{DynamicResource WarningBrush}">
                                 <Run Text="{Binding CompletedGoals, Mode=OneWay}"/><Run Text="/4"/>
                             </TextBlock>
-                            <TextBlock Text="Целей достигнуто" Style="{StaticResource StatLabel}"/>
+                            <TextBlock Text="{Binding [GoalsReached], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource StatLabel}"/>
                         </StackPanel>
                     </DockPanel>
                 </Border>
@@ -130,7 +131,7 @@
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                             <ui:SymbolIcon Symbol="Star24" FontSize="15" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                            <TextBlock Text="ЦЕЛИ НЕДЕЛИ" Style="{StaticResource SectionHeader}" Margin="0"/>
+                            <TextBlock Text="{Binding [WeekGoals], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource SectionHeader}" Margin="0"/>
                         </StackPanel>
                         <ItemsControl ItemsSource="{Binding Goals}">
                             <ItemsControl.ItemTemplate>
@@ -163,10 +164,10 @@
                         <DockPanel Margin="0,0,0,12">
                             <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
                                 <ui:SymbolIcon Symbol="Note24" FontSize="15" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <TextBlock Text="ЗАМЕТКИ" Style="{StaticResource SectionHeader}" Margin="0"/>
+                                <TextBlock Text="{Binding [Notes], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource SectionHeader}" Margin="0"/>
                             </StackPanel>
                             <Button Style="{StaticResource SmallIconButton}" DockPanel.Dock="Right"
-                                    HorizontalAlignment="Right" ToolTip="Добавить заметку"
+                                    HorizontalAlignment="Right" ToolTip="{Binding [AddNoteTip], Source={x:Static svc:Loc.Instance}}"
                                     Command="{Binding AddNoteCommand}">
                                 <ui:SymbolIcon Symbol="Add16" FontSize="14"/>
                             </Button>
@@ -185,7 +186,7 @@
                                         <Button Grid.Column="1" Style="{StaticResource SmallIconButton}"
                                                 VerticalAlignment="Top" Margin="4,0,0,0"
                                                 Command="{Binding DataContext.RemoveNoteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                CommandParameter="{Binding}" ToolTip="Удалить">
+                                                CommandParameter="{Binding}" ToolTip="{Binding [DeleteTip], Source={x:Static svc:Loc.Instance}}">
                                             <ui:SymbolIcon Symbol="Delete16" FontSize="12"/>
                                         </Button>
                                     </Grid>
@@ -200,7 +201,7 @@
                     <StackPanel HorizontalAlignment="Center">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                             <ui:SymbolIcon Symbol="DataPie24" FontSize="15" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                            <TextBlock Text="ПРОГРЕСС" Style="{StaticResource SectionHeader}" Margin="0"/>
+                            <TextBlock Text="{Binding [Progress], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource SectionHeader}" Margin="0"/>
                         </StackPanel>
 
                         <views:DonutChart Width="140" Height="140" Margin="0,8"
@@ -210,7 +211,7 @@
                                           ValueBrush="{DynamicResource AccentBrush}"
                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                           CenterText="{Binding AverageProgress, StringFormat='{}{0}%'}"
-                                          SubText="прогресс"/>
+                                          SubText="{Binding [ProgressLabel], Source={x:Static svc:Loc.Instance}}"/>
 
                         <Grid Margin="0,8,0,0">
                             <Grid.ColumnDefinitions>
@@ -220,14 +221,14 @@
                             <StackPanel Grid.Column="0" HorizontalAlignment="Center">
                                 <TextBlock Text="{Binding MostProductiveDay}" Foreground="{DynamicResource WarningBrush}"
                                            FontWeight="Bold" FontSize="14" HorizontalAlignment="Center"/>
-                                <TextBlock Text="лучший день" Style="{StaticResource StatLabel}" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding [BestDay], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource StatLabel}" HorizontalAlignment="Center"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1" HorizontalAlignment="Center">
                                 <TextBlock Foreground="{DynamicResource SuccessBrush}" FontWeight="Bold" FontSize="14"
                                            HorizontalAlignment="Center">
                                     <Run Text="{Binding CompletedGoals, Mode=OneWay}"/><Run Text="/4"/>
                                 </TextBlock>
-                                <TextBlock Text="целей" Style="{StaticResource StatLabel}" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding [GoalsLabel], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource StatLabel}" HorizontalAlignment="Center"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
@@ -237,7 +238,7 @@
             <!-- DAYS -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                 <ui:SymbolIcon Symbol="CalendarLtr24" FontSize="15" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                <TextBlock Text="ЗАДАЧИ НА НЕДЕЛЮ" Style="{StaticResource SectionHeader}" Margin="0"/>
+                <TextBlock Text="{Binding [WeekTasks], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource SectionHeader}" Margin="0"/>
             </StackPanel>
 
             <ItemsControl ItemsSource="{Binding Days}">
@@ -275,7 +276,7 @@
                                             <Border.Background>
                                                 <SolidColorBrush Color="{DynamicResource AccentColor}" Opacity="0.2"/>
                                             </Border.Background>
-                                            <TextBlock Text="СЕГОДНЯ" FontSize="8" FontWeight="Bold"
+                                            <TextBlock Text="{Binding [TodayBadge], Source={x:Static svc:Loc.Instance}}" FontSize="8" FontWeight="Bold"
                                                        Foreground="{DynamicResource AccentLightBrush}"/>
                                         </Border>
                                     </StackPanel>
@@ -293,38 +294,133 @@
                                               DragOver="Day_DragOver" Drop="Day_Drop">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Grid Margin="0,1"
-                                                  PreviewMouseLeftButtonDown="Task_PreviewMouseLeftButtonDown"
-                                                  PreviewMouseMove="Task_PreviewMouseMove">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-                                                <!-- Priority dot -->
-                                                <Border Grid.Column="0" Width="4" Height="16" CornerRadius="2" Margin="0,0,3,0"
-                                                        Background="{Binding Priority, Converter={StaticResource PriorityBrush}}"
-                                                        Visibility="{Binding Priority, Converter={StaticResource NonZeroVis}}"
-                                                        ToolTip="{Binding Priority, Converter={StaticResource PriorityTip}}" Cursor="Hand"
-                                                        MouseLeftButtonDown="PriorityCycle_Click"/>
-                                                <CheckBox Grid.Column="1" Style="{StaticResource PlannerCheckBox}"
-                                                          IsChecked="{Binding IsCompleted}" Margin="0,0,4,0"
-                                                          VerticalAlignment="Center"/>
-                                                <!-- Category icon -->
-                                                <TextBlock Grid.Column="2" FontFamily="Segoe MDL2 Assets" FontSize="10"
-                                                           Text="{Binding Category, Converter={StaticResource CatLabel}}"
-                                                           Foreground="{Binding Category, Converter={StaticResource CatBrush}}"
-                                                           Visibility="{Binding Category, Converter={StaticResource NonZeroVis}}"
-                                                           VerticalAlignment="Center" Margin="0,0,3,0"
-                                                           ToolTip="{Binding Category, Converter={StaticResource CatTip}}" Cursor="Hand"
-                                                           MouseLeftButtonDown="CategoryCycle_Click"/>
-                                                <TextBox Grid.Column="3" Style="{StaticResource TaskTextBox}"
-                                                         Text="{Binding Text, UpdateSourceTrigger=LostFocus}"
-                                                         TextDecorations="{Binding IsCompleted, Converter={StaticResource StrikethroughConv}}"
-                                                         Opacity="{Binding IsCompleted, Converter={StaticResource OpacityConv}}"
-                                                         FontSize="11.5"/>
-                                            </Grid>
+                                            <StackPanel>
+                                                <!-- Parent task row -->
+                                                <Grid Margin="0,1"
+                                                      PreviewMouseLeftButtonDown="Task_PreviewMouseLeftButtonDown"
+                                                      PreviewMouseMove="Task_PreviewMouseMove">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <!-- Priority dot -->
+                                                    <Border Grid.Column="0" Width="4" Height="16" CornerRadius="2" Margin="0,0,3,0"
+                                                            Background="{Binding Priority, Converter={StaticResource PriorityBrush}}"
+                                                            Visibility="{Binding Priority, Converter={StaticResource NonZeroVis}}"
+                                                            ToolTip="{Binding Priority, Converter={StaticResource PriorityTip}}" Cursor="Hand"
+                                                            MouseLeftButtonDown="PriorityCycle_Click"/>
+                                                    <!-- Expand/collapse toggle -->
+                                                    <Border Grid.Column="1" Width="14" Height="14" Cursor="Hand"
+                                                            MouseLeftButtonDown="ToggleExpand_Click"
+                                                            Background="Transparent" VerticalAlignment="Center"
+                                                            Visibility="{Binding HasSubTasks, Converter={StaticResource VisConv}}">
+                                                        <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="8"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                   Foreground="{DynamicResource MutedBrush}">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Text" Value="&#xE76C;"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsExpanded}" Value="True">
+                                                                            <Setter Property="Text" Value="&#xE70D;"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Border>
+                                                    <CheckBox Grid.Column="2" Style="{StaticResource PlannerCheckBox}"
+                                                              IsChecked="{Binding IsCompleted}" Margin="0,0,4,0"
+                                                              VerticalAlignment="Center"/>
+                                                    <!-- Category icon -->
+                                                    <TextBlock Grid.Column="3" FontFamily="Segoe MDL2 Assets" FontSize="10"
+                                                               Text="{Binding Category, Converter={StaticResource CatLabel}}"
+                                                               Foreground="{Binding Category, Converter={StaticResource CatBrush}}"
+                                                               Visibility="{Binding Category, Converter={StaticResource NonZeroVis}}"
+                                                               VerticalAlignment="Center" Margin="0,0,3,0"
+                                                               ToolTip="{Binding Category, Converter={StaticResource CatTip}}" Cursor="Hand"
+                                                               MouseLeftButtonDown="CategoryCycle_Click"/>
+                                                    <TextBox Grid.Column="4" Style="{StaticResource TaskTextBox}"
+                                                             Text="{Binding Text, UpdateSourceTrigger=LostFocus}"
+                                                             TextDecorations="{Binding IsCompleted, Converter={StaticResource StrikethroughConv}}"
+                                                             Opacity="{Binding IsCompleted, Converter={StaticResource OpacityConv}}"
+                                                             FontSize="11.5"/>
+                                                    <!-- Add subtask button -->
+                                                    <Border Grid.Column="5" Width="14" Height="14" Cursor="Hand"
+                                                            MouseLeftButtonDown="AddSubTask_Click"
+                                                            Background="Transparent" VerticalAlignment="Center"
+                                                            ToolTip="{Binding [AddSubTaskTip], Source={x:Static svc:Loc.Instance}}">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Opacity" Value="0"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Grid}}" Value="True">
+                                                                        <Setter Property="Opacity" Value="0.6"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock Text="+" FontSize="12" FontWeight="Bold"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                   Foreground="{DynamicResource MutedBrush}"/>
+                                                    </Border>
+                                                </Grid>
+                                                <!-- Subtasks list -->
+                                                <ItemsControl ItemsSource="{Binding SubTasks}" Margin="18,0,0,0"
+                                                              Visibility="{Binding IsExpanded, Converter={StaticResource VisConv}}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Grid Margin="0,1">
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="Auto"/>
+                                                                    <ColumnDefinition Width="Auto"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="Auto"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <!-- Subtask connector line -->
+                                                                <TextBlock Grid.Column="0" Text="└" FontSize="9"
+                                                                           Foreground="{DynamicResource MutedBrush}"
+                                                                           VerticalAlignment="Center" Margin="0,0,3,0"/>
+                                                                <CheckBox Grid.Column="1" Style="{StaticResource PlannerCheckBox}"
+                                                                          IsChecked="{Binding IsCompleted}" Margin="0,0,4,0"
+                                                                          VerticalAlignment="Center"/>
+                                                                <TextBox Grid.Column="2" Style="{StaticResource TaskTextBox}"
+                                                                         Text="{Binding Text, UpdateSourceTrigger=LostFocus}"
+                                                                         TextDecorations="{Binding IsCompleted, Converter={StaticResource StrikethroughConv}}"
+                                                                         Opacity="{Binding IsCompleted, Converter={StaticResource OpacityConv}}"
+                                                                         FontSize="10.5"/>
+                                                                <!-- Remove subtask -->
+                                                                <Border Grid.Column="3" Width="12" Height="12" Cursor="Hand"
+                                                                        MouseLeftButtonDown="RemoveSubTask_Click"
+                                                                        Background="Transparent" VerticalAlignment="Center">
+                                                                    <Border.Style>
+                                                                        <Style TargetType="Border">
+                                                                            <Setter Property="Opacity" Value="0"/>
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Grid}}" Value="True">
+                                                                                    <Setter Property="Opacity" Value="0.5"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </Border.Style>
+                                                                    <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="8"
+                                                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                               Foreground="{DynamicResource DangerBrush}"/>
+                                                                </Border>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                                <!-- Subtask progress indicator -->
+                                                <TextBlock Margin="18,0,0,2" FontSize="9"
+                                                           Foreground="{DynamicResource MutedBrush}"
+                                                           Text="{Binding SubTasksProgress}"
+                                                           Visibility="{Binding HasSubTasks, Converter={StaticResource VisConv}}"/>
+                                            </StackPanel>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
@@ -342,13 +438,13 @@
                                         <TextBlock DockPanel.Dock="Right" FontSize="11" HorizontalAlignment="Right"
                                                    Foreground="{DynamicResource MutedBrush}">
                                             <Run Text="{Binding NotCompletedCount, Mode=OneWay}"/>
-                                            <Run Text="осталось"/>
+                                            <Run Text="{Binding [Remaining], Source={x:Static svc:Loc.Instance}, Mode=OneWay}"/>
                                         </TextBlock>
                                     </DockPanel>
                                 </Border>
                                 <!-- Carry-over button -->
                                 <Button Style="{StaticResource SmallIconButton}" HorizontalAlignment="Right"
-                                        Margin="0,4,0,0" ToolTip="Перенести незавершённые на завтра"
+                                        Margin="0,4,0,0" ToolTip="{Binding [CarryOverTip], Source={x:Static svc:Loc.Instance}}"
                                         Click="CarryOver_Click" Tag="{Binding}">
                                     <ui:SymbolIcon Symbol="ArrowForward16" FontSize="12"/>
                                 </Button>
@@ -372,10 +468,10 @@
                         <DockPanel Margin="0,0,0,12">
                             <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
                                 <ui:SymbolIcon Symbol="Ribbon24" FontSize="15" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <TextBlock Text="ТРЕКЕР ПРИВЫЧЕК" Style="{StaticResource SectionHeader}" Margin="0"/>
+                                <TextBlock Text="{Binding [HabitTracker], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource SectionHeader}" Margin="0"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" HorizontalAlignment="Right">
-                                <Button Style="{StaticResource SmallIconButton}" ToolTip="Добавить привычку"
+                                <Button Style="{StaticResource SmallIconButton}" ToolTip="{Binding [AddHabitTip], Source={x:Static svc:Loc.Instance}}"
                                         Command="{Binding AddHabitCommand}">
                                     <ui:SymbolIcon Symbol="Add16" FontSize="14"/>
                                 </Button>
@@ -390,18 +486,18 @@
                                 <ColumnDefinition Width="28"/><ColumnDefinition Width="70"/>
                                 <ColumnDefinition Width="28"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Привычка" Foreground="{DynamicResource MutedBrush}" FontSize="10" Margin="4,0,0,0"/>
-                            <TextBlock Grid.Column="1" Text="Пн" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="2" Text="Вт" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="3" Text="Ср" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="4" Text="Чт" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="5" Text="Пт" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="6" Text="Сб" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="7" Text="Вс" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="8" Text="Прогресс" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="0" Text="{Binding [HabitLabel], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource MutedBrush}" FontSize="10" Margin="4,0,0,0"/>
+                            <TextBlock Grid.Column="1" Text="{Binding [Mon], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="{Binding [Tue], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="3" Text="{Binding [Wed], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="4" Text="{Binding [Thu], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="5" Text="{Binding [Fri], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="6" Text="{Binding [Sat], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="7" Text="{Binding [Sun], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="8" Text="{Binding [ProgressCol], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
                         </Grid>
                         <!-- Empty state -->
-                        <TextBlock Text="Нажмите + чтобы добавить привычку" FontSize="11"
+                        <TextBlock Text="{Binding [HabitEmpty], Source={x:Static svc:Loc.Instance}}" FontSize="11"
                                    Foreground="{DynamicResource MutedBrush}" FontStyle="Italic"
                                    HorizontalAlignment="Center" Margin="0,12"
                                    Visibility="{Binding HasNoHabits, Converter={StaticResource VisConv}}"/>
@@ -428,7 +524,7 @@
                                         <CheckBox Grid.Column="7" Style="{StaticResource PlannerCheckBox}" IsChecked="{Binding Entries[6].IsCompleted}" HorizontalAlignment="Center"/>
                                         <ProgressBar Grid.Column="8" Value="{Binding Progress, Mode=OneWay}" Maximum="7"
                                                      Style="{StaticResource AccentProgressBar}" VerticalAlignment="Center" Margin="6,0"/>
-                                        <Button Grid.Column="9" Style="{StaticResource SmallIconButton}" ToolTip="Удалить"
+                                        <Button Grid.Column="9" Style="{StaticResource SmallIconButton}" ToolTip="{Binding [DeleteTip], Source={x:Static svc:Loc.Instance}}"
                                                 Command="{Binding DataContext.RemoveHabitCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                 CommandParameter="{Binding}">
                                             <ui:SymbolIcon Symbol="Delete16" FontSize="12"/>
@@ -445,16 +541,16 @@
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                             <ui:SymbolIcon Symbol="HeartPulse24" FontSize="15" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                            <TextBlock Text="ТРЕКЕР СОСТОЯНИЯ" Style="{StaticResource SectionHeader}" Margin="0"/>
+                            <TextBlock Text="{Binding [StateTracker], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource SectionHeader}" Margin="0"/>
                         </StackPanel>
                         <Grid Margin="0,0,0,6">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="38"/>
                                 <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="1" Text="Сон" Foreground="{DynamicResource InfoBrush}" FontSize="10" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="2" Text="Энергия" Foreground="{DynamicResource WarningBrush}" FontSize="10" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="3" Text="Настрой" Foreground="{DynamicResource SuccessBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="{Binding [Sleep], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource InfoBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="{Binding [Energy], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource WarningBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="3" Text="{Binding [Mood], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource SuccessBrush}" FontSize="10" HorizontalAlignment="Center"/>
                         </Grid>
                         <ItemsControl ItemsSource="{Binding Days}">
                             <ItemsControl.ItemTemplate>

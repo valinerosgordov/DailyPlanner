@@ -3,6 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:conv="clr-namespace:DailyPlanner.Converters"
+      xmlns:svc="clr-namespace:DailyPlanner.Services"
       Foreground="{DynamicResource TextPrimaryBrush}">
 
     <Page.Resources>
@@ -40,14 +41,14 @@
 
                 <Border Grid.Column="0" Style="{StaticResource PlannerCard}" Padding="16">
                     <StackPanel>
-                        <TextBlock Text="Всего задач" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
+                        <TextBlock Text="{Binding [TotalTasks], Source={x:Static svc:Loc.Instance}}" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock Text="{Binding MonthTotalTasks}" FontSize="28" FontWeight="Bold"/>
                     </StackPanel>
                 </Border>
 
                 <Border Grid.Column="2" Style="{StaticResource PlannerCard}" Padding="16">
                     <StackPanel>
-                        <TextBlock Text="Выполнено" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
+                        <TextBlock Text="{Binding [CompletedLabel], Source={x:Static svc:Loc.Instance}}" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock Text="{Binding MonthCompletedTasks}" FontSize="28" FontWeight="Bold"
                                    Foreground="{DynamicResource SuccessBrush}"/>
                     </StackPanel>
@@ -55,7 +56,7 @@
 
                 <Border Grid.Column="4" Style="{StaticResource PlannerCard}" Padding="16">
                     <StackPanel>
-                        <TextBlock Text="Продуктивность" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
+                        <TextBlock Text="{Binding [Productivity], Source={x:Static svc:Loc.Instance}}" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock FontSize="28" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">
                             <Run Text="{Binding MonthCompletionRate, StringFormat={}{0}%, Mode=OneWay}"/>
                         </TextBlock>
@@ -64,7 +65,7 @@
 
                 <Border Grid.Column="6" Style="{StaticResource PlannerCard}" Padding="16">
                     <StackPanel>
-                        <TextBlock Text="Лучший день" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
+                        <TextBlock Text="{Binding [BestDayLabel], Source={x:Static svc:Loc.Instance}}" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock Text="{Binding MostProductiveDay}" FontSize="20" FontWeight="Bold"/>
                     </StackPanel>
                 </Border>
@@ -84,7 +85,7 @@
 
                 <Border Grid.Column="0" Style="{StaticResource PlannerCard}" Padding="16">
                     <StackPanel>
-                        <TextBlock Text="Цели" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
+                        <TextBlock Text="{Binding [Goals], Source={x:Static svc:Loc.Instance}}" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock FontSize="28" FontWeight="Bold">
                             <Run Text="{Binding MonthCompletedGoals, Mode=OneWay}"/>/<Run Text="{Binding MonthTotalGoals, Mode=OneWay}"/>
                         </TextBlock>
@@ -93,7 +94,7 @@
 
                 <Border Grid.Column="2" Style="{StaticResource PlannerCard}" Padding="16">
                     <StackPanel>
-                        <TextBlock Text="Ср. сон" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
+                        <TextBlock Text="{Binding [AvgSleep], Source={x:Static svc:Loc.Instance}}" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock Text="{Binding AvgSleep, StringFormat={}{0:F1}}" FontSize="28" FontWeight="Bold"
                                    Foreground="{DynamicResource InfoBrush}"/>
                     </StackPanel>
@@ -101,7 +102,7 @@
 
                 <Border Grid.Column="4" Style="{StaticResource PlannerCard}" Padding="16">
                     <StackPanel>
-                        <TextBlock Text="Ср. энергия" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
+                        <TextBlock Text="{Binding [AvgEnergy], Source={x:Static svc:Loc.Instance}}" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock Text="{Binding AvgEnergy, StringFormat={}{0:F1}}" FontSize="28" FontWeight="Bold"
                                    Foreground="{DynamicResource WarningBrush}"/>
                     </StackPanel>
@@ -109,7 +110,7 @@
 
                 <Border Grid.Column="6" Style="{StaticResource PlannerCard}" Padding="16">
                     <StackPanel>
-                        <TextBlock Text="Ср. настроение" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
+                        <TextBlock Text="{Binding [AvgMood], Source={x:Static svc:Loc.Instance}}" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
                         <TextBlock Text="{Binding AvgMood, StringFormat={}{0:F1}}" FontSize="28" FontWeight="Bold"
                                    Foreground="{DynamicResource SuccessBrush}"/>
                     </StackPanel>
@@ -121,7 +122,7 @@
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                         <ui:SymbolIcon Symbol="ArrowTrendingLines24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBlock Text="Сравнение недель" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding [WeekComparison], Source={x:Static svc:Loc.Instance}}" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -130,18 +131,18 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" HorizontalAlignment="Center">
-                            <TextBlock Text="Прошлая неделя" FontSize="11" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding [PrevWeek], Source={x:Static svc:Loc.Instance}}" FontSize="11" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center"/>
                             <TextBlock FontSize="24" FontWeight="Bold" HorizontalAlignment="Center">
                                 <Run Text="{Binding PreviousWeekCompleted, Mode=OneWay}"/>/<Run Text="{Binding PreviousWeekTasks, Mode=OneWay}"/>
                             </TextBlock>
                         </StackPanel>
                         <StackPanel Grid.Column="1" HorizontalAlignment="Center">
-                            <TextBlock Text="Тренд" FontSize="11" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding [Trend], Source={x:Static svc:Loc.Instance}}" FontSize="11" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center"/>
                             <TextBlock Text="{Binding WeekTrend}" FontSize="18" FontWeight="Bold"
                                        Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2" HorizontalAlignment="Center">
-                            <TextBlock Text="Текущая неделя" FontSize="11" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding [CurrWeek], Source={x:Static svc:Loc.Instance}}" FontSize="11" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center"/>
                             <TextBlock FontSize="24" FontWeight="Bold" HorizontalAlignment="Center">
                                 <Run Text="{Binding CurrentWeekCompleted, Mode=OneWay}"/>/<Run Text="{Binding CurrentWeekTasks, Mode=OneWay}"/>
                             </TextBlock>
@@ -155,7 +156,7 @@
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                         <ui:SymbolIcon Symbol="DataBarVertical24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBlock Text="Продуктивность по неделям" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding [WeeklyProductivity], Source={x:Static svc:Loc.Instance}}" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
                     <ItemsControl ItemsSource="{Binding WeeklyBars}">
                         <ItemsControl.ItemTemplate>
@@ -192,7 +193,7 @@
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                         <ui:SymbolIcon Symbol="Grid24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBlock Text="Привычки — Heatmap (30 дней)" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding [HabitHeatmap], Source={x:Static svc:Loc.Instance}}" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
                     <ItemsControl ItemsSource="{Binding HeatmapData}">
                         <ItemsControl.ItemsPanel>
@@ -216,7 +217,7 @@
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                         <ui:SymbolIcon Symbol="Fire24" FontSize="18" Foreground="{DynamicResource WarningBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBlock Text="Серии привычек" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding [HabitStreaks], Source={x:Static svc:Loc.Instance}}" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
                     <ItemsControl ItemsSource="{Binding Streaks}">
                         <ItemsControl.ItemTemplate>

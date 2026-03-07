@@ -7,6 +7,7 @@ public sealed class DailyTask
 {
     public int Id { get; set; }
     public int DailyPlanId { get; set; }
+    public int? ParentTaskId { get; set; }
     public int Order { get; set; }
     public string Text { get; set; } = string.Empty;
     public bool IsCompleted { get; set; }
@@ -15,4 +16,6 @@ public sealed class DailyTask
     public TimeOnly? ReminderTime { get; set; }
 
     public DailyPlan? DailyPlan { get; set; }
+    public DailyTask? ParentTask { get; set; }
+    public List<DailyTask> SubTasks { get; set; } = [];
 }

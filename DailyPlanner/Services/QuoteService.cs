@@ -2,36 +2,18 @@ namespace DailyPlanner.Services;
 
 public static class QuoteService
 {
-    private static readonly string[] Quotes =
-    [
-        "Маленькие шаги каждый день приводят к большим результатам.",
-        "Дисциплина — это мост между целями и достижениями.",
-        "Не жди идеального момента. Бери момент и делай его идеальным.",
-        "Успех — это сумма маленьких усилий, повторяемых изо дня в день.",
-        "Планирование — это приведение будущего в настоящее.",
-        "Каждый день — это новая возможность стать лучше.",
-        "Делай сегодня то, что другие не хотят. Завтра будешь жить так, как другие не могут.",
-        "Фокус — это не то, чему ты говоришь 'да', а то, чему говоришь 'нет'.",
-        "Привычки определяют будущее. Выбирай их мудро.",
-        "Прогресс, а не совершенство.",
-        "Лучшее время начать — прямо сейчас.",
-        "Твой единственный конкурент — ты вчерашний.",
-        "Энергия следует за вниманием. Направь внимание на важное.",
-        "Без плана ты планируешь потерпеть неудачу.",
-        "Великие дела начинаются с малого.",
-        "Сосредоточься на процессе, а результат придёт.",
-        "Каждая выполненная задача — маленькая победа.",
-        "Не откладывай на завтра то, что сделает тебя лучше сегодня.",
-        "Продуктивность — это не занятость, а результат.",
-        "Один час планирования экономит десять часов работы."
-    ];
+    private const int QuoteCount = 20;
 
     public static string GetDailyQuote()
     {
-        // Deterministic for the day so it doesn't change on every load
         var dayIndex = DateTime.Today.DayOfYear + DateTime.Today.Year * 366;
-        return Quotes[dayIndex % Quotes.Length];
+        var idx = dayIndex % QuoteCount;
+        return Loc.Get($"Quote{idx + 1}");
     }
 
-    public static string GetRandom() => Quotes[Random.Shared.Next(Quotes.Length)];
+    public static string GetRandom()
+    {
+        var idx = Random.Shared.Next(QuoteCount);
+        return Loc.Get($"Quote{idx + 1}");
+    }
 }

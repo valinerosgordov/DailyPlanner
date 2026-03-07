@@ -49,7 +49,12 @@ public sealed class PlannerDbContext(DbContextOptions<PlannerDbContext> options)
         {
             e.HasKey(t => t.Id);
             e.HasIndex(t => t.DailyPlanId);
+            e.HasIndex(t => t.ParentTaskId);
             e.Property(t => t.Text).HasMaxLength(500);
+            e.HasOne(t => t.ParentTask)
+                .WithMany(t => t.SubTasks)
+                .HasForeignKey(t => t.ParentTaskId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<DailyState>(e =>

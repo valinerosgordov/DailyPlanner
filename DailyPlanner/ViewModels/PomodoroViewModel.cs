@@ -12,10 +12,10 @@ public sealed partial class PomodoroViewModel : ObservableObject
     [ObservableProperty] private string _timeDisplay = "45:00";
     [ObservableProperty] private double _progressPercent;
     [ObservableProperty] private bool _isRunning;
-    [ObservableProperty] private string _phaseLabel = "Работа";
+    [ObservableProperty] private string _phaseLabel = Loc.Get("PomWork");
     [ObservableProperty] private int _sessionsCompleted;
     [ObservableProperty] private bool _isFocusMode;
-    [ObservableProperty] private string _modeLabel = "Помодоро";
+    [ObservableProperty] private string _modeLabel = Loc.Get("PomPomodoro");
     [ObservableProperty] private double _workMinutes = 45;
     [ObservableProperty] private double _breakMinutes = 5;
     [ObservableProperty] private double _focusAlertMinutes = 45;
@@ -99,14 +99,14 @@ public sealed partial class PomodoroViewModel : ObservableObject
         ProgressPercent = _pomodoro.ProgressPercent;
         IsRunning = _pomodoro.IsRunning;
         PhaseLabel = _pomodoro.IsFocusMode
-            ? "Фокус"
-            : (_pomodoro.IsWorkPhase ? "Работа" : "Перерыв");
+            ? Loc.Get("PomFocus")
+            : (_pomodoro.IsWorkPhase ? Loc.Get("PomWork") : Loc.Get("PomBreak"));
     }
 
     private void OnPhaseCompleted(bool wasWork)
     {
         SessionsCompleted = _pomodoro.SessionsCompleted;
-        var msg = wasWork ? "Время перерыва! Отдохни \U0001f3d6\ufe0f" : "Время работать! \U0001f4aa";
+        var msg = wasWork ? Loc.Get("PomBreakTime") : Loc.Get("PomWorkTime");
         NotificationService.ShowToast("Pomodoro", msg);
         System.Media.SystemSounds.Exclamation.Play();
     }
@@ -115,8 +115,8 @@ public sealed partial class PomodoroViewModel : ObservableObject
     {
         var elapsed = _pomodoro.Elapsed;
         var mins = (int)elapsed.TotalMinutes;
-        NotificationService.ShowToast("Фокус-таймер",
-            $"Уже {mins} мин! Сделай перерыв \u2615");
+        NotificationService.ShowToast(Loc.Get("PomFocusTimer"),
+            string.Format(Loc.Get("PomFocusAlert"), mins));
         System.Media.SystemSounds.Exclamation.Play();
     }
 
@@ -138,8 +138,8 @@ public sealed partial class PomodoroViewModel : ObservableObject
         ProgressPercent = 0;
         IsRunning = false;
         IsFocusMode = false;
-        ModeLabel = "Помодоро";
-        PhaseLabel = "Работа";
+        ModeLabel = Loc.Get("PomPomodoro");
+        PhaseLabel = Loc.Get("PomWork");
     }
 
     [RelayCommand]
@@ -154,10 +154,10 @@ public sealed partial class PomodoroViewModel : ObservableObject
     {
         IsFocusMode = !IsFocusMode;
         _pomodoro.SetFocusMode(IsFocusMode);
-        ModeLabel = IsFocusMode ? "Фокус-режим" : "Помодоро";
+        ModeLabel = IsFocusMode ? Loc.Get("PomFocusMode") : Loc.Get("PomPomodoro");
         TimeDisplay = _pomodoro.TimeDisplay;
         ProgressPercent = 0;
         IsRunning = false;
-        PhaseLabel = IsFocusMode ? "Фокус" : "Работа";
+        PhaseLabel = IsFocusMode ? Loc.Get("PomFocus") : Loc.Get("PomWork");
     }
 }
