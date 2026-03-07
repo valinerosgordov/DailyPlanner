@@ -14,6 +14,7 @@ public sealed class PlannerService
             .Include(w => w.Goals.OrderBy(g => g.Order))
             .Include(w => w.Days.OrderBy(d => d.Date))
                 .ThenInclude(d => d.Tasks.OrderBy(t => t.Order))
+                    .ThenInclude(t => t.SubTasks.OrderBy(s => s.Order))
             .Include(w => w.Days)
                 .ThenInclude(d => d.State)
             .Include(w => w.Habits.OrderBy(h => h.Order))
@@ -86,6 +87,24 @@ public sealed class PlannerService
         await using var db = PlannerDbContextFactory.Create();
         db.DailyTasks.Update(task);
         await db.SaveChangesAsync(ct);
+    }
+
+    public async Task AddSubTaskAsync(DailyTask subTask, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        db.DailyTasks.Add(subTask);
+        await db.SaveChangesAsync(ct);
+    }
+
+    public async Task RemoveSubTaskAsync(int subTaskId, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var task = await db.DailyTasks.FindAsync([subTaskId], ct);
+        if (task is not null)
+        {
+            db.DailyTasks.Remove(task);
+            await db.SaveChangesAsync(ct);
+        }
     }
 
     public async Task SaveGoalAsync(WeeklyGoal goal, CancellationToken ct = default)
@@ -274,8 +293,8 @@ public sealed class PlannerService
     public async Task CarryOverTasksAsync(DateOnly fromDate, DateOnly toDate, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        var fromDay = await db.DailyPlans.Include(d => d.Tasks).FirstOrDefaultAsync(d => d.Date == fromDate, ct);
-        var toDay = await db.DailyPlans.Include(d => d.Tasks).FirstOrDefaultAsync(d => d.Date == toDate, ct);
+        var fromDay = await db.DailyPlans.Include(d => d.Tasks).ThenInclude(t => t.SubTasks).FirstOrDefaultAsync(d => d.Date == fromDate, ct);
+        var toDay = await db.DailyPlans.Include(d => d.Tasks).ThenInclude(t => t.SubTasks).FirstOrDefaultAsync(d => d.Date == toDate, ct);
         if (fromDay is null || toDay is null) return;
 
         var incomplete = fromDay.Tasks.Where(t => !t.IsCompleted && !string.IsNullOrWhiteSpace(t.Text)).ToList();
@@ -305,7 +324,7 @@ public sealed class PlannerService
     {
         await using var db = PlannerDbContextFactory.Create();
         return await db.Weeks
-            .Include(w => w.Days).ThenInclude(d => d.Tasks)
+            .Include(w => w.Days).ThenInclude(d => d.Tasks).ThenInclude(t => t.SubTasks)
             .Include(w => w.Days).ThenInclude(d => d.State)
             .Include(w => w.Goals)
             .Include(w => w.Habits).ThenInclude(h => h.Entries)

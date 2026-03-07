@@ -52,14 +52,16 @@ public sealed partial class StatisticsViewModel : ObservableObject
         var weekStart = PlannerService.GetWeekStart(firstDay);
         var weekEnd = PlannerService.GetWeekStart(lastDay).AddDays(6);
 
-        PeriodLabel = $"{GetMonthName(SelectedMonth)} {SelectedYear}";
+        PeriodLabel = $"{Loc.GetMonthName(SelectedMonth)} {SelectedYear}";
 
         var weeks = await _service.GetWeeksInRangeAsync(weekStart, weekEnd);
 
         // Monthly aggregation
         var allDays = weeks.SelectMany(w => w.Days)
             .Where(d => d.Date.Month == SelectedMonth && d.Date.Year == SelectedYear).ToList();
-        var allTasks = allDays.SelectMany(d => d.Tasks).Where(t => !string.IsNullOrWhiteSpace(t.Text)).ToList();
+        var allTasks = allDays.SelectMany(d => d.Tasks)
+            .SelectMany(t => t.SubTasks.Prepend(t))
+            .Where(t => !string.IsNullOrWhiteSpace(t.Text)).ToList();
         var allGoals = weeks.SelectMany(w => w.Goals).Where(g => !string.IsNullOrWhiteSpace(g.Text)).ToList();
 
         MonthTotalTasks = allTasks.Count;
@@ -70,9 +72,9 @@ public sealed partial class StatisticsViewModel : ObservableObject
 
         // Most productive day of week
         var dayGroups = allDays.GroupBy(d => d.Date.DayOfWeek)
-            .Select(g => new { Day = g.Key, Completed = g.Sum(d => d.Tasks.Count(t => t.IsCompleted)) })
+            .Select(g => new { Day = g.Key, Completed = g.Sum(d => d.Tasks.SelectMany(t => t.SubTasks.Prepend(t)).Count(t => t.IsCompleted)) })
             .OrderByDescending(g => g.Completed).FirstOrDefault();
-        MostProductiveDay = dayGroups is not null ? GetDayName(dayGroups.Day) : "-";
+        MostProductiveDay = dayGroups is not null ? Loc.GetDayName(dayGroups.Day) : "-";
 
         // Averages
         var states = allDays.Where(d => d.State is not null).Select(d => d.State!).ToList();
@@ -84,7 +86,7 @@ public sealed partial class StatisticsViewModel : ObservableObject
         WeeklyBars.Clear();
         foreach (var week in weeks.OrderBy(w => w.StartDate))
         {
-            var wTasks = week.Days.SelectMany(d => d.Tasks).Where(t => !string.IsNullOrWhiteSpace(t.Text)).ToList();
+            var wTasks = week.Days.SelectMany(d => d.Tasks).SelectMany(t => t.SubTasks.Prepend(t)).Where(t => !string.IsNullOrWhiteSpace(t.Text)).ToList();
             WeeklyBars.Add(new WeekBarItem(
                 $"{week.StartDate:dd.MM}",
                 wTasks.Count,
@@ -100,19 +102,19 @@ public sealed partial class StatisticsViewModel : ObservableObject
 
         if (currentWeek is not null)
         {
-            var ct = currentWeek.Days.SelectMany(d => d.Tasks).Where(t => !string.IsNullOrWhiteSpace(t.Text)).ToList();
+            var ct = currentWeek.Days.SelectMany(d => d.Tasks).SelectMany(t => t.SubTasks.Prepend(t)).Where(t => !string.IsNullOrWhiteSpace(t.Text)).ToList();
             CurrentWeekTasks = ct.Count;
             CurrentWeekCompleted = ct.Count(t => t.IsCompleted);
         }
         if (prevWeek is not null)
         {
-            var pt = prevWeek.Days.SelectMany(d => d.Tasks).Where(t => !string.IsNullOrWhiteSpace(t.Text)).ToList();
+            var pt = prevWeek.Days.SelectMany(d => d.Tasks).SelectMany(t => t.SubTasks.Prepend(t)).Where(t => !string.IsNullOrWhiteSpace(t.Text)).ToList();
             PreviousWeekTasks = pt.Count;
             PreviousWeekCompleted = pt.Count(t => t.IsCompleted);
         }
 
         var diff = CurrentWeekCompleted - PreviousWeekCompleted;
-        WeekTrend = diff > 0 ? $"+{diff} задач" : diff < 0 ? $"{diff} задач" : "Без изменений";
+        WeekTrend = diff > 0 ? $"+{diff} {Loc.Get("TasksUnit")}" : diff < 0 ? $"{diff} {Loc.Get("TasksUnit")}" : Loc.Get("NoChange");
 
         // Habit heatmap (last 30 days)
         HeatmapData.Clear();
@@ -168,21 +170,6 @@ public sealed partial class StatisticsViewModel : ObservableObject
         else SelectedMonth++;
         await LoadDataAsync();
     }
-
-    private static string GetMonthName(int m) => m switch
-    {
-        1 => "Январь", 2 => "Февраль", 3 => "Март", 4 => "Апрель",
-        5 => "Май", 6 => "Июнь", 7 => "Июль", 8 => "Август",
-        9 => "Сентябрь", 10 => "Октябрь", 11 => "Ноябрь", 12 => "Декабрь", _ => ""
-    };
-
-    private static string GetDayName(DayOfWeek d) => d switch
-    {
-        DayOfWeek.Monday => "Понедельник", DayOfWeek.Tuesday => "Вторник",
-        DayOfWeek.Wednesday => "Среда", DayOfWeek.Thursday => "Четверг",
-        DayOfWeek.Friday => "Пятница", DayOfWeek.Saturday => "Суббота",
-        DayOfWeek.Sunday => "Воскресенье", _ => ""
-    };
 }
 
 public sealed record WeekBarItem(string Label, int Total, int Completed)
@@ -198,5 +185,5 @@ public sealed record HabitHeatmapItem(DateOnly Date, int Completed, int Total)
 
 public sealed record HabitStreakItem(string Name, int Streak)
 {
-    public string StreakText => Streak > 0 ? $"{Streak} дн." : "—";
+    public string StreakText => Streak > 0 ? $"{Streak} {Loc.Get("DaysUnit")}" : "\u2014";
 }

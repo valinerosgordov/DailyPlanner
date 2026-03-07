@@ -76,15 +76,21 @@ public sealed partial class WeekViewModel : ObservableObject
         {
             var parts = new List<string>
             {
-                $"Задачи: {CompletedTasks}/{TotalTasks}",
-                $"Цели: {CompletedGoals}/{Goals.Count}",
-                $"Лучший день: {MostProductiveDay}"
+                string.Format(Loc.Get("SummaryTasks"), CompletedTasks, TotalTasks),
+                string.Format(Loc.Get("SummaryGoals"), CompletedGoals, Goals.Count),
+                string.Format(Loc.Get("SummaryBestDay"), MostProductiveDay)
             };
-            if (AverageProgress >= 80) parts.Add("\u2b50 Отличная неделя!");
-            else if (AverageProgress >= 50) parts.Add("\u2705 Хорошая неделя!");
-            else if (TotalTasks > 0) parts.Add("\U0001f4aa Можно лучше!");
+            if (AverageProgress >= 80) parts.Add(Loc.Get("SummaryExcellent"));
+            else if (AverageProgress >= 50) parts.Add(Loc.Get("SummaryGood"));
+            else if (TotalTasks > 0) parts.Add(Loc.Get("SummaryCanBetter"));
             return string.Join("  \u00b7  ", parts);
         }
+    }
+
+    public void RefreshLocalization()
+    {
+        OnPropertyChanged(nameof(MostProductiveDay));
+        OnPropertyChanged(nameof(WeeklySummary));
     }
 
     partial void OnNotesChanged(string value)

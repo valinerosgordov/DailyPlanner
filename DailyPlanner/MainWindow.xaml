@@ -4,6 +4,7 @@
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:views="clr-namespace:DailyPlanner.Views"
         xmlns:conv="clr-namespace:DailyPlanner.Converters"
+        xmlns:svc="clr-namespace:DailyPlanner.Services"
         Title="Daily Planner"
         Width="1480" Height="920"
         MinWidth="1200" MinHeight="700"
@@ -60,7 +61,7 @@
                         <DockPanel Margin="0,0,0,4">
                             <ui:SymbolIcon Symbol="CalendarToday24" FontSize="12"
                                            Foreground="{DynamicResource AccentBrush}" DockPanel.Dock="Left" Margin="0,0,6,0"/>
-                            <TextBlock Text="СЕГОДНЯ" FontSize="9" FontWeight="Bold"
+                            <TextBlock Text="{Binding [Today], Source={x:Static svc:Loc.Instance}}" FontSize="9" FontWeight="Bold"
                                        Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
                             <TextBlock Text="{Binding TodayProgress}" FontSize="9"
                                        Foreground="{DynamicResource MutedBrush}"
@@ -86,16 +87,16 @@
                                Appearance="Transparent" HorizontalAlignment="Stretch"
                                Command="{Binding TogglePomodoroCommand}" Margin="0,0,0,4"
                                ToolTip="Ctrl+P"/>
-                    <ui:Button Content="Статистика" Icon="{ui:SymbolIcon DataBarVertical24}"
+                    <ui:Button Content="{Binding [Statistics], Source={x:Static svc:Loc.Instance}}" Icon="{ui:SymbolIcon DataBarVertical24}"
                                Appearance="Transparent" HorizontalAlignment="Stretch"
                                Click="Statistics_Click" Margin="0,0,0,4"/>
-                    <ui:Button Content="Экспорт" Icon="{ui:SymbolIcon ArrowDownload24}"
+                    <ui:Button Content="{Binding [Export], Source={x:Static svc:Loc.Instance}}" Icon="{ui:SymbolIcon ArrowDownload24}"
                                Appearance="Transparent" HorizontalAlignment="Stretch"
                                Command="{Binding ExportToExcelCommand}" Margin="0,0,0,4"/>
-                    <ui:Button Content="Сегодня" Icon="{ui:SymbolIcon CalendarToday24}"
+                    <ui:Button Content="{Binding [TodayBtn], Source={x:Static svc:Loc.Instance}}" Icon="{ui:SymbolIcon CalendarToday24}"
                                Appearance="Transparent" HorizontalAlignment="Stretch"
                                Command="{Binding GoToTodayCommand}" Margin="0,0,0,4"/>
-                    <ui:Button Content="Настройки" Icon="{ui:SymbolIcon Settings24}"
+                    <ui:Button Content="{Binding [Settings], Source={x:Static svc:Loc.Instance}}" Icon="{ui:SymbolIcon Settings24}"
                                Appearance="Secondary" HorizontalAlignment="Stretch"
                                Click="Settings_Click"/>
                 </StackPanel>
@@ -219,11 +220,11 @@
                         <!-- Search toggle -->
                         <ui:Button Icon="{ui:SymbolIcon Search24}" Appearance="Transparent"
                                    Command="{Binding ToggleSearchCommand}" Padding="8" Margin="8,0,0,0"
-                                   ToolTip="Поиск (Ctrl+F)"/>
+                                   ToolTip="{Binding [SearchTooltip], Source={x:Static svc:Loc.Instance}}"/>
                         <!-- Copy week -->
                         <ui:Button Icon="{ui:SymbolIcon Copy24}" Appearance="Transparent"
                                    Command="{Binding CopyPreviousWeekCommand}" Padding="8" Margin="4,0,0,0"
-                                   ToolTip="Копировать структуру прошлой недели"/>
+                                   ToolTip="{Binding [CopyWeekTooltip], Source={x:Static svc:Loc.Instance}}"/>
                     </StackPanel>
 
                     <!-- Week Tabs -->
@@ -319,11 +320,11 @@
                         <RowDefinition/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Column="0" Text="Работа" FontSize="9" HorizontalAlignment="Center"
+                    <TextBlock Grid.Column="0" Text="{Binding [PomWork], Source={x:Static svc:Loc.Instance}}" FontSize="9" HorizontalAlignment="Center"
                                Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,4"/>
-                    <TextBlock Grid.Column="2" Text="Перерыв" FontSize="9" HorizontalAlignment="Center"
+                    <TextBlock Grid.Column="2" Text="{Binding [PomBreak], Source={x:Static svc:Loc.Instance}}" FontSize="9" HorizontalAlignment="Center"
                                Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,4"/>
-                    <TextBlock Grid.Column="4" Text="Фокус" FontSize="9" HorizontalAlignment="Center"
+                    <TextBlock Grid.Column="4" Text="{Binding [PomFocus], Source={x:Static svc:Loc.Instance}}" FontSize="9" HorizontalAlignment="Center"
                                Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,4"/>
                     <ui:NumberBox Grid.Row="1" Grid.Column="0" Value="{Binding WorkMinutes, Mode=TwoWay}"
                                   Minimum="1" Maximum="120" SpinButtonPlacementMode="Hidden"
@@ -349,18 +350,18 @@
                     </ui:Button>
                     <ui:Button Icon="{ui:SymbolIcon ArrowReset24}" Appearance="Transparent" Padding="8,6"
                                Command="{Binding ResetTimerCommand}" Margin="0,0,6,0"
-                               ToolTip="Сброс"/>
+                               ToolTip="{Binding [PomReset], Source={x:Static svc:Loc.Instance}}"/>
                     <ui:Button Icon="{ui:SymbolIcon Next24}" Appearance="Transparent" Padding="8,6"
                                Command="{Binding SkipPhaseCommand}" Margin="0,0,6,0"
-                               ToolTip="Пропустить"/>
+                               ToolTip="{Binding [PomSkip], Source={x:Static svc:Loc.Instance}}"/>
                     <ui:Button Appearance="Transparent" Padding="8,6"
                                Command="{Binding ToggleFocusModeCommand}"
-                               ToolTip="Переключить Помодоро/Фокус" Content="F"
+                               ToolTip="{Binding [PomToggleFocus], Source={x:Static svc:Loc.Instance}}" Content="F"
                                FontWeight="Bold" FontSize="12"/>
                 </StackPanel>
                 <TextBlock Margin="0,8,0,0" HorizontalAlignment="Center" FontSize="11"
                            Foreground="{DynamicResource MutedBrush}">
-                    <Run Text="Сессий: "/><Run Text="{Binding SessionsCompleted, Mode=OneWay}"/>
+                    <Run Text="{Binding [PomSessions], Source={x:Static svc:Loc.Instance}, Mode=OneWay}"/><Run Text="{Binding SessionsCompleted, Mode=OneWay}"/>
                 </TextBlock>
             </StackPanel>
         </Border>

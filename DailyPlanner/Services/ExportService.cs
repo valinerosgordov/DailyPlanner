@@ -10,49 +10,54 @@ public static class ExportService
         try
         {
         using var workbook = new XLWorkbook();
-        var ws = workbook.AddWorksheet($"Неделя {week.StartDate:dd.MM}");
+        var ws = workbook.AddWorksheet(string.Format(Loc.Get("ExpWeek"), week.StartDate.ToString("dd.MM")));
 
         // Header
-        ws.Cell("A1").Value = $"Планер — Неделя {week.StartDate:dd.MM.yyyy} – {week.StartDate.AddDays(6):dd.MM.yyyy}";
+        ws.Cell("A1").Value = string.Format(Loc.Get("ExpPlannerWeek"),
+            week.StartDate.ToString("dd.MM.yyyy"), week.StartDate.AddDays(6).ToString("dd.MM.yyyy"));
         ws.Range("A1:H1").Merge().Style
             .Font.SetBold(true).Font.SetFontSize(14)
             .Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
 
         // Goals
-        ws.Cell("A3").Value = "Цели недели";
+        ws.Cell("A3").Value = Loc.Get("ExpWeekGoals");
         ws.Cell("A3").Style.Font.SetBold(true);
         var row = 4;
         foreach (var goal in week.Goals.OrderBy(g => g.Order))
         {
             ws.Cell(row, 1).Value = goal.Order;
             ws.Cell(row, 2).Value = goal.Text;
-            ws.Cell(row, 3).Value = goal.IsCompleted ? "✓" : "";
+            ws.Cell(row, 3).Value = goal.IsCompleted ? "\u2713" : "";
             row++;
         }
 
         // Days header
         row += 1;
         var daysStartRow = row;
-        ws.Cell(row, 1).Value = "День";
-        var dayNames = new[] { "Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс" };
+        ws.Cell(row, 1).Value = Loc.Get("ExpDay");
+        string[] dayKeys = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
         for (var i = 0; i < 7; i++)
-            ws.Cell(row, i + 2).Value = dayNames[i];
+            ws.Cell(row, i + 2).Value = Loc.Get(dayKeys[i]);
         ws.Range(row, 1, row, 8).Style.Font.SetBold(true);
 
-        // Tasks
+        // Tasks (including subtasks)
         row++;
         var days = week.Days.OrderBy(d => d.Date).ToList();
-        var maxTasks = days.Count > 0 ? days.Max(d => d.Tasks.Count) : 0;
+        var expandedTasks = days.Select(d =>
+            d.Tasks.Where(t => t.ParentTaskId is null).OrderBy(t => t.Order)
+                .SelectMany(t => t.SubTasks.OrderBy(s => s.Order).Prepend(t)).ToList()).ToList();
+        var maxTasks = expandedTasks.Count > 0 ? expandedTasks.Max(t => t.Count) : 0;
         for (var t = 0; t < maxTasks; t++)
         {
-            ws.Cell(row, 1).Value = $"Задача {t + 1}";
+            ws.Cell(row, 1).Value = string.Format(Loc.Get("ExpTask"), t + 1);
             for (var d = 0; d < days.Count; d++)
             {
-                var tasks = days[d].Tasks.OrderBy(x => x.Order).ToList();
-                if (t < tasks.Count && !string.IsNullOrWhiteSpace(tasks[t].Text))
+                if (t < expandedTasks[d].Count && !string.IsNullOrWhiteSpace(expandedTasks[d][t].Text))
                 {
-                    var text = tasks[t].Text;
-                    if (tasks[t].IsCompleted) text = $"✓ {text}";
+                    var task = expandedTasks[d][t];
+                    var prefix = task.ParentTaskId is not null ? "  └ " : "";
+                    var text = $"{prefix}{task.Text}";
+                    if (task.IsCompleted) text = $"\u2713 {text}";
                     ws.Cell(row, d + 2).Value = text;
                 }
             }
@@ -61,12 +66,12 @@ public static class ExportService
 
         // State
         row += 1;
-        ws.Cell(row, 1).Value = "Состояние";
+        ws.Cell(row, 1).Value = Loc.Get("ExpState");
         ws.Cell(row, 1).Style.Font.SetBold(true);
         row++;
-        ws.Cell(row, 1).Value = "Сон";
-        ws.Cell(row + 1, 1).Value = "Энергия";
-        ws.Cell(row + 2, 1).Value = "Настрой";
+        ws.Cell(row, 1).Value = Loc.Get("Sleep");
+        ws.Cell(row + 1, 1).Value = Loc.Get("Energy");
+        ws.Cell(row + 2, 1).Value = Loc.Get("Mood");
 
         for (var d = 0; d < days.Count; d++)
         {
@@ -80,13 +85,13 @@ public static class ExportService
         row += 4;
 
         // Habits
-        ws.Cell(row, 1).Value = "Привычки";
+        ws.Cell(row, 1).Value = Loc.Get("ExpHabits");
         ws.Cell(row, 1).Style.Font.SetBold(true);
         row++;
-        ws.Cell(row, 1).Value = "Привычка";
+        ws.Cell(row, 1).Value = Loc.Get("HabitLabel");
         for (var i = 0; i < 7; i++)
-            ws.Cell(row, i + 2).Value = dayNames[i];
-        ws.Cell(row, 9).Value = "Прогресс";
+            ws.Cell(row, i + 2).Value = Loc.Get(dayKeys[i]);
+        ws.Cell(row, 9).Value = Loc.Get("ProgressCol");
         ws.Range(row, 1, row, 9).Style.Font.SetBold(true);
         row++;
 
@@ -98,7 +103,7 @@ public static class ExportService
             for (var i = 0; i < ordered.Length; i++)
             {
                 var entry = habit.Entries.FirstOrDefault(e => e.DayOfWeek == ordered[i]);
-                ws.Cell(row, i + 2).Value = entry?.IsCompleted == true ? "✓" : "";
+                ws.Cell(row, i + 2).Value = entry?.IsCompleted == true ? "\u2713" : "";
             }
             ws.Cell(row, 9).Value = $"{habit.Entries.Count(e => e.IsCompleted)}/7";
             row++;
@@ -106,7 +111,7 @@ public static class ExportService
 
         // Notes
         row += 1;
-        ws.Cell(row, 1).Value = "Заметки";
+        ws.Cell(row, 1).Value = Loc.Get("ExpNotes");
         ws.Cell(row, 1).Style.Font.SetBold(true);
         row++;
         if (week.WeeklyNotes.Count > 0)

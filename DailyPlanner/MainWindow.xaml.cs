@@ -40,7 +40,7 @@ public partial class MainWindow : FluentWindow
             {
                 Hide();
                 _trayIcon?.ShowBalloonTip(1000, "Daily Planner",
-                    "Приложение свёрнуто в трей", System.Windows.Forms.ToolTipIcon.Info);
+                    Loc.Get("TrayMinimized"), System.Windows.Forms.ToolTipIcon.Info);
             }
         };
 
@@ -61,14 +61,14 @@ public partial class MainWindow : FluentWindow
         };
 
         var menu = new System.Windows.Forms.ContextMenuStrip();
-        menu.Items.Add("Открыть", null, (_, _) => ShowFromTray());
-        menu.Items.Add("Сегодня", null, (_, _) =>
+        menu.Items.Add(Loc.Get("TrayOpen"), null, (_, _) => ShowFromTray());
+        menu.Items.Add(Loc.Get("TrayToday"), null, (_, _) =>
         {
             ShowFromTray();
             _viewModel.GoToTodayCommand.Execute(null);
         });
         menu.Items.Add("-");
-        menu.Items.Add("Выход", null, (_, _) =>
+        menu.Items.Add(Loc.Get("TrayExit"), null, (_, _) =>
         {
             _trayIcon.Visible = false;
             Application.Current.Shutdown();

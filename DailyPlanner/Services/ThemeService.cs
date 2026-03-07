@@ -34,6 +34,8 @@ public static class ThemeService
             if (File.Exists(SettingsPath))
             {
                 var name = File.ReadAllText(SettingsPath).Trim();
+                // Migrate old Russian palette name
+                if (name == "\u0421\u0432\u0435\u0442\u043b\u0430\u044f") name = "Light";
                 if (Palettes.ContainsKey(name)) return name;
             }
         }
@@ -118,7 +120,7 @@ public static class ThemeService
             HoverBg: Hex("#3d2828"), ProgressTrack: Hex("#0c0c0c"), KeyboardBg: Hex("#1e1212"),
             Success: Hex("#c9a84c"), Warning: Hex("#d4a030"), Danger: Hex("#c43c3c"), Info: Hex("#a08060")),
 
-        ["Светлая"] = new("Светлая", false,
+        ["Light"] = new("Light", false,
             Accent: Hex("#7c5cfc"), AccentLight: Hex("#a78bfa"), AccentDark: Hex("#5b3fd6"),
             PageBg: Hex("#f5f6fa"), CardBg: Hex("#ffffff"), CardBorder: Hex("#e2e4eb"),
             SidebarBg: Hex("#eaecf3"), InputBg: Hex("#f0f1f6"), SubtleBg: Hex("#f0f1f6"),

@@ -43,6 +43,48 @@ public partial class WeekPage : Page
         await mainVm.LoadMonthCommand.ExecuteAsync(null);
     }
 
+    private void ToggleExpand_Click(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: TaskViewModel task })
+        {
+            task.ToggleExpandCommand.Execute(null);
+            e.Handled = true;
+        }
+    }
+
+    private async void AddSubTask_Click(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: TaskViewModel task } && !task.IsSubTask
+            && !string.IsNullOrWhiteSpace(task.Text))
+        {
+            await task.AddSubTaskCommand.ExecuteAsync(null);
+            e.Handled = true;
+        }
+    }
+
+    private async void RemoveSubTask_Click(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: TaskViewModel subTask }) return;
+
+        // Find parent task
+        var parent = FindParentTask(subTask);
+        if (parent is not null)
+        {
+            await parent.RemoveSubTaskCommand.ExecuteAsync(subTask);
+            e.Handled = true;
+        }
+    }
+
+    private TaskViewModel? FindParentTask(TaskViewModel subTask)
+    {
+        var mainVm = DataContext as MainViewModel;
+        if (mainVm?.SelectedWeek is null) return null;
+
+        return mainVm.SelectedWeek.Days
+            .SelectMany(d => d.Tasks)
+            .FirstOrDefault(t => t.SubTasks.Contains(subTask));
+    }
+
     // Drag & drop
     private void Task_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
@@ -98,7 +140,7 @@ public partial class WeekPage : Page
         var emptySlot = targetDay.Tasks.FirstOrDefault(t => string.IsNullOrWhiteSpace(t.Text));
         if (emptySlot is null)
         {
-            Services.NotificationService.ShowToast("Перемещение", "Нет свободных слотов в этом дне");
+            Services.NotificationService.ShowToast(Services.Loc.Get("MoveTitle"), Services.Loc.Get("MoveNoSlots"));
             return;
         }
 

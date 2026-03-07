@@ -16,7 +16,9 @@ public sealed partial class DayViewModel : ObservableObject
         _service = service;
 
         Tasks = new ObservableCollection<TaskViewModel>(
-            model.Tasks.OrderBy(t => t.Order).Select(t => new TaskViewModel(t, service)));
+            model.Tasks.Where(t => t.ParentTaskId is null)
+                .OrderBy(t => t.Order)
+                .Select(t => new TaskViewModel(t, service)));
 
         if (model.State is not null)
         {
@@ -26,61 +28,52 @@ public sealed partial class DayViewModel : ObservableObject
         }
 
         foreach (var task in Tasks)
-            task.PropertyChanged += (_, _) =>
-            {
-                OnPropertyChanged(nameof(CompletedCount));
-                OnPropertyChanged(nameof(TotalWithText));
-                OnPropertyChanged(nameof(NotCompletedCount));
-                OnPropertyChanged(nameof(ProgressPercent));
-            };
+            SubscribeTaskStats(task);
     }
 
     public DailyPlan Model => _model;
     public DateOnly Date => _model.Date;
 
-    public string DayName => Date.DayOfWeek switch
-    {
-        DayOfWeek.Monday => "Понедельник",
-        DayOfWeek.Tuesday => "Вторник",
-        DayOfWeek.Wednesday => "Среда",
-        DayOfWeek.Thursday => "Четверг",
-        DayOfWeek.Friday => "Пятница",
-        DayOfWeek.Saturday => "Суббота",
-        DayOfWeek.Sunday => "Воскресенье",
-        _ => string.Empty
-    };
-
-    public string ShortDayName => Date.DayOfWeek switch
-    {
-        DayOfWeek.Monday => "Пн",
-        DayOfWeek.Tuesday => "Вт",
-        DayOfWeek.Wednesday => "Ср",
-        DayOfWeek.Thursday => "Чт",
-        DayOfWeek.Friday => "Пт",
-        DayOfWeek.Saturday => "Сб",
-        DayOfWeek.Sunday => "Вс",
-        _ => string.Empty
-    };
-
+    public string DayName => Loc.GetDayName(Date.DayOfWeek);
+    public string ShortDayName => Loc.GetShortDayName(Date.DayOfWeek);
     public string DateFormatted => Date.ToString("dd.MM");
-
     public bool IsToday => Date == DateOnly.FromDateTime(DateTime.Today);
 
     public ObservableCollection<TaskViewModel> Tasks { get; }
 
-    public int CompletedCount => Tasks.Count(t => t.IsCompleted && !string.IsNullOrWhiteSpace(t.Text));
-    public int TotalWithText => Tasks.Count(t => !string.IsNullOrWhiteSpace(t.Text));
+    public int CompletedCount => AllTasksFlat.Count(t => t.IsCompleted && !string.IsNullOrWhiteSpace(t.Text));
+    public int TotalWithText => AllTasksFlat.Count(t => !string.IsNullOrWhiteSpace(t.Text));
     public int NotCompletedCount => TotalWithText - CompletedCount;
     public double ProgressPercent => TotalWithText > 0 ? (double)CompletedCount / TotalWithText * 100 : 0;
 
-    [ObservableProperty]
-    private int _sleep;
+    private IEnumerable<TaskViewModel> AllTasksFlat =>
+        Tasks.SelectMany(t => t.SubTasks.Prepend(t));
 
-    [ObservableProperty]
-    private int _energy;
+    private void SubscribeTaskStats(TaskViewModel task)
+    {
+        task.PropertyChanged += (_, _) => NotifyStats();
+        foreach (var sub in task.SubTasks)
+            sub.PropertyChanged += (_, _) => NotifyStats();
+        task.SubTasks.CollectionChanged += (_, _) => NotifyStats();
+    }
 
-    [ObservableProperty]
-    private int _mood;
+    private void NotifyStats()
+    {
+        OnPropertyChanged(nameof(CompletedCount));
+        OnPropertyChanged(nameof(TotalWithText));
+        OnPropertyChanged(nameof(NotCompletedCount));
+        OnPropertyChanged(nameof(ProgressPercent));
+    }
+
+    public void RefreshLocalization()
+    {
+        OnPropertyChanged(nameof(DayName));
+        OnPropertyChanged(nameof(ShortDayName));
+    }
+
+    [ObservableProperty] private int _sleep;
+    [ObservableProperty] private int _energy;
+    [ObservableProperty] private int _mood;
 
     partial void OnSleepChanged(int value)
     {

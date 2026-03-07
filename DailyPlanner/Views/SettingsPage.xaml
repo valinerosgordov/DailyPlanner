@@ -3,6 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:conv="clr-namespace:DailyPlanner.Converters"
+      xmlns:svc="clr-namespace:DailyPlanner.Services"
       Foreground="{DynamicResource TextPrimaryBrush}">
 
     <Page.Resources>
@@ -12,7 +13,7 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="8,0,8,24" MaxWidth="700" HorizontalAlignment="Left">
 
-            <TextBlock Text="Настройки" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,24"
+            <TextBlock Text="{Binding [SettingsTitle], Source={x:Static svc:Loc.Instance}}" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,24"
                        FontFamily="Segoe UI Variable, Segoe UI"/>
 
             <!-- Export -->
@@ -21,13 +22,13 @@
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
                         <ui:SymbolIcon Symbol="ArrowDownload24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <StackPanel>
-                            <TextBlock Text="Экспорт в Excel" FontSize="15" FontWeight="SemiBold"/>
-                            <TextBlock Text="Выгрузить текущую неделю в .xlsx файл" FontSize="11"
+                            <TextBlock Text="{Binding [ExportExcel], Source={x:Static svc:Loc.Instance}}" FontSize="15" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding [ExportExcelDesc], Source={x:Static svc:Loc.Instance}}" FontSize="11"
                                        Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
                         </StackPanel>
                     </StackPanel>
                     <ui:Button DockPanel.Dock="Right" HorizontalAlignment="Right"
-                               Content="Экспорт" Appearance="Secondary"
+                               Content="{Binding [Export], Source={x:Static svc:Loc.Instance}}" Appearance="Secondary"
                                Command="{Binding ExportToExcelCommand}"
                                Icon="{ui:SymbolIcon ArrowDownload24}"/>
                 </DockPanel>
@@ -39,9 +40,9 @@
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                         <ui:SymbolIcon Symbol="PaintBrush24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Палитра" FontSize="15" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding [Palette], Source={x:Static svc:Loc.Instance}}" FontSize="15" FontWeight="SemiBold"/>
                             <TextBlock FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0">
-                                <Run Text="Текущая: "/><Run Text="{Binding SelectedThemePreset, Mode=OneWay}"/>
+                                <Run Text="{Binding [PaletteCurrent], Source={x:Static svc:Loc.Instance}, Mode=OneWay}"/><Run Text="{Binding SelectedThemePreset, Mode=OneWay}"/>
                             </TextBlock>
                         </StackPanel>
                     </StackPanel>
@@ -69,8 +70,8 @@
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
                         <ui:SymbolIcon Symbol="Power24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <StackPanel>
-                            <TextBlock Text="Автозапуск" FontSize="15" FontWeight="SemiBold"/>
-                            <TextBlock Text="Запускать приложение при входе в Windows" FontSize="11"
+                            <TextBlock Text="{Binding [AutoStart], Source={x:Static svc:Loc.Instance}}" FontSize="15" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding [AutoStartDesc], Source={x:Static svc:Loc.Instance}}" FontSize="11"
                                        Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
                         </StackPanel>
                     </StackPanel>
@@ -86,15 +87,15 @@
                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
                             <ui:SymbolIcon Symbol="ArrowSync24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <StackPanel>
-                                <TextBlock Text="Обновления" FontSize="15" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding [Updates], Source={x:Static svc:Loc.Instance}}" FontSize="15" FontWeight="SemiBold"/>
                                 <TextBlock Text="{Binding UpdateStatus}" FontSize="11"
                                            Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
                             </StackPanel>
                         </StackPanel>
                         <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right" Orientation="Horizontal">
-                            <ui:Button Content="Проверить" Appearance="Secondary" Margin="0,0,8,0"
+                            <ui:Button Content="{Binding [CheckUpdates], Source={x:Static svc:Loc.Instance}}" Appearance="Secondary" Margin="0,0,8,0"
                                        Command="{Binding CheckForUpdatesCommand}"/>
-                            <ui:Button Content="Обновить" Appearance="Primary"
+                            <ui:Button Content="{Binding [UpdateBtn], Source={x:Static svc:Loc.Instance}}" Appearance="Primary"
                                        Command="{Binding DownloadAndInstallUpdateCommand}"
                                        Visibility="{Binding IsUpdateAvailable, Converter={StaticResource VisConv}}"/>
                         </StackPanel>
@@ -113,16 +114,16 @@
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                         <ui:SymbolIcon Symbol="DatabaseArrowDown20" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <StackPanel>
-                            <TextBlock Text="Резервное копирование" FontSize="15" FontWeight="SemiBold"/>
-                            <TextBlock Text="Создайте копию или восстановите базу данных" FontSize="11"
+                            <TextBlock Text="{Binding [Backup], Source={x:Static svc:Loc.Instance}}" FontSize="15" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding [BackupDesc], Source={x:Static svc:Loc.Instance}}" FontSize="11"
                                        Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
                         </StackPanel>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <ui:Button Content="Создать копию" Appearance="Secondary" Margin="0,0,8,0"
+                        <ui:Button Content="{Binding [CreateBackup], Source={x:Static svc:Loc.Instance}}" Appearance="Secondary" Margin="0,0,8,0"
                                    Command="{Binding BackupDatabaseCommand}"
                                    Icon="{ui:SymbolIcon ArrowDownload24}"/>
-                        <ui:Button Content="Восстановить" Appearance="Caution"
+                        <ui:Button Content="{Binding [Restore], Source={x:Static svc:Loc.Instance}}" Appearance="Caution"
                                    Command="{Binding RestoreDatabaseCommand}"
                                    Icon="{ui:SymbolIcon ArrowUpload24}"/>
                     </StackPanel>
@@ -136,13 +137,13 @@
                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
                             <ui:SymbolIcon Symbol="Alert24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <StackPanel>
-                                <TextBlock Text="Напоминания" FontSize="15" FontWeight="SemiBold"/>
-                                <TextBlock Text="Уведомления в заданное время" FontSize="11"
+                                <TextBlock Text="{Binding [Reminders], Source={x:Static svc:Loc.Instance}}" FontSize="15" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding [RemindersDesc], Source={x:Static svc:Loc.Instance}}" FontSize="11"
                                            Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
                             </StackPanel>
                         </StackPanel>
                         <ui:Button DockPanel.Dock="Right" HorizontalAlignment="Right"
-                                   Content="Добавить" Appearance="Primary"
+                                   Content="{Binding [Add], Source={x:Static svc:Loc.Instance}}" Appearance="Primary"
                                    Command="{Binding AddReminderCommand}"/>
                     </DockPanel>
                     <ItemsControl ItemsSource="{Binding Reminders}">
@@ -161,13 +162,13 @@
                                     <TextBox Grid.Column="1" Style="{StaticResource TaskTextBox}"
                                              Text="{Binding TimeText, UpdateSourceTrigger=LostFocus}"
                                              FontSize="13" FontFamily="Cascadia Code, Consolas"
-                                             ToolTip="Время (ЧЧ:ММ)"/>
+                                             ToolTip="{Binding [TimeTip], Source={x:Static svc:Loc.Instance}}"/>
                                     <TextBox Grid.Column="2" Style="{StaticResource TaskTextBox}"
                                              Text="{Binding Title, UpdateSourceTrigger=LostFocus}"
-                                             FontSize="13" Margin="4,0" ToolTip="Заголовок"/>
+                                             FontSize="13" Margin="4,0" ToolTip="{Binding [TitleTip], Source={x:Static svc:Loc.Instance}}"/>
                                     <TextBox Grid.Column="3" Style="{StaticResource TaskTextBox}"
                                              Text="{Binding Message, UpdateSourceTrigger=LostFocus}"
-                                             FontSize="13" ToolTip="Сообщение"/>
+                                             FontSize="13" ToolTip="{Binding [MessageTip], Source={x:Static svc:Loc.Instance}}"/>
                                     <Button Grid.Column="4" Style="{StaticResource SmallIconButton}"
                                             Command="{Binding DataContext.RemoveReminderCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                             CommandParameter="{Binding}" Margin="4,0,0,0">
@@ -187,13 +188,13 @@
                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
                             <ui:SymbolIcon Symbol="ArrowRepeatAll24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <StackPanel>
-                                <TextBlock Text="Повторяющиеся задачи" FontSize="15" FontWeight="SemiBold"/>
-                                <TextBlock Text="Шаблоны автоматически добавляются каждую неделю" FontSize="11"
+                                <TextBlock Text="{Binding [RecurringTasks], Source={x:Static svc:Loc.Instance}}" FontSize="15" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding [RecurringDesc], Source={x:Static svc:Loc.Instance}}" FontSize="11"
                                            Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
                             </StackPanel>
                         </StackPanel>
                         <ui:Button DockPanel.Dock="Right" HorizontalAlignment="Right"
-                                   Content="Добавить" Appearance="Primary"
+                                   Content="{Binding [Add], Source={x:Static svc:Loc.Instance}}" Appearance="Primary"
                                    Command="{Binding AddTemplateCommand}"/>
                     </DockPanel>
                     <ItemsControl ItemsSource="{Binding Templates}">
@@ -219,12 +220,33 @@
                 </StackPanel>
             </Border>
 
+            <!-- Language -->
+            <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,12" Padding="20">
+                <DockPanel>
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                        <ui:SymbolIcon Symbol="LocalLanguage24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <StackPanel>
+                            <TextBlock Text="{Binding [Language], Source={x:Static svc:Loc.Instance}}" FontSize="15" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding [LanguageDesc], Source={x:Static svc:Loc.Instance}}" FontSize="11"
+                                       Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <ComboBox DockPanel.Dock="Right" HorizontalAlignment="Right" VerticalAlignment="Center"
+                              Width="160" x:Name="LanguageCombo"
+                              ItemsSource="{Binding LanguageItems}"
+                              SelectedValue="{Binding SelectedLanguage}"
+                              SelectedValuePath="Code"
+                              DisplayMemberPath="DisplayName"
+                              SelectionChanged="LanguageCombo_SelectionChanged"/>
+                </DockPanel>
+            </Border>
+
             <!-- App Info -->
             <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,12" Padding="20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                         <ui:SymbolIcon Symbol="Info24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBlock Text="О приложении" FontSize="15" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding [AboutApp], Source={x:Static svc:Loc.Instance}}" FontSize="15" FontWeight="SemiBold"/>
                     </StackPanel>
 
                     <Grid>
@@ -239,16 +261,16 @@
                             <RowDefinition Height="32"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Версия" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding [Version], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding AppVersion}" VerticalAlignment="Center"/>
 
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Платформа" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding [Platform], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="1" Grid.Column="1" Text="WPF (.NET 10)" VerticalAlignment="Center"/>
 
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="База данных" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="2" Grid.Column="1" Text="SQLite (локальная)" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding [Database], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding [DbLocal], Source={x:Static svc:Loc.Instance}}" VerticalAlignment="Center"/>
 
-                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Хранение" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="{Binding [Storage], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="3" Grid.Column="1" Text="%LOCALAPPDATA%\DailyPlanner" VerticalAlignment="Center"
                                    Foreground="{DynamicResource AccentBrush}" FontFamily="Cascadia Code, Consolas" FontSize="12"/>
                     </Grid>
@@ -260,7 +282,7 @@
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                         <ui:SymbolIcon Symbol="Keyboard24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBlock Text="Горячие клавиши" FontSize="15" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding [Shortcuts], Source={x:Static svc:Loc.Instance}}" FontSize="15" FontWeight="SemiBold"/>
                     </StackPanel>
 
                     <Grid>
@@ -281,37 +303,37 @@
                                 Background="{DynamicResource KeyboardShortcutBg}" CornerRadius="4" Padding="8,3">
                             <TextBlock Text="Ctrl + Left / Right" FontFamily="Cascadia Code, Consolas" FontSize="11"/>
                         </Border>
-                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Переключить месяц" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding [SwitchMonth], Source={x:Static svc:Loc.Instance}}" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
 
                         <Border Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
                                 Background="{DynamicResource KeyboardShortcutBg}" CornerRadius="4" Padding="8,3">
                             <TextBlock Text="Ctrl + T" FontFamily="Cascadia Code, Consolas" FontSize="11"/>
                         </Border>
-                        <TextBlock Grid.Row="1" Grid.Column="1" Text="Перейти к сегодня" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding [GoToToday], Source={x:Static svc:Loc.Instance}}" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
 
                         <Border Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
                                 Background="{DynamicResource KeyboardShortcutBg}" CornerRadius="4" Padding="8,3">
                             <TextBlock Text="Ctrl + F" FontFamily="Cascadia Code, Consolas" FontSize="11"/>
                         </Border>
-                        <TextBlock Grid.Row="2" Grid.Column="1" Text="Поиск по задачам" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding [SearchTasks], Source={x:Static svc:Loc.Instance}}" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
 
                         <Border Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
                                 Background="{DynamicResource KeyboardShortcutBg}" CornerRadius="4" Padding="8,3">
                             <TextBlock Text="Ctrl + P" FontFamily="Cascadia Code, Consolas" FontSize="11"/>
                         </Border>
-                        <TextBlock Grid.Row="3" Grid.Column="1" Text="Помодоро таймер" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding [PomodoroTimer], Source={x:Static svc:Loc.Instance}}" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
 
                         <Border Grid.Row="4" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
                                 Background="{DynamicResource KeyboardShortcutBg}" CornerRadius="4" Padding="8,3">
                             <TextBlock Text="Ctrl + E" FontFamily="Cascadia Code, Consolas" FontSize="11"/>
                         </Border>
-                        <TextBlock Grid.Row="4" Grid.Column="1" Text="Экспорт в Excel" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
+                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding [ExportExcelShort], Source={x:Static svc:Loc.Instance}}" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
 
                         <Border Grid.Row="5" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
                                 Background="{DynamicResource KeyboardShortcutBg}" CornerRadius="4" Padding="8,3">
                             <TextBlock Text="Ctrl + ," FontFamily="Cascadia Code, Consolas" FontSize="11"/>
                         </Border>
-                        <TextBlock Grid.Row="5" Grid.Column="1" Text="Открыть настройки" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
+                        <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding [OpenSettings], Source={x:Static svc:Loc.Instance}}" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
                     </Grid>
                 </StackPanel>
             </Border>
@@ -321,16 +343,10 @@
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                         <ui:SymbolIcon Symbol="BookOpen24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBlock Text="Описание" FontSize="15" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding [Description], Source={x:Static svc:Loc.Instance}}" FontSize="15" FontWeight="SemiBold"/>
                     </StackPanel>
-                    <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" FontSize="13" LineHeight="22">
-                        Daily Planner — недельный планер с трекером привычек, аналитикой продуктивности
-                        и мониторингом состояния (сон, энергия, настроение).
-                        Все данные хранятся локально в SQLite базе данных.
-                        Приложение поддерживает навигацию по месяцам и неделям,
-                        автоматический подсчёт статистики, экспорт в Excel,
-                        поиск по задачам и визуализацию прогресса через круговую диаграмму.
-                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" FontSize="13" LineHeight="22"
+                               Text="{Binding [AppDescription], Source={x:Static svc:Loc.Instance}}"/>
                 </StackPanel>
             </Border>
         </StackPanel>

@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
+using DailyPlanner.Services;
 
 namespace DailyPlanner.Converters;
 
@@ -161,11 +162,11 @@ public sealed class PriorityToTooltipConverter : IValueConverter
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         => value is DailyPlanner.Models.TaskPriority p ? p switch
         {
-            DailyPlanner.Models.TaskPriority.High => "Высокий приоритет (клик — сменить)",
-            DailyPlanner.Models.TaskPriority.Medium => "Средний приоритет (клик — сменить)",
-            DailyPlanner.Models.TaskPriority.Low => "Низкий приоритет (клик — сменить)",
-            _ => "Без приоритета"
-        } : "Без приоритета";
+            DailyPlanner.Models.TaskPriority.High => Loc.Get("PriorityHigh"),
+            DailyPlanner.Models.TaskPriority.Medium => Loc.Get("PriorityMedium"),
+            DailyPlanner.Models.TaskPriority.Low => Loc.Get("PriorityLow"),
+            _ => Loc.Get("PriorityNone")
+        } : Loc.Get("PriorityNone");
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         => throw new NotSupportedException();
@@ -176,11 +177,11 @@ public sealed class CategoryToTooltipConverter : IValueConverter
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         => value is DailyPlanner.Models.TaskCategory c ? c switch
         {
-            DailyPlanner.Models.TaskCategory.Work => "Работа (клик — сменить)",
-            DailyPlanner.Models.TaskCategory.Study => "Учёба (клик — сменить)",
-            DailyPlanner.Models.TaskCategory.Personal => "Личное (клик — сменить)",
-            DailyPlanner.Models.TaskCategory.Health => "Здоровье (клик — сменить)",
-            DailyPlanner.Models.TaskCategory.Other => "Другое (клик — сменить)",
+            DailyPlanner.Models.TaskCategory.Work => Loc.Get("CatWork"),
+            DailyPlanner.Models.TaskCategory.Study => Loc.Get("CatStudy"),
+            DailyPlanner.Models.TaskCategory.Personal => Loc.Get("CatPersonal"),
+            DailyPlanner.Models.TaskCategory.Health => Loc.Get("CatHealth"),
+            DailyPlanner.Models.TaskCategory.Other => Loc.Get("CatOther"),
             _ => ""
         } : "";
 
@@ -191,9 +192,8 @@ public sealed class CategoryToTooltipConverter : IValueConverter
 public sealed class BoolToPlayPauseConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        => value is true ? "\u23F8 Пауза" : "\u25B6 Старт";
+        => value is true ? Loc.Get("PomPause") : Loc.Get("PomStart");
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         => throw new NotSupportedException();
 }
-

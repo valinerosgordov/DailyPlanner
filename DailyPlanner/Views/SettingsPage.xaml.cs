@@ -10,4 +10,9 @@ public partial class SettingsPage : Page
         InitializeComponent();
         DataContext = viewModel;
     }
+
+    private void LanguageCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        // Handled via binding — SelectedLanguage -> OnSelectedLanguageChanged -> Loc.Instance.Language
+    }
 }

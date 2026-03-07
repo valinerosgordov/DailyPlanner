@@ -31,7 +31,7 @@ public sealed partial class MainViewModel : ObservableObject
     public PomodoroViewModel Pomodoro { get; } = new();
     public StatisticsViewModel Statistics { get; }
     public PlannerService Service => _service;
-    public string DailyQuote { get; } = QuoteService.GetDailyQuote();
+    public string DailyQuote { get; private set; } = QuoteService.GetDailyQuote();
     public string AppVersion { get; } = typeof(MainViewModel).Assembly.GetName().Version?.ToString(3) ?? "?";
 
     private readonly UpdateService _updateService = new("https://github.com/valinerosgordov/DailyPlanner");
@@ -44,16 +44,35 @@ public sealed partial class MainViewModel : ObservableObject
     public MainViewModel()
     {
         Statistics = new StatisticsViewModel(_service);
+        Loc.LanguageChanged += OnLanguageChanged;
     }
 
-    public MonthItem[] Months { get; } =
-    [
-        new(1, "Январь"), new(2, "Февраль"), new(3, "Март"), new(4, "Апрель"),
-        new(5, "Май"), new(6, "Июнь"), new(7, "Июль"), new(8, "Август"),
-        new(9, "Сентябрь"), new(10, "Октябрь"), new(11, "Ноябрь"), new(12, "Декабрь")
-    ];
+    private void OnLanguageChanged()
+    {
+        for (var i = 0; i < _months.Length; i++)
+            _months[i] = new MonthItem(i + 1, Loc.GetMonthName(i + 1));
+        OnPropertyChanged(nameof(Months));
+        OnPropertyChanged(nameof(SelectedMonthName));
 
-    public string SelectedMonthName => Months[SelectedMonth - 1].Name;
+        DailyQuote = QuoteService.GetDailyQuote();
+        OnPropertyChanged(nameof(DailyQuote));
+        OnPropertyChanged(nameof(TodayTasks));
+        OnPropertyChanged(nameof(TodayProgress));
+
+        if (SelectedWeek is not null)
+        {
+            foreach (var day in SelectedWeek.Days)
+                day.RefreshLocalization();
+            SelectedWeek.RefreshLocalization();
+        }
+    }
+
+    private readonly MonthItem[] _months = Enumerable.Range(1, 12)
+        .Select(i => new MonthItem(i, Loc.GetMonthName(i))).ToArray();
+
+    public MonthItem[] Months => _months;
+
+    public string SelectedMonthName => Loc.GetMonthName(SelectedMonth);
 
     [RelayCommand]
     public async Task LoadMonthAsync()
@@ -84,12 +103,12 @@ public sealed partial class MainViewModel : ObservableObject
         {
             var today = DateOnly.FromDateTime(DateTime.Today);
             var day = SelectedWeek?.Days.FirstOrDefault(d => d.Date == today);
-            if (day is null) return "Нет задач на сегодня";
+            if (day is null) return Loc.Get("NoTasksToday");
             var tasks = day.Tasks
                 .Where(t => !string.IsNullOrWhiteSpace(t.Text))
                 .Select(t => (t.IsCompleted ? "\u2705 " : "\u25cb ") + t.Text)
                 .ToList();
-            return tasks.Count > 0 ? string.Join("\n", tasks.Take(5)) : "Нет задач";
+            return tasks.Count > 0 ? string.Join("\n", tasks.Take(5)) : Loc.Get("NoTasks");
         }
     }
 
@@ -100,7 +119,7 @@ public sealed partial class MainViewModel : ObservableObject
             var today = DateOnly.FromDateTime(DateTime.Today);
             var day = SelectedWeek?.Days.FirstOrDefault(d => d.Date == today);
             if (day is null) return "";
-            return $"{day.CompletedCount}/{day.TotalWithText} выполнено";
+            return $"{day.CompletedCount}/{day.TotalWithText} {Loc.Get("Completed")}";
         }
     }
 
@@ -189,6 +208,15 @@ public sealed partial class MainViewModel : ObservableObject
                         SearchResults.Add(new SearchResultItem(
                             task.Text, $"{day.DayName} ({day.DateFormatted})", week.WeekRange, i, day.Date));
                     }
+                    foreach (var sub in task.SubTasks)
+                    {
+                        if (!string.IsNullOrWhiteSpace(sub.Text) &&
+                            sub.Text.Contains(q, StringComparison.OrdinalIgnoreCase))
+                        {
+                            SearchResults.Add(new SearchResultItem(
+                                $"  └ {sub.Text}", $"{day.DayName} ({day.DateFormatted})", week.WeekRange, i, day.Date));
+                        }
+                    }
                 }
             }
 
@@ -198,7 +226,7 @@ public sealed partial class MainViewModel : ObservableObject
                     goal.Text.Contains(q, StringComparison.OrdinalIgnoreCase))
                 {
                     SearchResults.Add(new SearchResultItem(
-                        goal.Text, "Цель", week.WeekRange, i, null));
+                        goal.Text, Loc.Get("Goal"), week.WeekRange, i, null));
                 }
             }
         }
@@ -222,20 +250,19 @@ public sealed partial class MainViewModel : ObservableObject
 
         var dialog = new SaveFileDialog
         {
-            FileName = $"Планер_{SelectedWeek.StartDate:yyyy-MM-dd}",
+            FileName = string.Format(Loc.Get("PlannerFileName"), SelectedWeek.StartDate.ToString("yyyy-MM-dd")),
             DefaultExt = ".xlsx",
-            Filter = "Excel файлы (*.xlsx)|*.xlsx"
+            Filter = Loc.Get("ExcelFilter")
         };
 
         if (dialog.ShowDialog() == true)
         {
             var ok = ExportService.ExportWeekToExcel(SelectedWeek.Model, dialog.FileName);
-            NotificationService.ShowToast("Экспорт",
-                ok ? "Файл успешно сохранён" : "Ошибка при экспорте");
+            NotificationService.ShowToast(Loc.Get("ExportTitle"),
+                ok ? Loc.Get("ExportSuccess") : Loc.Get("ExportError"));
         }
     }
 
-    // Auto-start with Windows — reacts to CheckBox binding
     partial void OnIsAutoStartEnabledChanged(bool value)
     {
         if (_isInitializing) return;
@@ -254,7 +281,6 @@ public sealed partial class MainViewModel : ObservableObject
         }
     }
 
-    // Backup database
     [RelayCommand]
     private void BackupDatabase()
     {
@@ -273,7 +299,6 @@ public sealed partial class MainViewModel : ObservableObject
             File.Copy(dbPath, dialog.FileName, true);
     }
 
-    // Restore database
     [RelayCommand]
     private async Task RestoreDatabaseAsync()
     {
@@ -288,24 +313,19 @@ public sealed partial class MainViewModel : ObservableObject
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "DailyPlanner", "planner.db");
 
-        // Close all pooled SQLite connections before overwriting the file
         Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
-
         File.Copy(dialog.FileName, dbPath, true);
 
-        // Remove stale WAL/SHM files that belong to the old database
         var walPath = dbPath + "-wal";
         var shmPath = dbPath + "-shm";
         if (File.Exists(walPath)) File.Delete(walPath);
         if (File.Exists(shmPath)) File.Delete(shmPath);
 
-        // Reload all data from the restored database
         await LoadMonthAsync();
         await LoadTemplatesAsync();
         await LoadRemindersAsync();
     }
 
-    // Recurring templates
     [RelayCommand]
     private async Task LoadTemplatesAsync()
     {
@@ -330,7 +350,6 @@ public sealed partial class MainViewModel : ObservableObject
         Templates.Remove(template);
     }
 
-    // Category filter
     [RelayCommand]
     private void CycleFilter()
     {
@@ -346,7 +365,6 @@ public sealed partial class MainViewModel : ObservableObject
         };
     }
 
-    // Copy previous week structure
     [RelayCommand]
     private async Task CopyPreviousWeekAsync()
     {
@@ -355,10 +373,9 @@ public sealed partial class MainViewModel : ObservableObject
         var pw = await _service.GetOrCreateWeekAsync(prevStart);
         await _service.CopyWeekStructureAsync(pw.Id, SelectedWeek.Model.Id);
         await LoadMonthAsync();
-        NotificationService.ShowToast("Копирование", "Структура прошлой недели скопирована");
+        NotificationService.ShowToast(Loc.Get("CopyTitle"), Loc.Get("CopySuccess"));
     }
 
-    // Reminders
     [RelayCommand]
     private async Task LoadRemindersAsync()
     {
@@ -372,7 +389,7 @@ public sealed partial class MainViewModel : ObservableObject
     {
         var reminder = new Reminder
         {
-            Title = "Напоминание",
+            Title = Loc.Get("Reminder"),
             Time = new TimeOnly(9, 0),
             IsEnabled = true
         };
@@ -388,9 +405,7 @@ public sealed partial class MainViewModel : ObservableObject
         Reminders.Remove(vm);
     }
 
-    // Palette presets
     [ObservableProperty] private string _selectedThemePreset = ThemeService.CurrentPalette;
-
     public string[] ThemePresets { get; } = [.. ThemeService.Palettes.Keys];
 
     [RelayCommand]
@@ -401,11 +416,21 @@ public sealed partial class MainViewModel : ObservableObject
         ThemeService.ApplyPalette(preset);
     }
 
+    // Language
+    public LanguageItem[] LanguageItems { get; } = Loc.SupportedLanguages
+        .Select(l => new LanguageItem(l, Loc.LanguageNames[l])).ToArray();
+
+    [ObservableProperty] private string _selectedLanguage = Loc.Instance.Language;
+
+    partial void OnSelectedLanguageChanged(string value)
+    {
+        Loc.Instance.Language = value;
+    }
+
     public async Task InitializeAsync()
     {
         _isInitializing = true;
 
-        // Check auto-start registry
         using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(
             @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", false))
         {
@@ -419,8 +444,6 @@ public sealed partial class MainViewModel : ObservableObject
         await LoadRemindersAsync();
 
         StartReminderCheck();
-
-        // Check for updates in background
         CheckForUpdatesAsync().FireAndForget("UpdateCheck");
     }
 
@@ -429,21 +452,21 @@ public sealed partial class MainViewModel : ObservableObject
     {
         if (!_updateService.IsInstalled)
         {
-            UpdateStatus = "Обновления недоступны (dev-режим)";
+            UpdateStatus = Loc.Get("UpdateUnavailable");
             return;
         }
 
-        UpdateStatus = "Проверка обновлений...";
+        UpdateStatus = Loc.Get("UpdateChecking");
         var update = await _updateService.CheckForUpdatesAsync();
 
         if (update is null)
         {
-            UpdateStatus = "Вы используете последнюю версию";
+            UpdateStatus = Loc.Get("UpdateLatest");
             IsUpdateAvailable = false;
         }
         else
         {
-            UpdateStatus = $"Доступно обновление: v{update.TargetFullRelease.Version}";
+            UpdateStatus = string.Format(Loc.Get("UpdateAvailable"), update.TargetFullRelease.Version);
             IsUpdateAvailable = true;
         }
     }
@@ -456,13 +479,13 @@ public sealed partial class MainViewModel : ObservableObject
         var update = await _updateService.CheckForUpdatesAsync();
         if (update is null) return;
 
-        UpdateStatus = "Скачивание обновления...";
+        UpdateStatus = Loc.Get("UpdateDownloading");
         UpdateProgress = 0;
 
         await _updateService.DownloadAndApplyAsync(update, p =>
         {
             UpdateProgress = p;
-            UpdateStatus = $"Скачивание: {p}%";
+            UpdateStatus = string.Format(Loc.Get("UpdateProgress"), p);
         });
     }
 
@@ -513,5 +536,5 @@ public sealed partial class MainViewModel : ObservableObject
 }
 
 public sealed record MonthItem(int Number, string Name);
-
+public sealed record LanguageItem(string Code, string DisplayName);
 public sealed record SearchResultItem(string Text, string Context, string Week, int WeekIndex, DateOnly? DayDate);
