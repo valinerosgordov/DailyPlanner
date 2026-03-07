@@ -94,19 +94,29 @@ public partial class MainWindow : FluentWindow
     private void Settings_Click(object sender, RoutedEventArgs e)
     {
         if (ContentFrame.Content is SettingsPage)
+        {
+            _viewModel.IsSettingsOpen = false;
             NavigateWithAnimation(_weekPage);
+        }
         else
+        {
+            _viewModel.IsSettingsOpen = true;
+            _viewModel.IsStatisticsOpen = false;
             NavigateWithAnimation(_settingsPage);
+        }
     }
 
     private void Statistics_Click(object sender, RoutedEventArgs e)
     {
         if (ContentFrame.Content is StatisticsPage)
         {
+            _viewModel.IsStatisticsOpen = false;
             NavigateWithAnimation(_weekPage);
         }
         else
         {
+            _viewModel.IsStatisticsOpen = true;
+            _viewModel.IsSettingsOpen = false;
             _viewModel.Statistics.SelectedYear = _viewModel.SelectedYear;
             _viewModel.Statistics.SelectedMonth = _viewModel.SelectedMonth;
             _statisticsPage = new StatisticsPage(_viewModel.Statistics);

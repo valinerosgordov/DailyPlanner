@@ -20,6 +20,7 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty] private bool _isSearchOpen;
     [ObservableProperty] private string _searchQuery = string.Empty;
     [ObservableProperty] private bool _isPomodoroOpen;
+    [ObservableProperty] private bool _isStatisticsOpen;
     [ObservableProperty] private bool _isAutoStartEnabled;
     [ObservableProperty] private TaskCategory _filterCategory = TaskCategory.None;
 
