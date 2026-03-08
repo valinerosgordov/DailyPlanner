@@ -107,6 +107,62 @@ public sealed class PlannerService
         }
     }
 
+    public async Task RemoveTaskAsync(int taskId, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var task = await db.DailyTasks.Include(t => t.SubTasks).FirstOrDefaultAsync(t => t.Id == taskId, ct);
+        if (task is null) return;
+
+        if (task.SubTasks.Count > 0)
+            db.DailyTasks.RemoveRange(task.SubTasks);
+        db.DailyTasks.Remove(task);
+        await db.SaveChangesAsync(ct);
+    }
+
+    public async Task MoveTaskToNextDayAsync(int taskId, DateOnly targetDate, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var task = await db.DailyTasks.Include(t => t.SubTasks).FirstOrDefaultAsync(t => t.Id == taskId, ct);
+        if (task is null) return;
+
+        var targetDay = await db.DailyPlans.Include(d => d.Tasks)
+            .FirstOrDefaultAsync(d => d.Date == targetDate, ct);
+        if (targetDay is null) return;
+
+        var nextOrder = targetDay.Tasks.Count > 0 ? targetDay.Tasks.Max(t => t.Order) + 1 : 1;
+
+        var newTask = new DailyTask
+        {
+            DailyPlanId = targetDay.Id,
+            Order = nextOrder,
+            Text = task.Text,
+            Priority = task.Priority,
+            Category = task.Category,
+            IsCompleted = task.IsCompleted
+        };
+        db.DailyTasks.Add(newTask);
+        await db.SaveChangesAsync(ct);
+
+        // Move subtasks
+        foreach (var sub in task.SubTasks.OrderBy(s => s.Order))
+        {
+            db.DailyTasks.Add(new DailyTask
+            {
+                DailyPlanId = targetDay.Id,
+                ParentTaskId = newTask.Id,
+                Order = sub.Order,
+                Text = sub.Text,
+                IsCompleted = sub.IsCompleted
+            });
+        }
+
+        // Remove original
+        if (task.SubTasks.Count > 0)
+            db.DailyTasks.RemoveRange(task.SubTasks);
+        db.DailyTasks.Remove(task);
+        await db.SaveChangesAsync(ct);
+    }
+
     public async Task SaveGoalAsync(WeeklyGoal goal, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();

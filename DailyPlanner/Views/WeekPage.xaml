@@ -235,6 +235,124 @@
                 </Border>
             </Grid>
 
+            <!-- MEETINGS -->
+            <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,20">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,10">
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                            <ui:SymbolIcon Symbol="People24" FontSize="15" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBlock Text="{Binding [Meetings], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource SectionHeader}" Margin="0"/>
+                        </StackPanel>
+                        <Button Style="{StaticResource SmallIconButton}" DockPanel.Dock="Right"
+                                HorizontalAlignment="Right"
+                                ToolTip="{Binding [NewMeeting], Source={x:Static svc:Loc.Instance}}"
+                                Command="{Binding DataContext.AddMeetingCommand, RelativeSource={RelativeSource AncestorType=Page}}">
+                            <ui:SymbolIcon Symbol="Add16" FontSize="14"/>
+                        </Button>
+                    </DockPanel>
+
+                    <!-- Empty state -->
+                    <TextBlock Text="{Binding [MeetingNoMeetings], Source={x:Static svc:Loc.Instance}}" FontSize="11"
+                               Foreground="{DynamicResource MutedBrush}" FontStyle="Italic"
+                               HorizontalAlignment="Center" Margin="0,8">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding DataContext.Meetings.Count, RelativeSource={RelativeSource AncestorType=Page}}" Value="0">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <!-- Meeting cards in horizontal wrap -->
+                    <ItemsControl ItemsSource="{Binding DataContext.Meetings, RelativeSource={RelativeSource AncestorType=Page}}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border CornerRadius="10" Padding="12,10" Margin="0,0,10,8" Width="320"
+                                        Background="{DynamicResource ControlFillColorDefaultBrush}"
+                                        BorderBrush="{DynamicResource ControlElevationBorderBrush}" BorderThickness="1">
+                                    <StackPanel>
+                                        <!-- Title + Delete -->
+                                        <DockPanel Margin="0,0,0,6">
+                                            <Button DockPanel.Dock="Right" Style="{StaticResource SmallIconButton}"
+                                                    Command="{Binding DataContext.RemoveMeetingCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                    CommandParameter="{Binding}" VerticalAlignment="Top">
+                                                <ui:SymbolIcon Symbol="Delete16" FontSize="12"/>
+                                            </Button>
+                                            <TextBox Style="{StaticResource TaskTextBox}"
+                                                     Text="{Binding Title, UpdateSourceTrigger=LostFocus}"
+                                                     FontSize="13" FontWeight="SemiBold"/>
+                                        </DockPanel>
+
+                                        <!-- Date & Time & Duration -->
+                                        <Grid Margin="0,0,0,6">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="70"/>
+                                                <ColumnDefinition Width="60"/>
+                                            </Grid.ColumnDefinitions>
+                                            <DatePicker Grid.Column="0" SelectedDate="{Binding MeetingDate}"
+                                                        FontSize="11" VerticalAlignment="Center"/>
+                                            <TextBox Grid.Column="1" Style="{StaticResource TaskTextBox}"
+                                                     Text="{Binding TimeText, UpdateSourceTrigger=LostFocus}"
+                                                     FontSize="11" FontFamily="Cascadia Code, Consolas" Margin="6,0"
+                                                     ToolTip="{Binding [MeetingTime], Source={x:Static svc:Loc.Instance}}"/>
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <TextBox Style="{StaticResource TaskTextBox}"
+                                                         Text="{Binding DurationMinutes, UpdateSourceTrigger=LostFocus}"
+                                                         FontSize="11" Width="28" FontFamily="Cascadia Code, Consolas"/>
+                                                <TextBlock Text="{Binding [MeetingMin], Source={x:Static svc:Loc.Instance}}"
+                                                           FontSize="9" Foreground="{DynamicResource MutedBrush}"
+                                                           VerticalAlignment="Center" Margin="2,0,0,0"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <!-- Attendees -->
+                                        <DockPanel Margin="0,0,0,4">
+                                            <ui:SymbolIcon Symbol="People16" FontSize="11"
+                                                           Foreground="{DynamicResource MutedBrush}"
+                                                           DockPanel.Dock="Left" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                            <TextBox Style="{StaticResource TaskTextBox}"
+                                                     Text="{Binding Attendees, UpdateSourceTrigger=LostFocus}"
+                                                     FontSize="11"
+                                                     ToolTip="{Binding [MeetingAttendees], Source={x:Static svc:Loc.Instance}}"/>
+                                        </DockPanel>
+
+                                        <!-- Description -->
+                                        <TextBox Style="{StaticResource TaskTextBox}"
+                                                 Text="{Binding Description, UpdateSourceTrigger=LostFocus}"
+                                                 FontSize="10" Foreground="{DynamicResource MutedBrush}"
+                                                 TextWrapping="Wrap" AcceptsReturn="True" MaxHeight="50"
+                                                 ToolTip="{Binding [MeetingDesc], Source={x:Static svc:Loc.Instance}}"
+                                                 Margin="0,0,0,6"/>
+
+                                        <!-- Notification toggles -->
+                                        <StackPanel Orientation="Horizontal">
+                                            <CheckBox IsChecked="{Binding NotifyDayBefore}" VerticalAlignment="Center" Margin="0,0,3,0"/>
+                                            <TextBlock Text="{Binding [MeetingNotifyDay], Source={x:Static svc:Loc.Instance}}"
+                                                       FontSize="9" Foreground="{DynamicResource MutedBrush}"
+                                                       VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                            <CheckBox IsChecked="{Binding NotifyTwoHoursBefore}" VerticalAlignment="Center" Margin="0,0,3,0"/>
+                                            <TextBlock Text="{Binding [MeetingNotify2h], Source={x:Static svc:Loc.Instance}}"
+                                                       FontSize="9" Foreground="{DynamicResource MutedBrush}"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
             <!-- DAYS -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                 <ui:SymbolIcon Symbol="CalendarLtr24" FontSize="15" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
@@ -268,7 +386,10 @@
                             </Border.Style>
                             <StackPanel>
                                 <DockPanel Margin="0,0,0,4">
-                                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                                    <TextBlock Text="{Binding DateFormatted}" DockPanel.Dock="Right"
+                                               Foreground="{DynamicResource MutedBrush}"
+                                               FontSize="10" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                    <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="{Binding DayName}" Style="{StaticResource DayHeader}" FontSize="12"/>
                                         <!-- Today badge -->
                                         <Border CornerRadius="4" Padding="6,1" Margin="6,0,0,0"
@@ -280,8 +401,6 @@
                                                        Foreground="{DynamicResource AccentLightBrush}"/>
                                         </Border>
                                     </StackPanel>
-                                    <TextBlock Text="{Binding DateFormatted}" Foreground="{DynamicResource MutedBrush}"
-                                               FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                 </DockPanel>
 
                                 <!-- Day progress bar -->
@@ -349,13 +468,10 @@
                                                              TextDecorations="{Binding IsCompleted, Converter={StaticResource StrikethroughConv}}"
                                                              Opacity="{Binding IsCompleted, Converter={StaticResource OpacityConv}}"
                                                              FontSize="11.5"/>
-                                                    <!-- Add subtask button -->
-                                                    <Border Grid.Column="5" Width="14" Height="14" Cursor="Hand"
-                                                            MouseLeftButtonDown="AddSubTask_Click"
-                                                            Background="Transparent" VerticalAlignment="Center"
-                                                            ToolTip="{Binding [AddSubTaskTip], Source={x:Static svc:Loc.Instance}}">
-                                                        <Border.Style>
-                                                            <Style TargetType="Border">
+                                                    <!-- Task action buttons (visible on hover) -->
+                                                    <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Center">
+                                                        <StackPanel.Style>
+                                                            <Style TargetType="StackPanel">
                                                                 <Setter Property="Opacity" Value="0"/>
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Grid}}" Value="True">
@@ -363,11 +479,35 @@
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
-                                                        </Border.Style>
-                                                        <TextBlock Text="+" FontSize="12" FontWeight="Bold"
-                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                                   Foreground="{DynamicResource MutedBrush}"/>
-                                                    </Border>
+                                                        </StackPanel.Style>
+                                                        <!-- Add subtask -->
+                                                        <Border Width="14" Height="14" Cursor="Hand" Margin="0,0,2,0"
+                                                                MouseLeftButtonDown="AddSubTask_Click"
+                                                                Background="Transparent"
+                                                                ToolTip="{Binding [AddSubTaskTip], Source={x:Static svc:Loc.Instance}}">
+                                                            <TextBlock Text="+" FontSize="12" FontWeight="Bold"
+                                                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                       Foreground="{DynamicResource MutedBrush}"/>
+                                                        </Border>
+                                                        <!-- Move to next day -->
+                                                        <Border Width="14" Height="14" Cursor="Hand" Margin="0,0,2,0"
+                                                                MouseLeftButtonDown="MoveTaskNextDay_Click"
+                                                                Background="Transparent"
+                                                                ToolTip="{Binding [MoveNextDayTip], Source={x:Static svc:Loc.Instance}}">
+                                                            <TextBlock Text="&#xE72A;" FontFamily="Segoe MDL2 Assets" FontSize="9"
+                                                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                       Foreground="{DynamicResource AccentBrush}"/>
+                                                        </Border>
+                                                        <!-- Delete task -->
+                                                        <Border Width="14" Height="14" Cursor="Hand"
+                                                                MouseLeftButtonDown="DeleteTask_Click"
+                                                                Background="Transparent"
+                                                                ToolTip="{Binding [DeleteTaskTip], Source={x:Static svc:Loc.Instance}}">
+                                                            <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="9"
+                                                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                       Foreground="{DynamicResource DangerBrush}"/>
+                                                        </Border>
+                                                    </StackPanel>
                                                 </Grid>
                                                 <!-- Subtasks list -->
                                                 <ItemsControl ItemsSource="{Binding SubTasks}" Margin="18,0,0,0"
