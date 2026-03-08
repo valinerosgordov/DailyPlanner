@@ -5,8 +5,8 @@
 <h1 align="center">Daily Planner</h1>
 
 <p align="center">
-  <b>Красивый недельный планировщик для Windows</b><br/>
-  WPF + .NET 10 + SQLite | Полностью локальный, без облака
+  <b>Beautiful weekly planner for Windows</b><br/>
+  WPF + .NET 10 + SQLite | Fully local, no cloud
 </p>
 
 <p align="center">
@@ -19,32 +19,35 @@
 
 ---
 
-## Возможности
+## Features
 
-| Функция | Описание |
-|---------|----------|
-| **Недельное планирование** | 7 дней, 10 задач на день, 4 цели на неделю |
-| **Трекер привычек** | Ежедневные привычки с heatmap-визуализацией и сериями |
-| **Мониторинг состояния** | Сон, энергия, настроение (1–5) с графиками |
-| **Приоритеты и категории** | Работа, учёба, личное, здоровье + три уровня приоритета |
-| **Drag & Drop** | Перетаскивание задач между днями |
-| **Перенос задач** | Незавершённые задачи переносятся на следующий день |
-| **Повторяющиеся шаблоны** | Автоматическое добавление задач каждую неделю |
-| **Помодоро-таймер** | Настраиваемый таймер (работа/перерыв/фокус) со звуковыми уведомлениями |
-| **Напоминания** | Уведомления в заданное время |
-| **Статистика** | Графики продуктивности, сравнение недель, heatmap привычек |
-| **9 палитр** | Catppuccin (Mocha, Frappe, Macchiato), Nord, Everforest, Coffee, Graphite, Obsidian, Светлая |
-| **Тёмная/светлая тема** | Полная поддержка обоих режимов с сохранением выбора |
-| **Экспорт в Excel** | Выгрузка недели в .xlsx файл |
-| **Поиск** | Быстрый поиск по задачам и целям (Ctrl+F) |
-| **Мотивационные цитаты** | Ежедневная цитата в сайдбаре |
-| **Автообновления** | Velopack + GitHub Releases (delta-обновления ~100 KB) |
-| **Backup/Restore** | Резервное копирование и восстановление базы данных |
-| **Горячие клавиши** | Ctrl+T (сегодня), Ctrl+F (поиск), Ctrl+P (помодоро) и др. |
+| Feature | Description |
+|---------|-------------|
+| **Weekly planning** | 7 days with tasks, 4 weekly goals, notes |
+| **Subtasks** | Nested tasks with progress and collapse/expand |
+| **Meeting scheduler** | Title, attendees, description, date/time/duration |
+| **Meeting reminders** | Notifications 1 day and 2 hours before a meeting |
+| **Habit tracker** | Daily habits with weekly progress |
+| **State monitoring** | Sleep, energy, mood (1-5) per day |
+| **Priorities & categories** | Work, study, personal, health + 3 priority levels |
+| **Drag & drop** | Move tasks between days |
+| **Task move & delete** | Move to next day (with subtasks), delete tasks |
+| **Recurring templates** | Auto-add tasks every week |
+| **Pomodoro timer** | Customizable timer (work/break/focus) with sound |
+| **Reminders** | Notifications at scheduled times |
+| **Statistics** | Productivity charts, week comparison |
+| **9 color palettes** | Catppuccin (Mocha, Frappe, Macchiato), Nord, Everforest, Coffee, Graphite, Obsidian, Light |
+| **4 languages** | Russian, English, Spanish, French |
+| **Excel export** | Export week to .xlsx file |
+| **Search** | Quick search across tasks and goals (Ctrl+F) |
+| **Daily quotes** | Motivational quote in sidebar |
+| **Auto-updates** | Velopack + GitHub Releases (delta ~100 KB) |
+| **Backup/Restore** | Auto-backup on startup + restore |
+| **Keyboard shortcuts** | Ctrl+T (today), Ctrl+F (search), Ctrl+P (pomodoro) |
 
-## Скриншоты
+## Screenshots
 
-> Добавьте скриншоты в папку `assets/` и раскомментируйте:
+> Add screenshots to `assets/` folder and uncomment:
 
 <!--
 <p align="center">
@@ -55,47 +58,47 @@
 </p>
 -->
 
-## Установка
+## Installation
 
-### Установщик (рекомендуется)
-1. Скачайте `DailyPlanner-win-Setup.exe` из [Releases](../../releases/latest)
-2. Запустите установщик
-3. Ярлык появится на рабочем столе
-4. Обновления устанавливаются автоматически
+### Installer (recommended)
+1. Download `DailyPlanner-win-Setup.exe` from [Releases](../../releases/latest)
+2. Run the installer
+3. Desktop shortcut will be created
+4. Updates install automatically
 
 ### Portable
-1. Скачайте `DailyPlanner-win-Portable.zip` из [Releases](../../releases/latest)
-2. Распакуйте в любую папку
-3. Запустите `DailyPlanner.exe`
+1. Download `DailyPlanner-win-Portable.zip` from [Releases](../../releases/latest)
+2. Extract to any folder
+3. Run `DailyPlanner.exe`
 
-## Сборка из исходников
+## Build from source
 
 ```bash
-# Требования: .NET 10 SDK Preview
+# Requirements: .NET 10 SDK Preview
 dotnet build --verbosity minimal
 dotnet run --project DailyPlanner
 ```
 
-### Публикация
+### Publishing
 
 ```bash
 # Self-contained single-file
 dotnet publish DailyPlanner -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o ./publish
 
-# Velopack пакет
-vpk pack -u DailyPlanner -v 2.5.2 -p publish -o releases
+# Velopack package
+vpk pack -u DailyPlanner -v 2.10.0 -p publish -o releases
 ```
 
-## Технологии
+## Tech stack
 
-- **WPF** с [WPF-UI](https://github.com/lepoco/wpfui) (Fluent Design)
+- **WPF** with [WPF-UI](https://github.com/lepoco/wpfui) (Fluent Design)
 - **CommunityToolkit.Mvvm** (MVVM, source generators)
 - **Entity Framework Core** + SQLite (code-first, migrations)
 - **ClosedXML** (Excel export)
-- **Velopack** (auto-updates с delta-пакетами)
+- **Velopack** (auto-updates with delta packages)
 - **.NET 10 Preview**, C# 13
 
-## Архитектура
+## Architecture
 
 ```
 DailyPlanner/
@@ -108,8 +111,8 @@ DailyPlanner/
 └── Themes/          # Resource dictionaries
 ```
 
-Данные хранятся в `%LOCALAPPDATA%\DailyPlanner\planner.db`.
+Data is stored locally at `%LOCALAPPDATA%\DailyPlanner\planner.db`.
 
-## Лицензия
+## License
 
 MIT
