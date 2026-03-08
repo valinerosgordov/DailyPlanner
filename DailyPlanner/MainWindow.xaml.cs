@@ -55,8 +55,7 @@ public partial class MainWindow : FluentWindow
     {
         _trayIcon = new System.Windows.Forms.NotifyIcon
         {
-            Icon = System.Drawing.Icon.ExtractAssociatedIcon(
-                Environment.ProcessPath ?? System.Reflection.Assembly.GetExecutingAssembly().Location)!,
+            Icon = System.Drawing.Icon.ExtractAssociatedIcon(Environment.ProcessPath!)!,
             Visible = true,
             Text = "Daily Planner"
         };
