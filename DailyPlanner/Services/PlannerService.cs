@@ -259,6 +259,29 @@ public sealed class PlannerService
         return await db.Reminders.OrderBy(r => r.Time).ToListAsync(ct);
     }
 
+    public async Task SaveMeetingAsync(Meeting meeting, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        if (meeting.Id == 0)
+            db.Meetings.Add(meeting);
+        else
+            db.Meetings.Update(meeting);
+        await db.SaveChangesAsync(ct);
+    }
+
+    public async Task RemoveMeetingAsync(int meetingId, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var m = await db.Meetings.FindAsync([meetingId], ct);
+        if (m is not null) { db.Meetings.Remove(m); await db.SaveChangesAsync(ct); }
+    }
+
+    public async Task<List<Meeting>> GetMeetingsAsync(CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        return await db.Meetings.OrderBy(m => m.DateTime).ToListAsync(ct);
+    }
+
     public async Task CopyWeekStructureAsync(int sourceWeekId, int targetWeekId, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
