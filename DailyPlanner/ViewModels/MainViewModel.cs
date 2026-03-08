@@ -29,7 +29,6 @@ public sealed partial class MainViewModel : ObservableObject
     public ObservableCollection<RecurringTemplate> Templates { get; } = [];
     public ObservableCollection<ReminderViewModel> Reminders { get; } = [];
     public ObservableCollection<MeetingViewModel> Meetings { get; } = [];
-    [ObservableProperty] private bool _isMeetingsOpen;
 
     public PomodoroViewModel Pomodoro { get; } = new();
     public StatisticsViewModel Statistics { get; }
@@ -182,7 +181,6 @@ public sealed partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand] private void TogglePomodoro() => IsPomodoroOpen = !IsPomodoroOpen;
-    [RelayCommand] private void ToggleMeetings() => IsMeetingsOpen = !IsMeetingsOpen;
 
     partial void OnSearchQueryChanged(string value)
     {

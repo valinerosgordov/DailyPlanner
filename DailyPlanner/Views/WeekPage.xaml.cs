@@ -85,6 +85,42 @@ public partial class WeekPage : Page
             .FirstOrDefault(t => t.SubTasks.Contains(subTask));
     }
 
+    private async void DeleteTask_Click(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: TaskViewModel task }) return;
+        if (string.IsNullOrWhiteSpace(task.Text)) return;
+
+        var mainVm = DataContext as MainViewModel;
+        if (mainVm?.SelectedWeek is null) return;
+
+        var day = mainVm.SelectedWeek.Days.FirstOrDefault(d => d.Tasks.Contains(task));
+        if (day is null) return;
+
+        await mainVm.Service.RemoveTaskAsync(task.Model.Id);
+        day.Tasks.Remove(task);
+        e.Handled = true;
+    }
+
+    private async void MoveTaskNextDay_Click(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: TaskViewModel task }) return;
+        if (string.IsNullOrWhiteSpace(task.Text)) return;
+
+        var mainVm = DataContext as MainViewModel;
+        if (mainVm?.SelectedWeek is null) return;
+
+        var day = mainVm.SelectedWeek.Days.FirstOrDefault(d => d.Tasks.Contains(task));
+        if (day is null) return;
+
+        var nextDate = day.Date.AddDays(1);
+        await mainVm.Service.MoveTaskToNextDayAsync(task.Model.Id, nextDate);
+        day.Tasks.Remove(task);
+
+        // If next day is in the same week, reload to reflect changes
+        await mainVm.LoadMonthCommand.ExecuteAsync(null);
+        e.Handled = true;
+    }
+
     // Drag & drop
     private void Task_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
