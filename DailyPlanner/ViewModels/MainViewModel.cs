@@ -28,6 +28,8 @@ public sealed partial class MainViewModel : ObservableObject
     public ObservableCollection<SearchResultItem> SearchResults { get; } = [];
     public ObservableCollection<RecurringTemplate> Templates { get; } = [];
     public ObservableCollection<ReminderViewModel> Reminders { get; } = [];
+    public ObservableCollection<MeetingViewModel> Meetings { get; } = [];
+    [ObservableProperty] private bool _isMeetingsOpen;
 
     public PomodoroViewModel Pomodoro { get; } = new();
     public StatisticsViewModel Statistics { get; }
@@ -180,6 +182,7 @@ public sealed partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand] private void TogglePomodoro() => IsPomodoroOpen = !IsPomodoroOpen;
+    [RelayCommand] private void ToggleMeetings() => IsMeetingsOpen = !IsMeetingsOpen;
 
     partial void OnSearchQueryChanged(string value)
     {
@@ -325,6 +328,7 @@ public sealed partial class MainViewModel : ObservableObject
         await LoadMonthAsync();
         await LoadTemplatesAsync();
         await LoadRemindersAsync();
+        await LoadMeetingsAsync();
     }
 
     [RelayCommand]
@@ -406,6 +410,37 @@ public sealed partial class MainViewModel : ObservableObject
         Reminders.Remove(vm);
     }
 
+    [RelayCommand]
+    private async Task LoadMeetingsAsync()
+    {
+        Meetings.Clear();
+        var meetings = await _service.GetMeetingsAsync();
+        foreach (var m in meetings) Meetings.Add(new MeetingViewModel(m, _service));
+    }
+
+    [RelayCommand]
+    private async Task AddMeetingAsync()
+    {
+        var meeting = new Meeting
+        {
+            Title = Loc.Get("NewMeeting"),
+            DateTime = DateTime.Today.AddDays(1).AddHours(10),
+            DurationMinutes = 60,
+            NotifyDayBefore = true,
+            NotifyTwoHoursBefore = true
+        };
+        await _service.SaveMeetingAsync(meeting);
+        Meetings.Add(new MeetingViewModel(meeting, _service));
+    }
+
+    [RelayCommand]
+    private async Task RemoveMeetingAsync(MeetingViewModel? vm)
+    {
+        if (vm is null) return;
+        await _service.RemoveMeetingAsync(vm.Model.Id);
+        Meetings.Remove(vm);
+    }
+
     [ObservableProperty] private string _selectedThemePreset = ThemeService.CurrentPalette;
     public string[] ThemePresets { get; } = [.. ThemeService.Palettes.Keys];
 
@@ -443,6 +478,7 @@ public sealed partial class MainViewModel : ObservableObject
         await LoadMonthAsync();
         await LoadTemplatesAsync();
         await LoadRemindersAsync();
+        await LoadMeetingsAsync();
 
         StartReminderCheck();
         CheckForUpdatesAsync().FireAndForget("UpdateCheck");
@@ -532,6 +568,51 @@ public sealed partial class MainViewModel : ObservableObject
             if (!_firedReminders.Add(key)) continue;
 
             NotificationService.ShowToast(r.Title, r.Message);
+        }
+
+        CheckMeetingReminders();
+    }
+
+    private void CheckMeetingReminders()
+    {
+        var now = DateTime.Now;
+
+        foreach (var vm in Meetings)
+        {
+            var m = vm.Model;
+            var meetingTime = m.DateTime;
+
+            // Notify 1 day before
+            if (m.NotifyDayBefore)
+            {
+                var dayBefore = meetingTime.AddDays(-1);
+                if (Math.Abs((now - dayBefore).TotalMinutes) < 1)
+                {
+                    var key = $"meeting-day:{m.Id}:{meetingTime:yyyyMMdd}";
+                    if (_firedReminders.Add(key))
+                    {
+                        NotificationService.ShowToast(
+                            Loc.Get("MeetingTomorrow"),
+                            $"{m.Title} — {meetingTime:HH:mm}\n{m.Attendees}");
+                    }
+                }
+            }
+
+            // Notify 2 hours before
+            if (m.NotifyTwoHoursBefore)
+            {
+                var twoHours = meetingTime.AddHours(-2);
+                if (Math.Abs((now - twoHours).TotalMinutes) < 1)
+                {
+                    var key = $"meeting-2h:{m.Id}:{meetingTime:yyyyMMdd}";
+                    if (_firedReminders.Add(key))
+                    {
+                        NotificationService.ShowToast(
+                            Loc.Get("MeetingSoon"),
+                            $"{m.Title} — {Loc.Get("MeetingIn2Hours")}\n{m.Attendees}");
+                    }
+                }
+            }
         }
     }
 }

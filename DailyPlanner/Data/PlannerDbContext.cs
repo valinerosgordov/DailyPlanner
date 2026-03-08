@@ -15,6 +15,7 @@ public sealed class PlannerDbContext(DbContextOptions<PlannerDbContext> options)
     public DbSet<RecurringTemplate> RecurringTemplates => Set<RecurringTemplate>();
     public DbSet<WeeklyNote> WeeklyNotes => Set<WeeklyNote>();
     public DbSet<Reminder> Reminders => Set<Reminder>();
+    public DbSet<Meeting> Meetings => Set<Meeting>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -95,6 +96,15 @@ public sealed class PlannerDbContext(DbContextOptions<PlannerDbContext> options)
             e.HasKey(r => r.Id);
             e.Property(r => r.Title).HasMaxLength(200);
             e.Property(r => r.Message).HasMaxLength(500);
+        });
+
+        modelBuilder.Entity<Meeting>(e =>
+        {
+            e.HasKey(m => m.Id);
+            e.HasIndex(m => m.DateTime);
+            e.Property(m => m.Title).HasMaxLength(300);
+            e.Property(m => m.Description).HasMaxLength(2000);
+            e.Property(m => m.Attendees).HasMaxLength(1000);
         });
     }
 }
