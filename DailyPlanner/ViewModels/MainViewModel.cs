@@ -23,6 +23,7 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty] private bool _isStatisticsOpen;
     [ObservableProperty] private bool _isAutoStartEnabled;
     [ObservableProperty] private TaskCategory _filterCategory = TaskCategory.None;
+    [ObservableProperty] private bool _isLoading;
 
     public ObservableCollection<WeekViewModel> Weeks { get; } = [];
     public ObservableCollection<SearchResultItem> SearchResults { get; } = [];
@@ -79,6 +80,7 @@ public sealed partial class MainViewModel : ObservableObject
     [RelayCommand]
     public async Task LoadMonthAsync()
     {
+        IsLoading = true;
         Weeks.Clear();
         var weekStarts = PlannerService.GetWeekStartsForMonth(SelectedYear, SelectedMonth);
 
@@ -97,6 +99,7 @@ public sealed partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(SelectedMonthName));
         OnPropertyChanged(nameof(TodayTasks));
         OnPropertyChanged(nameof(TodayProgress));
+        IsLoading = false;
     }
 
     public string TodayTasks
@@ -315,18 +318,49 @@ public sealed partial class MainViewModel : ObservableObject
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "DailyPlanner", "planner.db");
 
-        Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
-        File.Copy(dialog.FileName, dbPath, true);
+        // Validate the backup file is a valid SQLite database
+        try
+        {
+            await using var testDb = new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={dialog.FileName};Mode=ReadOnly");
+            await testDb.OpenAsync();
+            await testDb.CloseAsync();
+        }
+        catch
+        {
+            NotificationService.ShowToast(Loc.Get("RestoreTitle"), Loc.Get("RestoreInvalidDb"));
+            return;
+        }
 
-        var walPath = dbPath + "-wal";
-        var shmPath = dbPath + "-shm";
-        if (File.Exists(walPath)) File.Delete(walPath);
-        if (File.Exists(shmPath)) File.Delete(shmPath);
+        // Create safety backup before overwriting
+        var backupPath = dbPath + ".pre-restore";
+        try
+        {
+            Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
+
+            if (File.Exists(dbPath))
+                File.Copy(dbPath, backupPath, true);
+
+            File.Copy(dialog.FileName, dbPath, true);
+
+            var walPath = dbPath + "-wal";
+            var shmPath = dbPath + "-shm";
+            if (File.Exists(walPath)) File.Delete(walPath);
+            if (File.Exists(shmPath)) File.Delete(shmPath);
+        }
+        catch
+        {
+            // Restore from safety backup if copy failed
+            if (File.Exists(backupPath))
+                File.Copy(backupPath, dbPath, true);
+            NotificationService.ShowToast(Loc.Get("RestoreTitle"), Loc.Get("RestoreError"));
+            return;
+        }
 
         await LoadMonthAsync();
         await LoadTemplatesAsync();
         await LoadRemindersAsync();
         await LoadMeetingsAsync();
+        NotificationService.ShowToast(Loc.Get("RestoreTitle"), Loc.Get("RestoreSuccess"));
     }
 
     [RelayCommand]
@@ -425,7 +459,8 @@ public sealed partial class MainViewModel : ObservableObject
             DateTime = DateTime.Today.AddDays(1).AddHours(10),
             DurationMinutes = 60,
             NotifyDayBefore = true,
-            NotifyTwoHoursBefore = true
+            NotifyTwoHoursBefore = true,
+            Notify30MinBefore = true
         };
         await _service.SaveMeetingAsync(meeting);
         Meetings.Add(new MeetingViewModel(meeting, _service));
@@ -608,6 +643,22 @@ public sealed partial class MainViewModel : ObservableObject
                         NotificationService.ShowToast(
                             Loc.Get("MeetingSoon"),
                             $"{m.Title} — {Loc.Get("MeetingIn2Hours")}\n{m.Attendees}");
+                    }
+                }
+            }
+
+            // Notify 30 minutes before
+            if (m.Notify30MinBefore)
+            {
+                var thirtyMin = meetingTime.AddMinutes(-30);
+                if (Math.Abs((now - thirtyMin).TotalMinutes) < 1)
+                {
+                    var key = $"meeting-30m:{m.Id}:{meetingTime:yyyyMMdd}";
+                    if (_firedReminders.Add(key))
+                    {
+                        NotificationService.ShowToast(
+                            Loc.Get("MeetingSoon"),
+                            $"{m.Title} — {Loc.Get("MeetingIn30Min")}\n{m.Attendees}");
                     }
                 }
             }

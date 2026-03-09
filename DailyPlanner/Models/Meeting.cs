@@ -10,4 +10,5 @@ public sealed class Meeting
     public int DurationMinutes { get; set; } = 60;
     public bool NotifyDayBefore { get; set; } = true;
     public bool NotifyTwoHoursBefore { get; set; } = true;
+    public bool Notify30MinBefore { get; set; } = true;
 }

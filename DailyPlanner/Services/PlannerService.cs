@@ -376,23 +376,43 @@ public sealed class PlannerService
         var toDay = await db.DailyPlans.Include(d => d.Tasks).ThenInclude(t => t.SubTasks).FirstOrDefaultAsync(d => d.Date == toDate, ct);
         if (fromDay is null || toDay is null) return;
 
-        var incomplete = fromDay.Tasks.Where(t => !t.IsCompleted && !string.IsNullOrWhiteSpace(t.Text)).ToList();
+        var incomplete = fromDay.Tasks
+            .Where(t => !t.IsCompleted && !string.IsNullOrWhiteSpace(t.Text) && t.ParentTaskId is null)
+            .ToList();
         var nextOrder = toDay.Tasks.Count > 0 ? toDay.Tasks.Max(t => t.Order) + 1 : 1;
+
         foreach (var task in incomplete)
         {
-            var emptySlot = toDay.Tasks.FirstOrDefault(t => string.IsNullOrWhiteSpace(t.Text));
+            DailyTask target;
+            var emptySlot = toDay.Tasks.FirstOrDefault(t => string.IsNullOrWhiteSpace(t.Text) && t.ParentTaskId is null);
             if (emptySlot is not null)
             {
                 emptySlot.Text = task.Text;
                 emptySlot.Priority = task.Priority;
                 emptySlot.Category = task.Category;
+                target = emptySlot;
             }
             else
             {
-                toDay.Tasks.Add(new DailyTask
+                target = new DailyTask
                 {
                     Order = nextOrder++, Text = task.Text,
                     Priority = task.Priority, Category = task.Category
+                };
+                toDay.Tasks.Add(target);
+            }
+
+            // Carry over subtasks
+            foreach (var sub in task.SubTasks.Where(s => !s.IsCompleted && !string.IsNullOrWhiteSpace(s.Text)).OrderBy(s => s.Order))
+            {
+                await db.SaveChangesAsync(ct); // ensure target has Id
+                db.DailyTasks.Add(new DailyTask
+                {
+                    DailyPlanId = toDay.Id,
+                    ParentTaskId = target.Id,
+                    Order = sub.Order,
+                    Text = sub.Text,
+                    IsCompleted = false
                 });
             }
         }
@@ -422,21 +442,15 @@ public sealed class PlannerService
     {
         var starts = new List<DateOnly>();
         var first = new DateOnly(year, month, 1);
+        var last = new DateOnly(year, month, DateTime.DaysInMonth(year, month));
         var weekStart = GetWeekStart(first);
 
-        while (weekStart.Month <= month && weekStart.Year <= year
-               || weekStart < first)
+        // Add all weeks that overlap with this month
+        while (weekStart <= last)
         {
             starts.Add(weekStart);
             weekStart = weekStart.AddDays(7);
-            if (weekStart.Month > month && weekStart.Year >= year)
-                break;
         }
-
-        // Include weeks that start in prev month but overlap this month
-        var check = GetWeekStart(first);
-        if (!starts.Contains(check))
-            starts.Insert(0, check);
 
         return [.. starts.Distinct().OrderBy(d => d)];
     }

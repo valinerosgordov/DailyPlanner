@@ -9,7 +9,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>planner.ico</ApplicationIcon>
     <AssemblyName>DailyPlanner</AssemblyName>
-    <Version>2.10.0</Version>
+    <Version>2.11.0</Version>
     <Authors>DailyPlanner Team</Authors>
     <Description>Недельный планер с трекером привычек и аналитикой продуктивности</Description>
   </PropertyGroup>

@@ -329,11 +329,25 @@
             </Border>
 
             <!-- Page Content -->
-            <Frame x:Name="ContentFrame" NavigationUIVisibility="Hidden">
-                <Frame.RenderTransform>
-                    <TranslateTransform/>
-                </Frame.RenderTransform>
-            </Frame>
+            <Grid>
+                <Frame x:Name="ContentFrame" NavigationUIVisibility="Hidden">
+                    <Frame.RenderTransform>
+                        <TranslateTransform/>
+                    </Frame.RenderTransform>
+                </Frame>
+
+                <!-- Loading overlay -->
+                <Border Background="#80000000" CornerRadius="8"
+                        Visibility="{Binding IsLoading, Converter={StaticResource VisConv}}"
+                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Padding="24,16">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:ProgressRing IsIndeterminate="True" Width="20" Height="20"/>
+                        <TextBlock Text="{Binding [Loading], Source={x:Static svc:Loc.Instance}}"
+                                   FontSize="13" Foreground="White" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
         </DockPanel>
 
         <!-- Pomodoro Floating Panel -->
