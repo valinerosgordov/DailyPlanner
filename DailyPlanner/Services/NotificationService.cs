@@ -12,6 +12,7 @@ public static class NotificationService
     private static readonly HashSet<string> _notifiedToday = new(StringComparer.Ordinal);
     private static readonly object _lock = new();
     private static DateOnly _lastCheckDate;
+    private static int _activeToasts;
 
     public static event Action<string, string>? NotificationTriggered;
 
@@ -44,9 +45,11 @@ public static class NotificationService
         if (Application.Current?.Dispatcher is null) return;
         Application.Current.Dispatcher.Invoke(() =>
         {
+            if (_activeToasts >= 3) return; // Limit concurrent toasts
             var mainWindow = Application.Current.MainWindow;
             if (mainWindow is null) return;
 
+            Interlocked.Increment(ref _activeToasts);
             var toast = new Border
             {
                 CornerRadius = new CornerRadius(12),
@@ -97,7 +100,11 @@ public static class NotificationService
                 {
                     timer.Stop();
                     var fadeOut = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(300));
-                    fadeOut.Completed += (_, _) => grid.Children.Remove(toast);
+                    fadeOut.Completed += (_, _) =>
+                    {
+                        grid.Children.Remove(toast);
+                        Interlocked.Decrement(ref _activeToasts);
+                    };
                     toast.BeginAnimation(UIElement.OpacityProperty, fadeOut);
                 };
                 timer.Start();

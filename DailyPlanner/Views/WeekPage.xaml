@@ -5,6 +5,7 @@
       xmlns:views="clr-namespace:DailyPlanner.Views"
       xmlns:conv="clr-namespace:DailyPlanner.Converters"
       xmlns:svc="clr-namespace:DailyPlanner.Services"
+      xmlns:vm="clr-namespace:DailyPlanner.ViewModels"
       Foreground="{DynamicResource TextPrimaryBrush}">
 
     <Page.Resources>
@@ -296,19 +297,43 @@
                                         <Grid Margin="0,0,0,6">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="70"/>
-                                                <ColumnDefinition Width="60"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             <DatePicker Grid.Column="0" SelectedDate="{Binding MeetingDate}"
                                                         FontSize="11" VerticalAlignment="Center"/>
-                                            <TextBox Grid.Column="1" Style="{StaticResource TaskTextBox}"
-                                                     Text="{Binding TimeText, UpdateSourceTrigger=LostFocus}"
-                                                     FontSize="11" FontFamily="Cascadia Code, Consolas" Margin="6,0"
-                                                     ToolTip="{Binding [MeetingTime], Source={x:Static svc:Loc.Instance}}"/>
+
+                                            <!-- Time picker: Hour : Minute -->
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="6,0" VerticalAlignment="Center">
+                                                <ComboBox ItemsSource="{x:Static vm:MeetingViewModel.Hours}"
+                                                          SelectedItem="{Binding SelectedHour}"
+                                                          Width="46" FontSize="11" FontFamily="Cascadia Code, Consolas"
+                                                          ToolTip="{Binding [MeetingTime], Source={x:Static svc:Loc.Instance}}">
+                                                    <ComboBox.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding StringFormat='{}{0:D2}'}"/>
+                                                        </DataTemplate>
+                                                    </ComboBox.ItemTemplate>
+                                                </ComboBox>
+                                                <TextBlock Text=":" FontSize="12" FontWeight="Bold"
+                                                           VerticalAlignment="Center" Margin="2,0"
+                                                           Foreground="{DynamicResource MutedBrush}"/>
+                                                <ComboBox ItemsSource="{x:Static vm:MeetingViewModel.Minutes}"
+                                                          SelectedItem="{Binding SelectedMinute}"
+                                                          Width="46" FontSize="11" FontFamily="Cascadia Code, Consolas">
+                                                    <ComboBox.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding StringFormat='{}{0:D2}'}"/>
+                                                        </DataTemplate>
+                                                    </ComboBox.ItemTemplate>
+                                                </ComboBox>
+                                            </StackPanel>
+
+                                            <!-- Duration picker -->
                                             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                                <TextBox Style="{StaticResource TaskTextBox}"
-                                                         Text="{Binding DurationMinutes, UpdateSourceTrigger=LostFocus}"
-                                                         FontSize="11" Width="28" FontFamily="Cascadia Code, Consolas"/>
+                                                <ComboBox ItemsSource="{x:Static vm:MeetingViewModel.Durations}"
+                                                          SelectedItem="{Binding DurationMinutes}"
+                                                          Width="52" FontSize="11" FontFamily="Cascadia Code, Consolas"/>
                                                 <TextBlock Text="{Binding [MeetingMin], Source={x:Static svc:Loc.Instance}}"
                                                            FontSize="9" Foreground="{DynamicResource MutedBrush}"
                                                            VerticalAlignment="Center" Margin="2,0,0,0"/>
@@ -335,16 +360,23 @@
                                                  Margin="0,0,0,6"/>
 
                                         <!-- Notification toggles -->
-                                        <StackPanel Orientation="Horizontal">
-                                            <CheckBox IsChecked="{Binding NotifyDayBefore}" VerticalAlignment="Center" Margin="0,0,3,0"/>
-                                            <TextBlock Text="{Binding [MeetingNotifyDay], Source={x:Static svc:Loc.Instance}}"
-                                                       FontSize="9" Foreground="{DynamicResource MutedBrush}"
-                                                       VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                            <CheckBox IsChecked="{Binding NotifyTwoHoursBefore}" VerticalAlignment="Center" Margin="0,0,3,0"/>
-                                            <TextBlock Text="{Binding [MeetingNotify2h], Source={x:Static svc:Loc.Instance}}"
-                                                       FontSize="9" Foreground="{DynamicResource MutedBrush}"
-                                                       VerticalAlignment="Center"/>
-                                        </StackPanel>
+                                        <WrapPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,10,0">
+                                                <CheckBox IsChecked="{Binding NotifyDayBefore}" VerticalAlignment="Center" Margin="0,0,3,0"/>
+                                                <TextBlock Text="{Binding [MeetingNotifyDay], Source={x:Static svc:Loc.Instance}}"
+                                                           FontSize="9" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,10,0">
+                                                <CheckBox IsChecked="{Binding NotifyTwoHoursBefore}" VerticalAlignment="Center" Margin="0,0,3,0"/>
+                                                <TextBlock Text="{Binding [MeetingNotify2h], Source={x:Static svc:Loc.Instance}}"
+                                                           FontSize="9" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <CheckBox IsChecked="{Binding Notify30MinBefore}" VerticalAlignment="Center" Margin="0,0,3,0"/>
+                                                <TextBlock Text="{Binding [MeetingNotify30m], Source={x:Static svc:Loc.Instance}}"
+                                                           FontSize="9" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </WrapPanel>
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>
