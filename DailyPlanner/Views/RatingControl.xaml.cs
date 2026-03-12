@@ -14,6 +14,10 @@ public partial class RatingControl : UserControl
         DependencyProperty.Register(nameof(MaxValue), typeof(int), typeof(RatingControl),
             new PropertyMetadata(5, OnValueChanged));
 
+    public static readonly DependencyProperty StarBrushProperty =
+        DependencyProperty.Register(nameof(StarBrush), typeof(Brush), typeof(RatingControl),
+            new PropertyMetadata(null, OnValueChanged));
+
     public int Value
     {
         get => (int)GetValue(ValueProperty);
@@ -24,6 +28,12 @@ public partial class RatingControl : UserControl
     {
         get => (int)GetValue(MaxValueProperty);
         set => SetValue(MaxValueProperty, value);
+    }
+
+    public Brush? StarBrush
+    {
+        get => (Brush?)GetValue(StarBrushProperty);
+        set => SetValue(StarBrushProperty, value);
     }
 
     public RatingControl()
@@ -41,7 +51,9 @@ public partial class RatingControl : UserControl
     private void RenderStars()
     {
         StarsPanel.Children.Clear();
-        var accent = TryFindResource("AccentBrush") as SolidColorBrush ?? Brushes.Purple;
+        var activeBrush = StarBrush
+            ?? TryFindResource("AccentBrush") as SolidColorBrush
+            ?? Brushes.Purple;
         var muted = TryFindResource("MutedBrush") as SolidColorBrush ?? Brushes.Gray;
 
         for (var i = 1; i <= MaxValue; i++)
@@ -50,8 +62,9 @@ public partial class RatingControl : UserControl
             var btn = new Button
             {
                 Content = i <= Value ? "\u2605" : "\u2606",
-                Foreground = i <= Value ? accent : muted,
-                Style = FindResource("RatingButton") as Style
+                Foreground = i <= Value ? activeBrush : muted,
+                Style = FindResource("RatingButton") as Style,
+                ToolTip = $"{Value}/{MaxValue}"
             };
             btn.Click += (_, _) =>
             {
