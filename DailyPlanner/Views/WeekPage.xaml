@@ -98,7 +98,7 @@
                         </Border>
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Style="{StaticResource StatValue}" Foreground="{DynamicResource WarningBrush}">
-                                <Run Text="{Binding CompletedGoals, Mode=OneWay}"/><Run Text="/4"/>
+                                <Run Text="{Binding CompletedGoals, Mode=OneWay}"/>/<Run Text="{Binding Goals.Count, Mode=OneWay}"/>
                             </TextBlock>
                             <TextBlock Text="{Binding [GoalsReached], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource StatLabel}"/>
                         </StackPanel>
@@ -130,10 +130,17 @@
                 <!-- Goals -->
                 <Border Grid.Column="0" Style="{StaticResource PlannerCard}">
                     <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                            <ui:SymbolIcon Symbol="Star24" FontSize="15" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                            <TextBlock Text="{Binding [WeekGoals], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource SectionHeader}" Margin="0"/>
-                        </StackPanel>
+                        <DockPanel Margin="0,0,0,12">
+                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                                <ui:SymbolIcon Symbol="Star24" FontSize="15" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <TextBlock Text="{Binding [WeekGoals], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource SectionHeader}" Margin="0"/>
+                            </StackPanel>
+                            <Button Style="{StaticResource SmallIconButton}" DockPanel.Dock="Right"
+                                    HorizontalAlignment="Right" ToolTip="{Binding [AddGoalTip], Source={x:Static svc:Loc.Instance}}"
+                                    Command="{Binding AddGoalCommand}">
+                                <ui:SymbolIcon Symbol="Add16" FontSize="14"/>
+                            </Button>
+                        </DockPanel>
                         <ItemsControl ItemsSource="{Binding Goals}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -142,6 +149,7 @@
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" Text="{Binding Order, StringFormat='{}{0}.'}"
                                                    Foreground="{DynamicResource MutedBrush}" FontSize="12"
@@ -152,6 +160,12 @@
                                                  Text="{Binding Text, UpdateSourceTrigger=LostFocus}"
                                                  TextDecorations="{Binding IsCompleted, Converter={StaticResource StrikethroughConv}}"
                                                  Opacity="{Binding IsCompleted, Converter={StaticResource OpacityConv}}"/>
+                                        <Button Grid.Column="3" Style="{StaticResource SmallIconButton}"
+                                                VerticalAlignment="Center" Margin="4,0,0,0"
+                                                Command="{Binding DataContext.RemoveGoalCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding}" ToolTip="{Binding [DeleteTip], Source={x:Static svc:Loc.Instance}}">
+                                            <ui:SymbolIcon Symbol="Delete16" FontSize="12"/>
+                                        </Button>
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -227,7 +241,7 @@
                             <StackPanel Grid.Column="1" HorizontalAlignment="Center">
                                 <TextBlock Foreground="{DynamicResource SuccessBrush}" FontWeight="Bold" FontSize="14"
                                            HorizontalAlignment="Center">
-                                    <Run Text="{Binding CompletedGoals, Mode=OneWay}"/><Run Text="/4"/>
+                                    <Run Text="{Binding CompletedGoals, Mode=OneWay}"/>/<Run Text="{Binding Goals.Count, Mode=OneWay}"/>
                                 </TextBlock>
                                 <TextBlock Text="{Binding [GoalsLabel], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource StatLabel}" HorizontalAlignment="Center"/>
                             </StackPanel>
@@ -306,7 +320,8 @@
                                             <!-- Time picker: Hour : Minute -->
                                             <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="6,0" VerticalAlignment="Center">
                                                 <ComboBox ItemsSource="{x:Static vm:MeetingViewModel.Hours}"
-                                                          SelectedItem="{Binding SelectedHour}"
+                                                          SelectedValue="{Binding SelectedHour, Mode=TwoWay}"
+                                                          IsSynchronizedWithCurrentItem="False"
                                                           Width="46" FontSize="11" FontFamily="Cascadia Code, Consolas"
                                                           ToolTip="{Binding [MeetingTime], Source={x:Static svc:Loc.Instance}}">
                                                     <ComboBox.ItemTemplate>
@@ -319,7 +334,8 @@
                                                            VerticalAlignment="Center" Margin="2,0"
                                                            Foreground="{DynamicResource MutedBrush}"/>
                                                 <ComboBox ItemsSource="{x:Static vm:MeetingViewModel.Minutes}"
-                                                          SelectedItem="{Binding SelectedMinute}"
+                                                          SelectedValue="{Binding SelectedMinute, Mode=TwoWay}"
+                                                          IsSynchronizedWithCurrentItem="False"
                                                           Width="46" FontSize="11" FontFamily="Cascadia Code, Consolas">
                                                     <ComboBox.ItemTemplate>
                                                         <DataTemplate>
@@ -332,7 +348,8 @@
                                             <!-- Duration picker -->
                                             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                                                 <ComboBox ItemsSource="{x:Static vm:MeetingViewModel.Durations}"
-                                                          SelectedItem="{Binding DurationMinutes}"
+                                                          SelectedValue="{Binding DurationMinutes, Mode=TwoWay}"
+                                                          IsSynchronizedWithCurrentItem="False"
                                                           Width="52" FontSize="11" FontFamily="Cascadia Code, Consolas"/>
                                                 <TextBlock Text="{Binding [MeetingMin], Source={x:Static svc:Loc.Instance}}"
                                                            FontSize="9" Foreground="{DynamicResource MutedBrush}"
@@ -715,30 +732,65 @@
                             <ui:SymbolIcon Symbol="HeartPulse24" FontSize="15" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <TextBlock Text="{Binding [StateTracker], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource SectionHeader}" Margin="0"/>
                         </StackPanel>
-                        <Grid Margin="0,0,0,6">
+                        <Grid Margin="0,0,0,8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="38"/>
                                 <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="1" Text="{Binding [Sleep], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource InfoBrush}" FontSize="10" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="2" Text="{Binding [Energy], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource WarningBrush}" FontSize="10" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="3" Text="{Binding [Mood], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource SuccessBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="&#x1F31C; " FontSize="11"/>
+                                <TextBlock Text="{Binding [Sleep], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource InfoBrush}" FontSize="10" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="&#x26A1; " FontSize="11"/>
+                                <TextBlock Text="{Binding [Energy], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource WarningBrush}" FontSize="10" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="&#x1F60A; " FontSize="11"/>
+                                <TextBlock Text="{Binding [Mood], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource SuccessBrush}" FontSize="10" VerticalAlignment="Center"/>
+                            </StackPanel>
                         </Grid>
                         <ItemsControl ItemsSource="{Binding Days}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid Margin="0,2">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="38"/>
-                                            <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="{Binding ShortDayName}"
-                                                   Foreground="{DynamicResource MutedBrush}" FontSize="11"
-                                                   VerticalAlignment="Center" FontWeight="SemiBold"/>
-                                        <views:RatingControl Grid.Column="1" Value="{Binding Sleep}" MaxValue="5" HorizontalAlignment="Center"/>
-                                        <views:RatingControl Grid.Column="2" Value="{Binding Energy}" MaxValue="5" HorizontalAlignment="Center"/>
-                                        <views:RatingControl Grid.Column="3" Value="{Binding Mood}" MaxValue="5" HorizontalAlignment="Center"/>
-                                    </Grid>
+                                    <Border CornerRadius="6" Padding="4,3" Margin="0,1">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="Transparent"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsToday}" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource ControlFillColorDefaultBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="38"/>
+                                                <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="{Binding ShortDayName}"
+                                                       FontSize="11" VerticalAlignment="Center" FontWeight="SemiBold">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsToday}" Value="True">
+                                                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                                                <Setter Property="FontWeight" Value="Bold"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                            <views:RatingControl Grid.Column="1" Value="{Binding Sleep}" MaxValue="5"
+                                                                 StarBrush="{DynamicResource InfoBrush}" HorizontalAlignment="Center"/>
+                                            <views:RatingControl Grid.Column="2" Value="{Binding Energy}" MaxValue="5"
+                                                                 StarBrush="{DynamicResource WarningBrush}" HorizontalAlignment="Center"/>
+                                            <views:RatingControl Grid.Column="3" Value="{Binding Mood}" MaxValue="5"
+                                                                 StarBrush="{DynamicResource SuccessBrush}" HorizontalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>

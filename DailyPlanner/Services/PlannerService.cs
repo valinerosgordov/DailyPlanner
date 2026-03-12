@@ -129,18 +129,35 @@ public sealed class PlannerService
             .FirstOrDefaultAsync(d => d.Date == targetDate, ct);
         if (targetDay is null) return;
 
-        var nextOrder = targetDay.Tasks.Count > 0 ? targetDay.Tasks.Max(t => t.Order) + 1 : 1;
+        // Try to fill an empty slot first (so the task doesn't land at the bottom)
+        var emptySlot = targetDay.Tasks
+            .Where(t => string.IsNullOrWhiteSpace(t.Text) && t.ParentTaskId is null)
+            .OrderBy(t => t.Order)
+            .FirstOrDefault();
 
-        var newTask = new DailyTask
+        DailyTask targetTask;
+        if (emptySlot is not null)
         {
-            DailyPlanId = targetDay.Id,
-            Order = nextOrder,
-            Text = task.Text,
-            Priority = task.Priority,
-            Category = task.Category,
-            IsCompleted = task.IsCompleted
-        };
-        db.DailyTasks.Add(newTask);
+            emptySlot.Text = task.Text;
+            emptySlot.Priority = task.Priority;
+            emptySlot.Category = task.Category;
+            emptySlot.IsCompleted = task.IsCompleted;
+            targetTask = emptySlot;
+        }
+        else
+        {
+            var nextOrder = targetDay.Tasks.Count > 0 ? targetDay.Tasks.Max(t => t.Order) + 1 : 1;
+            targetTask = new DailyTask
+            {
+                DailyPlanId = targetDay.Id,
+                Order = nextOrder,
+                Text = task.Text,
+                Priority = task.Priority,
+                Category = task.Category,
+                IsCompleted = task.IsCompleted
+            };
+            db.DailyTasks.Add(targetTask);
+        }
         await db.SaveChangesAsync(ct);
 
         // Move subtasks
@@ -149,7 +166,7 @@ public sealed class PlannerService
             db.DailyTasks.Add(new DailyTask
             {
                 DailyPlanId = targetDay.Id,
-                ParentTaskId = newTask.Id,
+                ParentTaskId = targetTask.Id,
                 Order = sub.Order,
                 Text = sub.Text,
                 IsCompleted = sub.IsCompleted
@@ -168,6 +185,13 @@ public sealed class PlannerService
         await using var db = PlannerDbContextFactory.Create();
         db.WeeklyGoals.Update(goal);
         await db.SaveChangesAsync(ct);
+    }
+
+    public async Task RemoveGoalAsync(int goalId, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var goal = await db.WeeklyGoals.FindAsync([goalId], ct);
+        if (goal is not null) { db.WeeklyGoals.Remove(goal); await db.SaveChangesAsync(ct); }
     }
 
     public async Task SaveDailyStateAsync(DailyState state, CancellationToken ct = default)

@@ -101,6 +101,34 @@ public sealed partial class WeekViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task AddGoalAsync()
+    {
+        var order = _model.Goals.Count + 1;
+        var goal = new WeeklyGoal { WeekId = _model.Id, Order = order };
+        _model.Goals.Add(goal);
+        await _service.SaveChangesAsync(_model);
+
+        var vm = new GoalViewModel(goal, _service);
+        vm.PropertyChanged += (_, _) => RefreshAnalytics();
+        Goals.Add(vm);
+        OnPropertyChanged(nameof(CompletedGoals));
+    }
+
+    [RelayCommand]
+    private async Task RemoveGoalAsync(GoalViewModel? goalVm)
+    {
+        if (goalVm is null) return;
+        var model = _model.Goals.FirstOrDefault(g => g.Id == goalVm.Model.Id);
+        if (model is not null)
+        {
+            _model.Goals.Remove(model);
+            await _service.RemoveGoalAsync(model.Id);
+        }
+        Goals.Remove(goalVm);
+        RefreshAnalytics();
+    }
+
+    [RelayCommand]
     private async Task AddHabitAsync()
     {
         var order = _model.Habits.Count + 1;

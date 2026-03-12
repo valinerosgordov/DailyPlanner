@@ -27,6 +27,14 @@ public sealed partial class MeetingViewModel : ObservableObject
         _notifyDayBefore = model.NotifyDayBefore;
         _notifyTwoHoursBefore = model.NotifyTwoHoursBefore;
         _notify30MinBefore = model.Notify30MinBefore;
+
+        // Force ComboBox sync after DataTemplate initialization
+        System.Windows.Threading.Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+        {
+            OnPropertyChanged(nameof(SelectedHour));
+            OnPropertyChanged(nameof(SelectedMinute));
+            OnPropertyChanged(nameof(DurationMinutes));
+        }, System.Windows.Threading.DispatcherPriority.Loaded);
     }
 
     public Meeting Model => _model;

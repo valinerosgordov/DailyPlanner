@@ -180,6 +180,7 @@ public partial class WeekPage : Page
             return;
         }
 
+        emptySlot.IsCompleted = sourceTask.IsCompleted;
         emptySlot.Text = sourceTask.Text;
         emptySlot.Priority = sourceTask.Priority;
         emptySlot.Category = sourceTask.Category;

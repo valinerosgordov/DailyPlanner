@@ -17,6 +17,7 @@ public sealed partial class GoalViewModel : ObservableObject
         _isCompleted = model.IsCompleted;
     }
 
+    public WeeklyGoal Model => _model;
     public int Order => _model.Order;
 
     [ObservableProperty]
