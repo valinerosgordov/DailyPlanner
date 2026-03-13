@@ -527,7 +527,7 @@
                                                             </Style>
                                                         </StackPanel.Style>
                                                         <StackPanel.Background>
-                                                            <SolidColorBrush Color="{DynamicResource CardBg}" Opacity="0.92"/>
+                                                            <SolidColorBrush Color="#313244" Opacity="0.92"/>
                                                         </StackPanel.Background>
                                                         <Border Width="16" Height="16" Cursor="Hand" Margin="1,0"
                                                                 MouseLeftButtonDown="AddSubTask_Click" Background="Transparent"
