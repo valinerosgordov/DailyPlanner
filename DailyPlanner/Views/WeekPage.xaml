@@ -317,44 +317,41 @@
                                             <DatePicker Grid.Column="0" SelectedDate="{Binding MeetingDate}"
                                                         FontSize="11" VerticalAlignment="Center"/>
 
-                                            <!-- Time picker: Hour : Minute -->
-                                            <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="6,0" VerticalAlignment="Center">
-                                                <ComboBox ItemsSource="{x:Static vm:MeetingViewModel.Hours}"
-                                                          SelectedValue="{Binding SelectedHour, Mode=TwoWay}"
-                                                          IsSynchronizedWithCurrentItem="False"
-                                                          Width="46" FontSize="11" FontFamily="Cascadia Code, Consolas"
-                                                          ToolTip="{Binding [MeetingTime], Source={x:Static svc:Loc.Instance}}">
-                                                    <ComboBox.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <TextBlock Text="{Binding StringFormat='{}{0:D2}'}"/>
-                                                        </DataTemplate>
-                                                    </ComboBox.ItemTemplate>
-                                                </ComboBox>
-                                                <TextBlock Text=":" FontSize="12" FontWeight="Bold"
-                                                           VerticalAlignment="Center" Margin="2,0"
-                                                           Foreground="{DynamicResource MutedBrush}"/>
-                                                <ComboBox ItemsSource="{x:Static vm:MeetingViewModel.Minutes}"
-                                                          SelectedValue="{Binding SelectedMinute, Mode=TwoWay}"
-                                                          IsSynchronizedWithCurrentItem="False"
-                                                          Width="46" FontSize="11" FontFamily="Cascadia Code, Consolas">
-                                                    <ComboBox.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <TextBlock Text="{Binding StringFormat='{}{0:D2}'}"/>
-                                                        </DataTemplate>
-                                                    </ComboBox.ItemTemplate>
-                                                </ComboBox>
-                                            </StackPanel>
+                                            <!-- Time picker: HH:MM -->
+                                            <Border Grid.Column="1" CornerRadius="6" Padding="6,4" Margin="6,0"
+                                                    Background="{DynamicResource InputBgBrush}" VerticalAlignment="Center"
+                                                    ToolTip="{Binding [MeetingTime], Source={x:Static svc:Loc.Instance}}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBox Text="{Binding SelectedHour, StringFormat=D2, UpdateSourceTrigger=LostFocus}"
+                                                             Width="24" FontSize="12" FontFamily="Cascadia Code, Consolas"
+                                                             Background="Transparent" BorderThickness="0" Padding="0"
+                                                             Foreground="{DynamicResource TextPrimaryBrush}"
+                                                             HorizontalContentAlignment="Center" MaxLength="2"/>
+                                                    <TextBlock Text=":" FontSize="12" FontWeight="Bold"
+                                                               VerticalAlignment="Center" Margin="1,0"
+                                                               Foreground="{DynamicResource MutedBrush}"/>
+                                                    <TextBox Text="{Binding SelectedMinute, StringFormat=D2, UpdateSourceTrigger=LostFocus}"
+                                                             Width="24" FontSize="12" FontFamily="Cascadia Code, Consolas"
+                                                             Background="Transparent" BorderThickness="0" Padding="0"
+                                                             Foreground="{DynamicResource TextPrimaryBrush}"
+                                                             HorizontalContentAlignment="Center" MaxLength="2"/>
+                                                </StackPanel>
+                                            </Border>
 
-                                            <!-- Duration picker -->
-                                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                                <ComboBox ItemsSource="{x:Static vm:MeetingViewModel.Durations}"
-                                                          SelectedValue="{Binding DurationMinutes, Mode=TwoWay}"
-                                                          IsSynchronizedWithCurrentItem="False"
-                                                          Width="52" FontSize="11" FontFamily="Cascadia Code, Consolas"/>
-                                                <TextBlock Text="{Binding [MeetingMin], Source={x:Static svc:Loc.Instance}}"
-                                                           FontSize="9" Foreground="{DynamicResource MutedBrush}"
-                                                           VerticalAlignment="Center" Margin="2,0,0,0"/>
-                                            </StackPanel>
+                                            <!-- Duration -->
+                                            <Border Grid.Column="2" CornerRadius="6" Padding="6,4"
+                                                    Background="{DynamicResource InputBgBrush}" VerticalAlignment="Center">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBox Text="{Binding DurationMinutes, UpdateSourceTrigger=LostFocus}"
+                                                             Width="30" FontSize="12" FontFamily="Cascadia Code, Consolas"
+                                                             Background="Transparent" BorderThickness="0" Padding="0"
+                                                             Foreground="{DynamicResource TextPrimaryBrush}"
+                                                             HorizontalContentAlignment="Center" MaxLength="3"/>
+                                                    <TextBlock Text="{Binding [MeetingMin], Source={x:Static svc:Loc.Instance}}"
+                                                               FontSize="9" Foreground="{DynamicResource MutedBrush}"
+                                                               VerticalAlignment="Center" Margin="2,0,0,0"/>
+                                                </StackPanel>
+                                            </Border>
                                         </Grid>
 
                                         <!-- Attendees -->
@@ -416,7 +413,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Margin="4,0" Padding="12,14">
+                        <Border Margin="3,0" Padding="8,12">
                             <Border.Style>
                                 <Style TargetType="Border" BasedOn="{StaticResource PlannerCard}">
                                     <Style.Triggers>
@@ -473,20 +470,19 @@
                                                         <ColumnDefinition Width="Auto"/>
                                                         <ColumnDefinition Width="Auto"/>
                                                         <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
                                                     <!-- Priority dot -->
-                                                    <Border Grid.Column="0" Width="4" Height="16" CornerRadius="2" Margin="0,0,3,0"
+                                                    <Border Grid.Column="0" Width="3" Height="14" CornerRadius="1.5" Margin="0,0,2,0"
                                                             Background="{Binding Priority, Converter={StaticResource PriorityBrush}}"
                                                             Visibility="{Binding Priority, Converter={StaticResource NonZeroVis}}"
                                                             ToolTip="{Binding Priority, Converter={StaticResource PriorityTip}}" Cursor="Hand"
                                                             MouseLeftButtonDown="PriorityCycle_Click"/>
                                                     <!-- Expand/collapse toggle -->
-                                                    <Border Grid.Column="1" Width="14" Height="14" Cursor="Hand"
+                                                    <Border Grid.Column="1" Width="12" Height="12" Cursor="Hand"
                                                             MouseLeftButtonDown="ToggleExpand_Click"
                                                             Background="Transparent" VerticalAlignment="Center"
                                                             Visibility="{Binding HasSubTasks, Converter={StaticResource VisConv}}">
-                                                        <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="8"
+                                                        <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="7"
                                                                    HorizontalAlignment="Center" VerticalAlignment="Center"
                                                                    Foreground="{DynamicResource MutedBrush}">
                                                             <TextBlock.Style>
@@ -502,57 +498,55 @@
                                                         </TextBlock>
                                                     </Border>
                                                     <CheckBox Grid.Column="2" Style="{StaticResource PlannerCheckBox}"
-                                                              IsChecked="{Binding IsCompleted}" Margin="0,0,4,0"
+                                                              IsChecked="{Binding IsCompleted}" Margin="0,0,3,0"
                                                               VerticalAlignment="Center"/>
                                                     <!-- Category icon -->
-                                                    <TextBlock Grid.Column="3" FontFamily="Segoe MDL2 Assets" FontSize="10"
+                                                    <TextBlock Grid.Column="3" FontFamily="Segoe MDL2 Assets" FontSize="9"
                                                                Text="{Binding Category, Converter={StaticResource CatLabel}}"
                                                                Foreground="{Binding Category, Converter={StaticResource CatBrush}}"
                                                                Visibility="{Binding Category, Converter={StaticResource NonZeroVis}}"
-                                                               VerticalAlignment="Center" Margin="0,0,3,0"
+                                                               VerticalAlignment="Center" Margin="0,0,2,0"
                                                                ToolTip="{Binding Category, Converter={StaticResource CatTip}}" Cursor="Hand"
                                                                MouseLeftButtonDown="CategoryCycle_Click"/>
                                                     <TextBox Grid.Column="4" Style="{StaticResource TaskTextBox}"
                                                              Text="{Binding Text, UpdateSourceTrigger=LostFocus}"
                                                              TextDecorations="{Binding IsCompleted, Converter={StaticResource StrikethroughConv}}"
                                                              Opacity="{Binding IsCompleted, Converter={StaticResource OpacityConv}}"
-                                                             FontSize="11.5"/>
-                                                    <!-- Task action buttons (visible on hover) -->
-                                                    <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Center">
+                                                             FontSize="11" TextWrapping="NoWrap"/>
+                                                    <!-- Task action buttons — overlay on right, Collapsed until hover -->
+                                                    <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center"
+                                                                HorizontalAlignment="Right">
                                                         <StackPanel.Style>
                                                             <Style TargetType="StackPanel">
-                                                                <Setter Property="Opacity" Value="0"/>
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Grid}}" Value="True">
-                                                                        <Setter Property="Opacity" Value="0.6"/>
+                                                                        <Setter Property="Visibility" Value="Visible"/>
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
                                                         </StackPanel.Style>
-                                                        <!-- Add subtask -->
-                                                        <Border Width="14" Height="14" Cursor="Hand" Margin="0,0,2,0"
-                                                                MouseLeftButtonDown="AddSubTask_Click"
-                                                                Background="Transparent"
+                                                        <StackPanel.Background>
+                                                            <SolidColorBrush Color="{DynamicResource CardBg}" Opacity="0.92"/>
+                                                        </StackPanel.Background>
+                                                        <Border Width="16" Height="16" Cursor="Hand" Margin="1,0"
+                                                                MouseLeftButtonDown="AddSubTask_Click" Background="Transparent"
                                                                 ToolTip="{Binding [AddSubTaskTip], Source={x:Static svc:Loc.Instance}}">
-                                                            <TextBlock Text="+" FontSize="12" FontWeight="Bold"
+                                                            <TextBlock Text="+" FontSize="11" FontWeight="Bold"
                                                                        HorizontalAlignment="Center" VerticalAlignment="Center"
                                                                        Foreground="{DynamicResource MutedBrush}"/>
                                                         </Border>
-                                                        <!-- Move to next day -->
-                                                        <Border Width="14" Height="14" Cursor="Hand" Margin="0,0,2,0"
-                                                                MouseLeftButtonDown="MoveTaskNextDay_Click"
-                                                                Background="Transparent"
+                                                        <Border Width="16" Height="16" Cursor="Hand" Margin="1,0"
+                                                                MouseLeftButtonDown="MoveTaskNextDay_Click" Background="Transparent"
                                                                 ToolTip="{Binding [MoveNextDayTip], Source={x:Static svc:Loc.Instance}}">
-                                                            <TextBlock Text="&#xE72A;" FontFamily="Segoe MDL2 Assets" FontSize="9"
+                                                            <TextBlock Text="&#xE72A;" FontFamily="Segoe MDL2 Assets" FontSize="8"
                                                                        HorizontalAlignment="Center" VerticalAlignment="Center"
                                                                        Foreground="{DynamicResource AccentBrush}"/>
                                                         </Border>
-                                                        <!-- Delete task -->
-                                                        <Border Width="14" Height="14" Cursor="Hand"
-                                                                MouseLeftButtonDown="DeleteTask_Click"
-                                                                Background="Transparent"
+                                                        <Border Width="16" Height="16" Cursor="Hand" Margin="1,0"
+                                                                MouseLeftButtonDown="DeleteTask_Click" Background="Transparent"
                                                                 ToolTip="{Binding [DeleteTaskTip], Source={x:Static svc:Loc.Instance}}">
-                                                            <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="9"
+                                                            <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="8"
                                                                        HorizontalAlignment="Center" VerticalAlignment="Center"
                                                                        Foreground="{DynamicResource DangerBrush}"/>
                                                         </Border>
@@ -794,6 +788,33 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
+
+                        <!-- Averages row -->
+                        <Border CornerRadius="6" Padding="4,5" Margin="0,8,0,0"
+                                Background="{DynamicResource InputBgBrush}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="38"/>
+                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="{Binding [StateAvg], Source={x:Static svc:Loc.Instance}}"
+                                           FontSize="9" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="{Binding AvgSleep, StringFormat='{}{0:0.0}'}"
+                                           FontSize="12" FontWeight="Bold" Foreground="{DynamicResource InfoBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="2" Text="{Binding AvgEnergy, StringFormat='{}{0:0.0}'}"
+                                           FontSize="12" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="3" Text="{Binding AvgMood, StringFormat='{}{0:0.0}'}"
+                                           FontSize="12" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- State insight -->
+                        <TextBlock Text="{Binding StateInsight}" FontSize="10" FontStyle="Italic"
+                                   Foreground="{DynamicResource MutedBrush}" Margin="0,6,0,0"
+                                   TextWrapping="Wrap" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Border>
             </Grid>

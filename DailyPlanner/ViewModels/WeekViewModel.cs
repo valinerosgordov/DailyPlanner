@@ -54,6 +54,30 @@ public sealed partial class WeekViewModel : ObservableObject
     [ObservableProperty]
     private string _notes;
 
+    // State averages
+    public double AvgSleep => Days.Any(d => d.Sleep > 0) ? Math.Round(Days.Where(d => d.Sleep > 0).Average(d => d.Sleep), 1) : 0;
+    public double AvgEnergy => Days.Any(d => d.Energy > 0) ? Math.Round(Days.Where(d => d.Energy > 0).Average(d => d.Energy), 1) : 0;
+    public double AvgMood => Days.Any(d => d.Mood > 0) ? Math.Round(Days.Where(d => d.Mood > 0).Average(d => d.Mood), 1) : 0;
+    public bool HasStateData => Days.Any(d => d.Sleep > 0 || d.Energy > 0 || d.Mood > 0);
+
+    public string StateInsight
+    {
+        get
+        {
+            if (!HasStateData) return Loc.Get("StateNoData");
+            var best = Days.Where(d => d.Sleep + d.Energy + d.Mood > 0)
+                .MaxBy(d => d.Sleep + d.Energy + d.Mood);
+            var worst = Days.Where(d => d.Sleep + d.Energy + d.Mood > 0)
+                .MinBy(d => d.Sleep + d.Energy + d.Mood);
+            if (best is null) return "";
+            var parts = new List<string>();
+            parts.Add(string.Format(Loc.Get("StateBestDay"), best.ShortDayName));
+            if (worst is not null && worst != best)
+                parts.Add(string.Format(Loc.Get("StateWorstDay"), worst.ShortDayName));
+            return string.Join("  ·  ", parts);
+        }
+    }
+
     // Analytics
     public int TotalTasks => Days.Sum(d => d.TotalWithText);
     public int CompletedTasks => Days.Sum(d => d.CompletedCount);
@@ -192,5 +216,10 @@ public sealed partial class WeekViewModel : ObservableObject
         OnPropertyChanged(nameof(CompletedGoals));
         OnPropertyChanged(nameof(MostProductiveDay));
         OnPropertyChanged(nameof(WeeklySummary));
+        OnPropertyChanged(nameof(AvgSleep));
+        OnPropertyChanged(nameof(AvgEnergy));
+        OnPropertyChanged(nameof(AvgMood));
+        OnPropertyChanged(nameof(HasStateData));
+        OnPropertyChanged(nameof(StateInsight));
     }
 }
