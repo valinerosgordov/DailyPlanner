@@ -197,3 +197,51 @@ public sealed class BoolToPlayPauseConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         => throw new NotSupportedException();
 }
+
+public sealed class DeadlineToBrushConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is not DateOnly deadline) return System.Windows.Media.Brushes.Transparent;
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        if (deadline < today) // overdue
+            return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xFB, 0x71, 0x85));
+        if (deadline == today) // due today
+            return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xFB, 0xBF, 0x24));
+        if (deadline <= today.AddDays(2)) // due soon
+            return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x38, 0xBD, 0xF8));
+        return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x58, 0x58, 0x78));
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
+public sealed class DeadlineToTextConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is not DateOnly deadline) return "";
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var diff = deadline.DayNumber - today.DayNumber;
+        return diff switch
+        {
+            < 0 => $"{Loc.Get("Overdue")} {-diff}{Loc.Get("DaysShort")}",
+            0 => Loc.Get("DueToday"),
+            1 => Loc.Get("DueTomorrow"),
+            _ => deadline.ToString("dd.MM")
+        };
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
+public sealed class NullableToVisibilityConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object parameter, CultureInfo culture)
+        => value is not null ? Visibility.Visible : Visibility.Collapsed;
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}

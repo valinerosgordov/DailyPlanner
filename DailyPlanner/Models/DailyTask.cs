@@ -14,6 +14,7 @@ public sealed class DailyTask
     public TaskPriority Priority { get; set; }
     public TaskCategory Category { get; set; }
     public TimeOnly? ReminderTime { get; set; }
+    public DateOnly? Deadline { get; set; }
 
     public DailyPlan? DailyPlan { get; set; }
     public DailyTask? ParentTask { get; set; }

@@ -271,18 +271,25 @@ public sealed partial class MainViewModel : ObservableObject
     partial void OnIsAutoStartEnabledChanged(bool value)
     {
         if (_isInitializing) return;
-        using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(
-            @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
-        if (key is null) return;
+        try
+        {
+            using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(
+                @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
+            if (key is null) return;
 
-        if (value)
-        {
-            var exePath = Environment.ProcessPath ?? "";
-            key.SetValue("DailyPlanner", $"\"{exePath}\"");
+            if (value)
+            {
+                var exePath = Environment.ProcessPath ?? "";
+                key.SetValue("DailyPlanner", $"\"{exePath}\"");
+            }
+            else
+            {
+                key.DeleteValue("DailyPlanner", false);
+            }
         }
-        else
+        catch (System.Security.SecurityException)
         {
-            key.DeleteValue("DailyPlanner", false);
+            // Non-admin users may not have registry write access
         }
     }
 
@@ -594,8 +601,8 @@ public sealed partial class MainViewModel : ObservableObject
             var r = vm.Model;
             if (r.DayOfWeek is not null && r.DayOfWeek != today) continue;
 
-            var diff = Math.Abs((now - r.Time).TotalMinutes);
-            if (diff > 1) continue;
+            var diff = (now - r.Time).TotalMinutes;
+            if (diff < 0 || diff > 1.5) continue;
 
             var key = $"{dateKey}:{r.Id}";
             if (!_firedReminders.Add(key)) continue;

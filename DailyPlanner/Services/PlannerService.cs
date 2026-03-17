@@ -160,7 +160,7 @@ public sealed class PlannerService
         }
         await db.SaveChangesAsync(ct);
 
-        // Move subtasks
+        // Move subtasks (preserve all properties)
         foreach (var sub in task.SubTasks.OrderBy(s => s.Order))
         {
             db.DailyTasks.Add(new DailyTask
@@ -169,6 +169,8 @@ public sealed class PlannerService
                 ParentTaskId = targetTask.Id,
                 Order = sub.Order,
                 Text = sub.Text,
+                Priority = sub.Priority,
+                Category = sub.Category,
                 IsCompleted = sub.IsCompleted
             });
         }
@@ -426,16 +428,26 @@ public sealed class PlannerService
                 toDay.Tasks.Add(target);
             }
 
-            // Carry over subtasks
+        }
+
+        // Flush so every new/updated parent task gets a real Id
+        await db.SaveChangesAsync(ct);
+
+        // Carry over subtasks (batch — one SaveChanges for all)
+        foreach (var task in incomplete)
+        {
+            var target = toDay.Tasks.FirstOrDefault(t => t.Text == task.Text && t.ParentTaskId is null)
+                         ?? toDay.Tasks.Last(t => t.Text == task.Text);
             foreach (var sub in task.SubTasks.Where(s => !s.IsCompleted && !string.IsNullOrWhiteSpace(s.Text)).OrderBy(s => s.Order))
             {
-                await db.SaveChangesAsync(ct); // ensure target has Id
                 db.DailyTasks.Add(new DailyTask
                 {
                     DailyPlanId = toDay.Id,
                     ParentTaskId = target.Id,
                     Order = sub.Order,
                     Text = sub.Text,
+                    Priority = sub.Priority,
+                    Category = sub.Category,
                     IsCompleted = false
                 });
             }
