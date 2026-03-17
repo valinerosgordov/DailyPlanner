@@ -19,6 +19,7 @@ public sealed partial class TaskViewModel : ObservableObject
         _isCompleted = model.IsCompleted;
         _priority = model.Priority;
         _category = model.Category;
+        _deadline = model.Deadline;
         _isExpanded = model.SubTasks.Count > 0;
 
         SubTasks = new ObservableCollection<TaskViewModel>(
@@ -38,7 +39,13 @@ public sealed partial class TaskViewModel : ObservableObject
     private TaskCategory _category;
 
     [ObservableProperty]
+    private DateOnly? _deadline;
+
+    [ObservableProperty]
     private bool _isExpanded;
+
+    public bool IsOverdue => Deadline is not null && !IsCompleted
+        && Deadline.Value < DateOnly.FromDateTime(DateTime.Today);
 
     public int Order => _model.Order;
     public DailyTask Model => _model;
@@ -72,6 +79,51 @@ public sealed partial class TaskViewModel : ObservableObject
     {
         _model.Category = value;
         _service.SaveTaskAsync(_model).FireAndForget("task-save");
+    }
+
+    partial void OnDeadlineChanged(DateOnly? value)
+    {
+        _model.Deadline = value;
+        OnPropertyChanged(nameof(IsOverdue));
+        _service.SaveTaskAsync(_model).FireAndForget("task-save");
+    }
+
+    [RelayCommand]
+    private void SetDeadlineToday() => Deadline = DateOnly.FromDateTime(DateTime.Today);
+
+    [RelayCommand]
+    private void SetDeadlineTomorrow() => Deadline = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
+
+    [RelayCommand]
+    private void SetDeadlineNextWeek() => Deadline = DateOnly.FromDateTime(DateTime.Today.AddDays(7));
+
+    [RelayCommand]
+    private void ClearDeadline() => Deadline = null;
+
+    [RelayCommand]
+    private void SetPriority(string level)
+    {
+        Priority = level switch
+        {
+            "High" => TaskPriority.High,
+            "Medium" => TaskPriority.Medium,
+            "Low" => TaskPriority.Low,
+            _ => TaskPriority.None
+        };
+    }
+
+    [RelayCommand]
+    private void SetCategory(string cat)
+    {
+        Category = cat switch
+        {
+            "Work" => TaskCategory.Work,
+            "Study" => TaskCategory.Study,
+            "Personal" => TaskCategory.Personal,
+            "Health" => TaskCategory.Health,
+            "Other" => TaskCategory.Other,
+            _ => TaskCategory.None
+        };
     }
 
     [RelayCommand]

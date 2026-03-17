@@ -32,6 +32,7 @@ public partial class MainWindow : FluentWindow
             await _viewModel.InitializeAsync();
             NavigateWithAnimation(_weekPage);
             NotificationService.Start();
+            ShowMyDayDialog();
         };
 
         StateChanged += (_, _) =>
@@ -134,6 +135,43 @@ public partial class MainWindow : FluentWindow
     {
         if (sender is Border border && border.Tag is int month)
             _viewModel.SelectMonthCommand.Execute(month);
+    }
+
+    private void ShowMyDayDialog()
+    {
+        // Check if user disabled it
+        var settingsPath = System.IO.Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "DailyPlanner", "myday.txt");
+        try
+        {
+            if (System.IO.File.Exists(settingsPath))
+            {
+                var saved = System.IO.File.ReadAllText(settingsPath).Trim();
+                if (saved == DateOnly.FromDateTime(DateTime.Today).ToString()) return;
+            }
+        }
+        catch { }
+
+        var vm = new ViewModels.MyDayViewModel(_viewModel.SelectedWeek);
+        var dialog = new MyDayDialog { DataContext = vm, Owner = this };
+
+        // Apply theme resources
+        foreach (var key in Application.Current.Resources.MergedDictionaries)
+            dialog.Resources.MergedDictionaries.Add(key);
+
+        dialog.ShowDialog();
+
+        if (vm.DontShowAgain)
+        {
+            try
+            {
+                var dir = System.IO.Path.GetDirectoryName(settingsPath)!;
+                System.IO.Directory.CreateDirectory(dir);
+                System.IO.File.WriteAllText(settingsPath, DateOnly.FromDateTime(DateTime.Today).ToString());
+            }
+            catch { }
+        }
     }
 
     private void NavigateWithAnimation(Page page)

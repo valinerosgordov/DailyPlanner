@@ -19,6 +19,9 @@
         <conv:NonZeroToVisibilityConverter x:Key="NonZeroVis"/>
         <conv:PriorityToTooltipConverter x:Key="PriorityTip"/>
         <conv:CategoryToTooltipConverter x:Key="CatTip"/>
+        <conv:DeadlineToBrushConverter x:Key="DeadlineBrush"/>
+        <conv:DeadlineToTextConverter x:Key="DeadlineText"/>
+        <conv:NullableToVisibilityConverter x:Key="NullVis"/>
     </Page.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -512,7 +515,73 @@
                                                              Text="{Binding Text, UpdateSourceTrigger=LostFocus}"
                                                              TextDecorations="{Binding IsCompleted, Converter={StaticResource StrikethroughConv}}"
                                                              Opacity="{Binding IsCompleted, Converter={StaticResource OpacityConv}}"
-                                                             FontSize="11" TextWrapping="NoWrap"/>
+                                                             FontSize="11" ToolTip="{Binding Text}">
+                                                        <TextBox.ContextMenu>
+                                                            <ContextMenu>
+                                                                <MenuItem Header="{Binding [CtxAddSub], Source={x:Static svc:Loc.Instance}}"
+                                                                          Click="AddSubTask_Click"/>
+                                                                <MenuItem Header="{Binding [CtxDuplicate], Source={x:Static svc:Loc.Instance}}"
+                                                                          Click="DuplicateTask_Click"/>
+                                                                <MenuItem Header="{Binding [CtxMoveNext], Source={x:Static svc:Loc.Instance}}"
+                                                                          Click="MoveTaskNextDay_Click"/>
+                                                                <Separator/>
+                                                                <MenuItem Header="{Binding [CtxPriority], Source={x:Static svc:Loc.Instance}}">
+                                                                    <MenuItem Header="{Binding [PriorityHigh], Source={x:Static svc:Loc.Instance}}"
+                                                                              Click="CtxPriorityHigh_Click"/>
+                                                                    <MenuItem Header="{Binding [PriorityMedium], Source={x:Static svc:Loc.Instance}}"
+                                                                              Click="CtxPriorityMedium_Click"/>
+                                                                    <MenuItem Header="{Binding [PriorityLow], Source={x:Static svc:Loc.Instance}}"
+                                                                              Click="CtxPriorityLow_Click"/>
+                                                                    <MenuItem Header="{Binding [CtxNone], Source={x:Static svc:Loc.Instance}}"
+                                                                              Click="CtxPriorityNone_Click"/>
+                                                                </MenuItem>
+                                                                <MenuItem Header="{Binding [CtxCategory], Source={x:Static svc:Loc.Instance}}">
+                                                                    <MenuItem Header="{Binding [CatWork], Source={x:Static svc:Loc.Instance}}"
+                                                                              Click="CtxCatWork_Click"/>
+                                                                    <MenuItem Header="{Binding [CatStudy], Source={x:Static svc:Loc.Instance}}"
+                                                                              Click="CtxCatStudy_Click"/>
+                                                                    <MenuItem Header="{Binding [CatPersonal], Source={x:Static svc:Loc.Instance}}"
+                                                                              Click="CtxCatPersonal_Click"/>
+                                                                    <MenuItem Header="{Binding [CatHealth], Source={x:Static svc:Loc.Instance}}"
+                                                                              Click="CtxCatHealth_Click"/>
+                                                                    <MenuItem Header="{Binding [CtxNone], Source={x:Static svc:Loc.Instance}}"
+                                                                              Click="CtxCatNone_Click"/>
+                                                                </MenuItem>
+                                                                <MenuItem Header="{Binding [CtxDeadline], Source={x:Static svc:Loc.Instance}}">
+                                                                    <MenuItem Header="{Binding [CtxDeadlineToday], Source={x:Static svc:Loc.Instance}}"
+                                                                              Click="CtxDeadlineToday_Click"/>
+                                                                    <MenuItem Header="{Binding [CtxDeadlineTomorrow], Source={x:Static svc:Loc.Instance}}"
+                                                                              Click="CtxDeadlineTomorrow_Click"/>
+                                                                    <MenuItem Header="{Binding [CtxDeadlineNextWeek], Source={x:Static svc:Loc.Instance}}"
+                                                                              Click="CtxDeadlineNextWeek_Click"/>
+                                                                    <MenuItem Header="{Binding [CtxDeadlineClear], Source={x:Static svc:Loc.Instance}}"
+                                                                              Click="CtxDeadlineClear_Click"/>
+                                                                </MenuItem>
+                                                                <Separator/>
+                                                                <MenuItem Header="{Binding [CtxDelete], Source={x:Static svc:Loc.Instance}}"
+                                                                          Click="DeleteTask_Click"
+                                                                          Foreground="{DynamicResource DangerBrush}"/>
+                                                            </ContextMenu>
+                                                        </TextBox.ContextMenu>
+                                                    </TextBox>
+                                                    <!-- Deadline badge -->
+                                                    <TextBlock Grid.Column="4" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                               Margin="0,0,2,0" FontSize="8" Padding="3,1"
+                                                               Text="{Binding Deadline, Converter={StaticResource DeadlineText}}"
+                                                               Foreground="{Binding Deadline, Converter={StaticResource DeadlineBrush}}"
+                                                               Visibility="{Binding Deadline, Converter={StaticResource NullVis}}"
+                                                               IsHitTestVisible="False">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Opacity" Value="0.8"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Grid}}" Value="True">
+                                                                        <Setter Property="Opacity" Value="0"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
                                                     <!-- Task action buttons — overlay on right, Collapsed until hover -->
                                                     <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center"
                                                                 HorizontalAlignment="Right">

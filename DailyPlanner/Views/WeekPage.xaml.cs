@@ -62,6 +62,14 @@ public partial class WeekPage : Page
         }
     }
 
+    // Overload for ContextMenu MenuItem (RoutedEventArgs)
+    private async void AddSubTask_Click(object sender, RoutedEventArgs e)
+    {
+        var task = GetCtxTask(sender);
+        if (task is not null && !task.IsSubTask && !string.IsNullOrWhiteSpace(task.Text))
+            await task.AddSubTaskCommand.ExecuteAsync(null);
+    }
+
     private async void RemoveSubTask_Click(object sender, MouseButtonEventArgs e)
     {
         if (sender is not FrameworkElement { DataContext: TaskViewModel subTask }) return;
@@ -96,14 +104,153 @@ public partial class WeekPage : Page
         var day = mainVm.SelectedWeek.Days.FirstOrDefault(d => d.Tasks.Contains(task));
         if (day is null) return;
 
+        // Save snapshot for undo
+        var snapshot = new Models.DailyTask
+        {
+            DailyPlanId = task.Model.DailyPlanId,
+            Order = task.Model.Order,
+            Text = task.Model.Text,
+            IsCompleted = task.Model.IsCompleted,
+            Priority = task.Model.Priority,
+            Category = task.Model.Category,
+            Deadline = task.Model.Deadline
+        };
+        var dayRef = day;
+
         await mainVm.Service.RemoveTaskAsync(task.Model.Id);
         day.Tasks.Remove(task);
+
+        Services.UndoService.Push(
+            string.Format(Services.Loc.Get("TaskDeleted"), snapshot.Text),
+            () => RestoreTask(mainVm, dayRef, snapshot));
+
         e.Handled = true;
+    }
+
+    // Overload for ContextMenu MenuItem
+    private async void DeleteTask_Click(object sender, RoutedEventArgs e)
+    {
+        var task = GetCtxTask(sender);
+        if (task is not null) await DeleteTaskCore(task);
+    }
+
+    private async Task DeleteTaskCore(TaskViewModel task)
+    {
+        if (string.IsNullOrWhiteSpace(task.Text)) return;
+        var mainVm = DataContext as MainViewModel;
+        if (mainVm?.SelectedWeek is null) return;
+        var day = mainVm.SelectedWeek.Days.FirstOrDefault(d => d.Tasks.Contains(task));
+        if (day is null) return;
+
+        var snapshot = new Models.DailyTask
+        {
+            DailyPlanId = task.Model.DailyPlanId,
+            Order = task.Model.Order,
+            Text = task.Model.Text,
+            IsCompleted = task.Model.IsCompleted,
+            Priority = task.Model.Priority,
+            Category = task.Model.Category,
+            Deadline = task.Model.Deadline
+        };
+        var dayRef = day;
+        await mainVm.Service.RemoveTaskAsync(task.Model.Id);
+        day.Tasks.Remove(task);
+        Services.UndoService.Push(
+            string.Format(Services.Loc.Get("TaskDeleted"), snapshot.Text),
+            () => RestoreTask(mainVm, dayRef, snapshot));
+    }
+
+    private async void RestoreTask(MainViewModel mainVm, DayViewModel day, Models.DailyTask snapshot)
+    {
+        await mainVm.Service.AddSubTaskAsync(snapshot);
+        await mainVm.LoadMonthCommand.ExecuteAsync(null);
+    }
+
+    private void DuplicateTask_Click(object sender, RoutedEventArgs e)
+    {
+        var task = GetCtxTask(sender);
+        if (task is null || string.IsNullOrWhiteSpace(task.Text)) return;
+
+        var mainVm = DataContext as MainViewModel;
+        if (mainVm?.SelectedWeek is null) return;
+
+        var day = mainVm.SelectedWeek.Days.FirstOrDefault(d => d.Tasks.Contains(task));
+        if (day is null) return;
+
+        var emptySlot = day.Tasks.FirstOrDefault(t => string.IsNullOrWhiteSpace(t.Text));
+        if (emptySlot is null) return;
+
+        emptySlot.Text = task.Text;
+        emptySlot.Priority = task.Priority;
+        emptySlot.Category = task.Category;
+        emptySlot.Deadline = task.Deadline;
+    }
+
+    private static TaskViewModel? GetTaskFromSender(object sender)
+    {
+        // Direct FrameworkElement with DataContext
+        if (sender is FrameworkElement { DataContext: TaskViewModel t })
+            return t;
+        // MenuItem inside ContextMenu — walk up to placement target
+        if (sender is System.Windows.Controls.MenuItem mi
+            && mi.Parent is System.Windows.Controls.ContextMenu ctx
+            && ctx.PlacementTarget is FrameworkElement { DataContext: TaskViewModel t2 })
+            return t2;
+        return null;
+    }
+
+    // Context menu: Priority
+    private void CtxPriorityHigh_Click(object sender, RoutedEventArgs e) => GetCtxTask(sender)?.SetPriorityCommand.Execute("High");
+    private void CtxPriorityMedium_Click(object sender, RoutedEventArgs e) => GetCtxTask(sender)?.SetPriorityCommand.Execute("Medium");
+    private void CtxPriorityLow_Click(object sender, RoutedEventArgs e) => GetCtxTask(sender)?.SetPriorityCommand.Execute("Low");
+    private void CtxPriorityNone_Click(object sender, RoutedEventArgs e) => GetCtxTask(sender)?.SetPriorityCommand.Execute("None");
+
+    // Context menu: Category
+    private void CtxCatWork_Click(object sender, RoutedEventArgs e) => GetCtxTask(sender)?.SetCategoryCommand.Execute("Work");
+    private void CtxCatStudy_Click(object sender, RoutedEventArgs e) => GetCtxTask(sender)?.SetCategoryCommand.Execute("Study");
+    private void CtxCatPersonal_Click(object sender, RoutedEventArgs e) => GetCtxTask(sender)?.SetCategoryCommand.Execute("Personal");
+    private void CtxCatHealth_Click(object sender, RoutedEventArgs e) => GetCtxTask(sender)?.SetCategoryCommand.Execute("Health");
+    private void CtxCatNone_Click(object sender, RoutedEventArgs e) => GetCtxTask(sender)?.SetCategoryCommand.Execute("None");
+
+    // Context menu: Deadline
+    private void CtxDeadlineToday_Click(object sender, RoutedEventArgs e) => GetCtxTask(sender)?.SetDeadlineTodayCommand.Execute(null);
+    private void CtxDeadlineTomorrow_Click(object sender, RoutedEventArgs e) => GetCtxTask(sender)?.SetDeadlineTomorrowCommand.Execute(null);
+    private void CtxDeadlineNextWeek_Click(object sender, RoutedEventArgs e) => GetCtxTask(sender)?.SetDeadlineNextWeekCommand.Execute(null);
+    private void CtxDeadlineClear_Click(object sender, RoutedEventArgs e) => GetCtxTask(sender)?.ClearDeadlineCommand.Execute(null);
+
+    private static TaskViewModel? GetCtxTask(object sender)
+    {
+        if (sender is not System.Windows.Controls.MenuItem mi) return null;
+
+        // Walk up MenuItem parents to find the root ContextMenu
+        DependencyObject current = mi;
+        while (current is not null)
+        {
+            if (current is System.Windows.Controls.ContextMenu ctx
+                && ctx.PlacementTarget is FrameworkElement { DataContext: TaskViewModel task })
+                return task;
+            current = LogicalTreeHelper.GetParent(current)
+                      ?? System.Windows.Media.VisualTreeHelper.GetParent(current);
+        }
+        return null;
     }
 
     private async void MoveTaskNextDay_Click(object sender, MouseButtonEventArgs e)
     {
         if (sender is not FrameworkElement { DataContext: TaskViewModel task }) return;
+        await MoveTaskNextDayCore(task);
+        e.Handled = true;
+    }
+
+    // Overload for ContextMenu MenuItem
+    private async void MoveTaskNextDay_Click(object sender, RoutedEventArgs e)
+    {
+        var task = GetCtxTask(sender);
+        if (task is not null) await MoveTaskNextDayCore(task);
+    }
+
+    private async Task MoveTaskNextDayCore(TaskViewModel task)
+    {
         if (string.IsNullOrWhiteSpace(task.Text)) return;
 
         var mainVm = DataContext as MainViewModel;
@@ -115,10 +262,7 @@ public partial class WeekPage : Page
         var nextDate = day.Date.AddDays(1);
         await mainVm.Service.MoveTaskToNextDayAsync(task.Model.Id, nextDate);
         day.Tasks.Remove(task);
-
-        // If next day is in the same week, reload to reflect changes
         await mainVm.LoadMonthCommand.ExecuteAsync(null);
-        e.Handled = true;
     }
 
     // Drag & drop
