@@ -85,12 +85,6 @@ public sealed class PlannerService
         return week;
     }
 
-    public async Task SaveChangesAsync(PlannerWeek week, CancellationToken ct = default)
-    {
-        await using var db = PlannerDbContextFactory.Create();
-        db.Weeks.Update(week);
-        await db.SaveChangesAsync(ct);
-    }
 
     public async Task SaveTaskAsync(DailyTask task, CancellationToken ct = default)
     {
@@ -192,6 +186,13 @@ public sealed class PlannerService
         await db.SaveChangesAsync(ct);
     }
 
+    public async Task AddGoalAsync(WeeklyGoal goal, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        db.WeeklyGoals.Add(goal);
+        await db.SaveChangesAsync(ct);
+    }
+
     public async Task SaveGoalAsync(WeeklyGoal goal, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
@@ -220,6 +221,13 @@ public sealed class PlannerService
     {
         await using var db = PlannerDbContextFactory.Create();
         db.HabitEntries.Update(entry);
+        await db.SaveChangesAsync(ct);
+    }
+
+    public async Task AddHabitAsync(HabitDefinition habit, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        db.HabitDefinitions.Add(habit);
         await db.SaveChangesAsync(ct);
     }
 

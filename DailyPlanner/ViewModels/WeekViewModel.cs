@@ -130,7 +130,7 @@ public sealed partial class WeekViewModel : ObservableObject
         var order = _model.Goals.Count + 1;
         var goal = new WeeklyGoal { WeekId = _model.Id, Order = order };
         _model.Goals.Add(goal);
-        await _service.SaveChangesAsync(_model);
+        await _service.AddGoalAsync(goal);
 
         var vm = new GoalViewModel(goal, _service);
         vm.PropertyChanged += (_, _) => RefreshAnalytics();
@@ -162,7 +162,7 @@ public sealed partial class WeekViewModel : ObservableObject
         habit.Entries.Add(new HabitEntry { DayOfWeek = DayOfWeek.Sunday });
 
         _model.Habits.Add(habit);
-        await _service.SaveChangesAsync(_model);
+        await _service.AddHabitAsync(habit);
 
         var vm = new HabitViewModel(habit, _service);
         Habits.Add(vm);
