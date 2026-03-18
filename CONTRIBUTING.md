@@ -34,7 +34,7 @@ Thanks for your interest in contributing! Here's how you can help.
 
 ## Code Style
 
-- C# 13, .NET 10, file-scoped namespaces
+- C# 14, .NET 10, file-scoped namespaces
 - Follow existing patterns (MVVM with CommunityToolkit.Mvvm)
 - Keep code self-documenting — minimal comments
 - Run `dotnet format` before submitting
