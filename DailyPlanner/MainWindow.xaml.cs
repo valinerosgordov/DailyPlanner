@@ -153,25 +153,34 @@ public partial class MainWindow : FluentWindow
         }
         catch { }
 
-        var vm = new ViewModels.MyDayViewModel(_viewModel.SelectedWeek);
-        var dialog = new MyDayDialog { DataContext = vm, Owner = this };
+        if (_viewModel.SelectedWeek is null) return;
 
-        // Apply theme resources
-        foreach (var key in Application.Current.Resources.MergedDictionaries)
-            dialog.Resources.MergedDictionaries.Add(key);
-
-        dialog.ShowDialog();
-
-        if (vm.DontShowAgain)
+        try
         {
-            try
+            var vm = new ViewModels.MyDayViewModel(_viewModel.SelectedWeek);
+            var dialog = new MyDayDialog { DataContext = vm, Owner = this };
+
+            // Apply theme resources safely
+            if (Application.Current?.Resources?.MergedDictionaries is { Count: > 0 } merged)
             {
-                var dir = System.IO.Path.GetDirectoryName(settingsPath)!;
-                System.IO.Directory.CreateDirectory(dir);
-                System.IO.File.WriteAllText(settingsPath, DateOnly.FromDateTime(DateTime.Today).ToString());
+                foreach (var dict in merged)
+                    dialog.Resources.MergedDictionaries.Add(dict);
             }
-            catch { }
+
+            dialog.ShowDialog();
+
+            if (vm.DontShowAgain)
+            {
+                try
+                {
+                    var dir = System.IO.Path.GetDirectoryName(settingsPath)!;
+                    System.IO.Directory.CreateDirectory(dir);
+                    System.IO.File.WriteAllText(settingsPath, DateOnly.FromDateTime(DateTime.Today).ToString());
+                }
+                catch { }
+            }
         }
+        catch { /* Don't crash app if dialog fails */ }
     }
 
     private void NavigateWithAnimation(Page page)

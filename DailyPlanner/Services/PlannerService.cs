@@ -23,7 +23,17 @@ public sealed class PlannerService
             .FirstOrDefaultAsync(w => w.StartDate == startDate, ct);
 
         if (week is not null)
+        {
+            // Ensure all days have a DailyState (may be null for weeks created before v2.13)
+            var missingStates = week.Days.Where(d => d.State is null).ToList();
+            if (missingStates.Count > 0)
+            {
+                foreach (var day in missingStates)
+                    day.State = new DailyState();
+                await db.SaveChangesAsync(ct);
+            }
             return week;
+        }
 
         week = new PlannerWeek { StartDate = startDate };
 
@@ -199,7 +209,10 @@ public sealed class PlannerService
     public async Task SaveDailyStateAsync(DailyState state, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        db.DailyStates.Update(state);
+        if (state.Id == 0)
+            db.DailyStates.Add(state);
+        else
+            db.DailyStates.Update(state);
         await db.SaveChangesAsync(ct);
     }
 

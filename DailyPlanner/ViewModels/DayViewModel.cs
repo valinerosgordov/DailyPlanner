@@ -75,24 +75,31 @@ public sealed partial class DayViewModel : ObservableObject
     [ObservableProperty] private int _energy;
     [ObservableProperty] private int _mood;
 
+    private DailyState EnsureState()
+    {
+        if (_model.State is null)
+            _model.State = new DailyState { DailyPlanId = _model.Id };
+        return _model.State;
+    }
+
     partial void OnSleepChanged(int value)
     {
-        if (_model.State is null) return;
-        _model.State.Sleep = value;
-        _service.SaveDailyStateAsync(_model.State).FireAndForget("state-save");
+        var state = EnsureState();
+        state.Sleep = value;
+        _service.SaveDailyStateAsync(state).FireAndForget("state-save");
     }
 
     partial void OnEnergyChanged(int value)
     {
-        if (_model.State is null) return;
-        _model.State.Energy = value;
-        _service.SaveDailyStateAsync(_model.State).FireAndForget("state-save");
+        var state = EnsureState();
+        state.Energy = value;
+        _service.SaveDailyStateAsync(state).FireAndForget("state-save");
     }
 
     partial void OnMoodChanged(int value)
     {
-        if (_model.State is null) return;
-        _model.State.Mood = value;
-        _service.SaveDailyStateAsync(_model.State).FireAndForget("state-save");
+        var state = EnsureState();
+        state.Mood = value;
+        _service.SaveDailyStateAsync(state).FireAndForget("state-save");
     }
 }
