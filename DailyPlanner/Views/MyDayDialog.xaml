@@ -9,9 +9,17 @@
         Width="480" SizeToContent="Height" MaxHeight="600"
         ResizeMode="NoResize" ShowInTaskbar="False">
 
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="VisConv"/>
+        <Style TargetType="Window">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+        </Style>
+    </Window.Resources>
+
     <Border CornerRadius="16" Padding="24,20"
             Background="{DynamicResource CardBg}"
             BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <StackPanel>
             <!-- Header -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
@@ -130,12 +138,6 @@
                           Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
             </DockPanel>
         </StackPanel>
+        </ScrollViewer>
     </Border>
-
-    <Window.Resources>
-        <BooleanToVisibilityConverter x:Key="VisConv"/>
-        <Style TargetType="Window">
-            <Setter Property="FontFamily" Value="Segoe UI"/>
-        </Style>
-    </Window.Resources>
 </Window>

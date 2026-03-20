@@ -42,6 +42,7 @@ public sealed class Loc : INotifyPropertyChanged
         // Fallback to Russian
         if (Translations.TryGetValue("ru", out var ruDict) && ruDict.TryGetValue(key, out var ruVal))
             return ruVal;
+        System.Diagnostics.Debug.WriteLine($"[Loc] Missing key: {key}");
         return key;
     }
 
@@ -73,7 +74,7 @@ public sealed class Loc : INotifyPropertyChanged
                 if (SupportedLanguages.Contains(lang)) return lang;
             }
         }
-        catch { }
+        catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[Loc] LoadSaved failed: {ex.Message}"); }
         return "ru";
     }
 
@@ -85,7 +86,7 @@ public sealed class Loc : INotifyPropertyChanged
             Directory.CreateDirectory(dir);
             File.WriteAllText(SettingsPath, Instance._lang);
         }
-        catch { }
+        catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[Loc] Save failed: {ex.Message}"); }
     }
 
     // ─── All translations ────────────────────────────────────────────
@@ -208,7 +209,7 @@ public sealed class Loc : INotifyPropertyChanged
             ["CatWork"] = "Работа (клик — сменить)",
             ["CatStudy"] = "Учёба (клик — сменить)",
             ["CatPersonal"] = "Личное (клик — сменить)",
-            ["CatHealth"] = "Здоровье (клик — сменить)",
+            ["CatHealthTip"] = "Здоровье (клик — сменить)",
             ["CatOther"] = "Другое (клик — сменить)",
 
             // Settings
@@ -424,7 +425,7 @@ public sealed class Loc : INotifyPropertyChanged
             ["DebtLent"] = "Мне должны",
             ["DebtBorrowed"] = "Я должен",
             ["DebtSettled"] = "Погашен",
-            ["Remaining"] = "Остаток",
+            ["FinRemaining"] = "Остаток",
             ["Budget"] = "Бюджет",
             ["Spent"] = "Потрачено",
             ["OverBudget"] = "Превышен",
@@ -436,7 +437,7 @@ public sealed class Loc : INotifyPropertyChanged
             ["DayOfMonthSuffix"] = "е число",
             ["NoEntries"] = "Нет записей",
             ["NoDebts"] = "Нет долгов",
-            ["Overdue"] = "Просрочен",
+            ["FinOverdue"] = "Просрочен",
             ["Active"] = "Актив.",
             ["Auto"] = "Авто",
             ["Remind"] = "Напом.",
@@ -557,7 +558,7 @@ public sealed class Loc : INotifyPropertyChanged
             ["PriorityNone"] = "No priority",
 
             ["CatWork"] = "Work (click to change)", ["CatStudy"] = "Study (click to change)",
-            ["CatPersonal"] = "Personal (click to change)", ["CatHealth"] = "Health (click to change)",
+            ["CatPersonal"] = "Personal (click to change)", ["CatHealthTip"] = "Health (click to change)",
             ["CatOther"] = "Other (click to change)",
 
             ["SettingsTitle"] = "Settings",
@@ -752,7 +753,7 @@ public sealed class Loc : INotifyPropertyChanged
             ["DebtLent"] = "Owed to me",
             ["DebtBorrowed"] = "I owe",
             ["DebtSettled"] = "Settled",
-            ["Remaining"] = "Remaining",
+            ["FinRemaining"] = "Remaining",
             ["Budget"] = "Budget",
             ["Spent"] = "Spent",
             ["OverBudget"] = "Over budget",
@@ -764,7 +765,7 @@ public sealed class Loc : INotifyPropertyChanged
             ["DayOfMonthSuffix"] = "th",
             ["NoEntries"] = "No entries",
             ["NoDebts"] = "No debts",
-            ["Overdue"] = "Overdue",
+            ["FinOverdue"] = "Overdue",
             ["Active"] = "Active",
             ["Auto"] = "Auto",
             ["Remind"] = "Remind",
@@ -885,7 +886,7 @@ public sealed class Loc : INotifyPropertyChanged
             ["PriorityNone"] = "Sin prioridad",
 
             ["CatWork"] = "Trabajo (clic para cambiar)", ["CatStudy"] = "Estudio (clic para cambiar)",
-            ["CatPersonal"] = "Personal (clic para cambiar)", ["CatHealth"] = "Salud (clic para cambiar)",
+            ["CatPersonal"] = "Personal (clic para cambiar)", ["CatHealthTip"] = "Salud (clic para cambiar)",
             ["CatOther"] = "Otro (clic para cambiar)",
 
             ["SettingsTitle"] = "Configuración",
@@ -1080,7 +1081,7 @@ public sealed class Loc : INotifyPropertyChanged
             ["DebtLent"] = "Me deben",
             ["DebtBorrowed"] = "Yo debo",
             ["DebtSettled"] = "Saldado",
-            ["Remaining"] = "Restante",
+            ["FinRemaining"] = "Restante",
             ["Budget"] = "Presupuesto",
             ["Spent"] = "Gastado",
             ["OverBudget"] = "Excedido",
@@ -1092,7 +1093,7 @@ public sealed class Loc : INotifyPropertyChanged
             ["DayOfMonthSuffix"] = "o",
             ["NoEntries"] = "Sin registros",
             ["NoDebts"] = "Sin deudas",
-            ["Overdue"] = "Vencido",
+            ["FinOverdue"] = "Vencido",
             ["Active"] = "Activo",
             ["Auto"] = "Auto",
             ["Remind"] = "Recordar",
@@ -1213,7 +1214,7 @@ public sealed class Loc : INotifyPropertyChanged
             ["PriorityNone"] = "Sans priorité",
 
             ["CatWork"] = "Travail (clic pour changer)", ["CatStudy"] = "Études (clic pour changer)",
-            ["CatPersonal"] = "Personnel (clic pour changer)", ["CatHealth"] = "Santé (clic pour changer)",
+            ["CatPersonal"] = "Personnel (clic pour changer)", ["CatHealthTip"] = "Santé (clic pour changer)",
             ["CatOther"] = "Autre (clic pour changer)",
 
             ["SettingsTitle"] = "Paramètres",
@@ -1408,7 +1409,7 @@ public sealed class Loc : INotifyPropertyChanged
             ["DebtLent"] = "On me doit",
             ["DebtBorrowed"] = "Je dois",
             ["DebtSettled"] = "Réglé",
-            ["Remaining"] = "Restant",
+            ["FinRemaining"] = "Restant",
             ["Budget"] = "Budget",
             ["Spent"] = "Dépensé",
             ["OverBudget"] = "Dépassé",
@@ -1420,7 +1421,7 @@ public sealed class Loc : INotifyPropertyChanged
             ["DayOfMonthSuffix"] = "e",
             ["NoEntries"] = "Aucune entrée",
             ["NoDebts"] = "Aucune dette",
-            ["Overdue"] = "En retard",
+            ["FinOverdue"] = "En retard",
             ["Active"] = "Actif",
             ["Auto"] = "Auto",
             ["Remind"] = "Rappel",
