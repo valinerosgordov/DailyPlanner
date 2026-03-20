@@ -360,22 +360,28 @@ public sealed partial class FinanceViewModel : ObservableObject
     [RelayCommand]
     private async Task AddBudgetAsync()
     {
-        if (ExpenseCategories.Count == 0) return;
-        // Find first category without a budget this month
-        var monthYear = $"{SelectedYear:D4}-{SelectedMonth:D2}";
-        var usedCategoryIds = Budgets.Select(b => b.Model.CategoryId).ToHashSet();
-        var cat = ExpenseCategories.FirstOrDefault(c => !usedCategoryIds.Contains(c.Id));
-        if (cat is null) return; // All categories already have budgets
-
-        var budget = new FinanceBudget
+        try
         {
-            CategoryId = cat.Id,
-            MonthYear = monthYear,
-            Amount = 0
-        };
-        await _service.SaveBudgetAsync(budget);
-        budget.Category = cat.Model;
-        Budgets.Add(new BudgetViewModel(budget, _service));
+            if (ExpenseCategories.Count == 0) return;
+            var monthYear = $"{SelectedYear:D4}-{SelectedMonth:D2}";
+            var usedCategoryIds = Budgets.Select(b => b.Model.CategoryId).ToHashSet();
+            var cat = ExpenseCategories.FirstOrDefault(c => !usedCategoryIds.Contains(c.Id));
+            if (cat is null) return;
+
+            var budget = new FinanceBudget
+            {
+                CategoryId = cat.Id,
+                MonthYear = monthYear,
+                Amount = 0
+            };
+            await _service.SaveBudgetAsync(budget);
+            budget.Category = cat.Model;
+            Budgets.Add(new BudgetViewModel(budget, _service));
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[FinanceVM] AddBudget failed: {ex}");
+        }
     }
 
     [RelayCommand]
