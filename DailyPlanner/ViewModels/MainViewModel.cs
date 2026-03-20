@@ -342,8 +342,9 @@ public sealed partial class MainViewModel : ObservableObject
             await testDb.OpenAsync();
             await testDb.CloseAsync();
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[MainVM] Invalid backup: {ex.Message}");
             NotificationService.ShowToast(Loc.Get("RestoreTitle"), Loc.Get("RestoreInvalidDb"));
             return;
         }
@@ -364,8 +365,9 @@ public sealed partial class MainViewModel : ObservableObject
             if (File.Exists(walPath)) File.Delete(walPath);
             if (File.Exists(shmPath)) File.Delete(shmPath);
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[MainVM] Restore failed: {ex.Message}");
             // Restore from safety backup if copy failed
             if (File.Exists(backupPath))
                 File.Copy(backupPath, dbPath, true);
@@ -680,6 +682,12 @@ public sealed partial class MainViewModel : ObservableObject
                 }
             }
         }
+    }
+
+    public void Cleanup()
+    {
+        Loc.LanguageChanged -= OnLanguageChanged;
+        _reminderTimer?.Stop();
     }
 }
 

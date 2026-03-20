@@ -142,6 +142,9 @@ public sealed partial class WeekViewModel : ObservableObject
     private async Task RemoveGoalAsync(GoalViewModel? goalVm)
     {
         if (goalVm is null) return;
+        // Note: PropertyChanged handler on goalVm is not explicitly unsubscribed here.
+        // This is acceptable because the handler is a lambda capturing 'this' (the WeekViewModel),
+        // and the GoalViewModel is removed from Goals collection, so it will be GC'd together with its parent.
         var model = _model.Goals.FirstOrDefault(g => g.Id == goalVm.Model.Id);
         if (model is not null)
         {
