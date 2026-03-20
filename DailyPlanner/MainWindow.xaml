@@ -272,7 +272,8 @@
             </Border>
 
             <!-- Top Navigation -->
-            <Border DockPanel.Dock="Top" Padding="24,4,24,12">
+            <Border DockPanel.Dock="Top" Padding="24,4,24,12"
+                    Visibility="{Binding IsMainNavVisible, Converter={StaticResource VisConv}}">
                 <DockPanel>
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
                         <ui:Button Icon="{ui:SymbolIcon ChevronLeft24}" Appearance="Transparent"
