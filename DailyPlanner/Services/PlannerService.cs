@@ -796,13 +796,22 @@ public sealed class PlannerService
     public async Task<List<CategoryBreakdownItem>> GetExpensesByCategoryAsync(DateOnly from, DateOnly to, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        return await db.FinanceEntries
+        var entries = await db.FinanceEntries
+            .Include(e => e.Category)
             .Where(e => e.Type == FinanceEntryType.Expense && e.Date >= from && e.Date <= to)
-            .GroupBy(e => new { e.CategoryId, e.Category!.Name, e.Category.Icon, e.Category.Color })
-            .Select(g => new CategoryBreakdownItem(
-                g.Key.CategoryId, g.Key.Name, g.Key.Icon, g.Key.Color, g.Sum(e => e.Amount)))
-            .OrderByDescending(x => x.Amount)
             .ToListAsync(ct);
+
+        return entries
+            .GroupBy(e => e.CategoryId)
+            .Select(g =>
+            {
+                var cat = g.First().Category;
+                return new CategoryBreakdownItem(
+                    g.Key, cat?.Name ?? string.Empty, cat?.Icon ?? string.Empty,
+                    cat?.Color ?? "#cba6f7", g.Sum(e => e.Amount));
+            })
+            .OrderByDescending(x => x.Amount)
+            .ToList();
     }
 
     public async Task<List<MonthlyFinanceSummary>> GetMonthlyTotalsAsync(int months, CancellationToken ct = default)
@@ -811,11 +820,15 @@ public sealed class PlannerService
         var cutoff = DateOnly.FromDateTime(DateTime.Today).AddMonths(-months + 1);
         cutoff = new DateOnly(cutoff.Year, cutoff.Month, 1);
 
-        var entries = await db.FinanceEntries
+        var rawEntries = await db.FinanceEntries
             .Where(e => e.Date >= cutoff)
+            .Select(e => new { e.Date, e.Type, e.Amount })
+            .ToListAsync(ct);
+
+        var entries = rawEntries
             .GroupBy(e => new { e.Date.Year, e.Date.Month, e.Type })
             .Select(g => new { g.Key.Year, g.Key.Month, g.Key.Type, Total = g.Sum(e => e.Amount) })
-            .ToListAsync(ct);
+            .ToList();
 
         var result = new List<MonthlyFinanceSummary>();
         for (var i = 0; i < months; i++)
