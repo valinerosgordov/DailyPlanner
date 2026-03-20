@@ -22,6 +22,9 @@ public sealed class PlannerDbContext(DbContextOptions<PlannerDbContext> options)
     public DbSet<Debt> Debts => Set<Debt>();
     public DbSet<DebtPayment> DebtPayments => Set<DebtPayment>();
     public DbSet<RecurringPayment> RecurringPayments => Set<RecurringPayment>();
+    public DbSet<FinancialGoal> FinancialGoals => Set<FinancialGoal>();
+    public DbSet<Account> Accounts => Set<Account>();
+    public DbSet<AccountTransfer> AccountTransfers => Set<AccountTransfer>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -136,6 +139,10 @@ public sealed class PlannerDbContext(DbContextOptions<PlannerDbContext> options)
             e.Property(fe => fe.Description).HasMaxLength(500);
             e.HasOne(fe => fe.Week).WithMany().HasForeignKey(fe => fe.WeekId).OnDelete(DeleteBehavior.SetNull);
             e.HasOne(fe => fe.RecurringPayment).WithMany(rp => rp.GeneratedEntries).HasForeignKey(fe => fe.RecurringPaymentId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne(fe => fe.Account).WithMany(a => a.Entries).HasForeignKey(fe => fe.AccountId).OnDelete(DeleteBehavior.SetNull);
+            e.HasIndex(fe => fe.AccountId);
+            e.HasOne(fe => fe.ParentEntry).WithMany(fe => fe.SplitEntries).HasForeignKey(fe => fe.ParentEntryId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(fe => fe.ParentEntryId);
         });
 
         modelBuilder.Entity<FinanceBudget>(e =>
@@ -171,6 +178,34 @@ public sealed class PlannerDbContext(DbContextOptions<PlannerDbContext> options)
             e.Property(rp => rp.Name).HasMaxLength(200);
             e.Property(rp => rp.Amount).HasColumnType("decimal(18,2)");
             e.Property(rp => rp.Note).HasMaxLength(1000);
+        });
+
+        modelBuilder.Entity<FinancialGoal>(e =>
+        {
+            e.HasKey(g => g.Id);
+            e.Property(g => g.Name).HasMaxLength(200);
+            e.Property(g => g.Icon).HasMaxLength(50);
+            e.Property(g => g.Color).HasMaxLength(20);
+            e.Property(g => g.TargetAmount).HasColumnType("decimal(18,2)");
+            e.Property(g => g.SavedAmount).HasColumnType("decimal(18,2)");
+        });
+
+        modelBuilder.Entity<Account>(e =>
+        {
+            e.HasKey(a => a.Id);
+            e.Property(a => a.Name).HasMaxLength(200);
+            e.Property(a => a.Icon).HasMaxLength(50);
+            e.Property(a => a.Color).HasMaxLength(20);
+            e.Property(a => a.InitialBalance).HasColumnType("decimal(18,2)");
+        });
+
+        modelBuilder.Entity<AccountTransfer>(e =>
+        {
+            e.HasKey(t => t.Id);
+            e.Property(t => t.Amount).HasColumnType("decimal(18,2)");
+            e.Property(t => t.Note).HasMaxLength(500);
+            e.HasOne(t => t.FromAccount).WithMany(a => a.TransfersFrom).HasForeignKey(t => t.FromAccountId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(t => t.ToAccount).WithMany(a => a.TransfersTo).HasForeignKey(t => t.ToAccountId).OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

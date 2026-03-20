@@ -28,8 +28,21 @@ public sealed partial class FinanceViewModel : ObservableObject
     [ObservableProperty] private string _savingsTrendArrow = string.Empty;
     [ObservableProperty] private double _savingsRatePercent;
 
+    // Filter / Search
+    [ObservableProperty] private string _searchText = string.Empty;
+    [ObservableProperty] private int? _filterCategoryId;
+    [ObservableProperty] private DateOnly? _filterDateFrom;
+    [ObservableProperty] private DateOnly? _filterDateTo;
+
+    // Forecast
+    [ObservableProperty] private decimal _forecastBalance;
+    [ObservableProperty] private decimal _projectedIncome;
+    [ObservableProperty] private decimal _projectedExpenses;
+
     public ObservableCollection<FinanceEntryViewModel> IncomeEntries { get; } = [];
     public ObservableCollection<FinanceEntryViewModel> ExpenseEntries { get; } = [];
+    public ObservableCollection<FinanceEntryViewModel> FilteredIncomeEntries { get; } = [];
+    public ObservableCollection<FinanceEntryViewModel> FilteredExpenseEntries { get; } = [];
     public ObservableCollection<FinanceCategoryViewModel> IncomeCategories { get; } = [];
     public ObservableCollection<FinanceCategoryViewModel> ExpenseCategories { get; } = [];
     public ObservableCollection<BudgetViewModel> Budgets { get; } = [];
@@ -38,6 +51,11 @@ public sealed partial class FinanceViewModel : ObservableObject
     public ObservableCollection<RecurringPaymentViewModel> RecurringPayments { get; } = [];
     public ObservableCollection<CategoryBreakdownItem> CategoryBreakdown { get; } = [];
     public ObservableCollection<MonthlyFinanceSummary> MonthlyTrend { get; } = [];
+    public ObservableCollection<FinancialGoalViewModel> FinancialGoals { get; } = [];
+    public ObservableCollection<AccountViewModel> Accounts { get; } = [];
+    public ObservableCollection<AccountTransferViewModel> Transfers { get; } = [];
+    public ObservableCollection<ForecastDay> ForecastDays { get; } = [];
+    public ObservableCollection<CashflowDay> CashflowDays { get; } = [];
 
     // Empty state flags
     public bool HasIncomeEntries => IncomeEntries.Count > 0;
@@ -49,12 +67,21 @@ public sealed partial class FinanceViewModel : ObservableObject
     public bool HasCategoryBreakdown => CategoryBreakdown.Count > 0;
     public bool HasMonthlyTrend => MonthlyTrend.Count > 0;
     public int MonthlyTrendCount => MonthlyTrend.Count;
+    public bool HasFinancialGoals => FinancialGoals.Count > 0;
+    public bool HasAccounts => Accounts.Count > 0;
+    public bool HasTransfers => Transfers.Count > 0;
+    public bool HasForecast => ForecastDays.Count > 0;
+    public bool HasCashflow => CashflowDays.Count > 0;
+    public bool HasFilteredIncome => FilteredIncomeEntries.Count > 0;
+    public bool HasFilteredExpense => FilteredExpenseEntries.Count > 0;
+    public bool IsFilterActive => !string.IsNullOrEmpty(SearchText) || FilterCategoryId is not null
+        || FilterDateFrom is not null || FilterDateTo is not null;
 
     public FinanceViewModel(PlannerService service)
     {
         _service = service;
-        IncomeEntries.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasIncomeEntries));
-        ExpenseEntries.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasExpenseEntries));
+        IncomeEntries.CollectionChanged += (_, _) => { OnPropertyChanged(nameof(HasIncomeEntries)); ApplyFilter(); };
+        ExpenseEntries.CollectionChanged += (_, _) => { OnPropertyChanged(nameof(HasExpenseEntries)); ApplyFilter(); };
         Budgets.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasBudgets));
         LentDebts.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasLentDebts));
         BorrowedDebts.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasBorrowedDebts));
@@ -65,6 +92,55 @@ public sealed partial class FinanceViewModel : ObservableObject
             OnPropertyChanged(nameof(HasMonthlyTrend));
             OnPropertyChanged(nameof(MonthlyTrendCount));
         };
+        FinancialGoals.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasFinancialGoals));
+        Accounts.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasAccounts));
+        Transfers.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasTransfers));
+        ForecastDays.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasForecast));
+        CashflowDays.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasCashflow));
+        FilteredIncomeEntries.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasFilteredIncome));
+        FilteredExpenseEntries.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasFilteredExpense));
+    }
+
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+    partial void OnFilterCategoryIdChanged(int? value) => ApplyFilter();
+    partial void OnFilterDateFromChanged(DateOnly? value) => ApplyFilter();
+    partial void OnFilterDateToChanged(DateOnly? value) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        FilteredIncomeEntries.Clear();
+        FilteredExpenseEntries.Clear();
+
+        foreach (var e in IncomeEntries)
+            if (MatchesFilter(e)) FilteredIncomeEntries.Add(e);
+        foreach (var e in ExpenseEntries)
+            if (MatchesFilter(e)) FilteredExpenseEntries.Add(e);
+
+        OnPropertyChanged(nameof(IsFilterActive));
+    }
+
+    private bool MatchesFilter(FinanceEntryViewModel entry)
+    {
+        if (!string.IsNullOrEmpty(SearchText) &&
+            !entry.Description.Contains(SearchText, StringComparison.OrdinalIgnoreCase) &&
+            !entry.CategoryName.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+            return false;
+        if (FilterCategoryId is not null && entry.CategoryId != FilterCategoryId)
+            return false;
+        if (FilterDateFrom is not null && entry.Date < FilterDateFrom)
+            return false;
+        if (FilterDateTo is not null && entry.Date > FilterDateTo)
+            return false;
+        return true;
+    }
+
+    [RelayCommand]
+    private void ClearFilter()
+    {
+        SearchText = string.Empty;
+        FilterCategoryId = null;
+        FilterDateFrom = null;
+        FilterDateTo = null;
     }
 
     private readonly SemaphoreSlim _loadGate = new(1, 1);
@@ -90,14 +166,14 @@ public sealed partial class FinanceViewModel : ObservableObject
         // Load categories
         await LoadCategoriesAsync();
 
-        // Load entries
+        // Load entries (exclude split children — they're shown under parents)
         var entries = await _service.GetFinanceEntriesAsync(firstDay, lastDay);
 
         IncomeEntries.Clear();
         ExpenseEntries.Clear();
         decimal income = 0, expenses = 0;
 
-        foreach (var entry in entries)
+        foreach (var entry in entries.Where(e => e.ParentEntryId is null))
         {
             var vm = new FinanceEntryViewModel(entry, _service);
             if (entry.Type == FinanceEntryType.Income)
@@ -199,6 +275,47 @@ public sealed partial class FinanceViewModel : ObservableObject
             SavingsTrendArrow = string.Empty;
         }
 
+        // Financial Goals
+        var goals = await _service.GetFinancialGoalsAsync();
+        FinancialGoals.Clear();
+        foreach (var g in goals)
+            FinancialGoals.Add(new FinancialGoalViewModel(g, _service));
+
+        // Accounts
+        var accounts = await _service.GetAccountsAsync();
+        Accounts.Clear();
+        foreach (var a in accounts)
+        {
+            var avm = new AccountViewModel(a, _service);
+            avm.CurrentBalance = await _service.GetAccountBalanceAsync(a.Id);
+            Accounts.Add(avm);
+        }
+
+        // Account transfers for current month
+        var transfers = await _service.GetAccountTransfersAsync(firstDay, lastDay);
+        Transfers.Clear();
+        foreach (var t in transfers)
+            Transfers.Add(new AccountTransferViewModel(t, _service));
+
+        // Forecast (30 days)
+        var forecast = await _service.GetBalanceForecastAsync(30);
+        ForecastDays.Clear();
+        foreach (var fd in forecast)
+            ForecastDays.Add(fd);
+        if (forecast.Count > 0)
+        {
+            var last = forecast[^1];
+            ForecastBalance = last.Balance;
+            ProjectedIncome = forecast.Sum(f => f.Income);
+            ProjectedExpenses = forecast.Sum(f => f.Expenses);
+        }
+
+        // Cashflow calendar
+        var cashflow = await _service.GetCashflowCalendarAsync(SelectedYear, SelectedMonth);
+        CashflowDays.Clear();
+        foreach (var cd in cashflow)
+            CashflowDays.Add(cd);
+
         }
         catch (Exception ex)
         {
@@ -226,6 +343,8 @@ public sealed partial class FinanceViewModel : ObservableObject
                 ExpenseCategories.Add(vm);
         }
     }
+
+    // ─── Entry CRUD ──────────────────────────────────────────────
 
     [RelayCommand]
     private async Task AddIncomeEntryAsync()
@@ -281,6 +400,30 @@ public sealed partial class FinanceViewModel : ObservableObject
         Balance = TotalIncome - TotalExpenses;
     }
 
+    // ─── Split Entries ───────────────────────────────────────────
+
+    [RelayCommand]
+    private async Task AddSplitEntryAsync(FinanceEntryViewModel? parentVm)
+    {
+        if (parentVm is null) return;
+        var categories = parentVm.Type == FinanceEntryType.Income ? IncomeCategories : ExpenseCategories;
+        if (categories.Count == 0) return;
+
+        var split = new FinanceEntry
+        {
+            Date = parentVm.Date,
+            Type = parentVm.Type,
+            CategoryId = categories[0].Id,
+            ParentEntryId = parentVm.Model.Id,
+            IsPaid = true
+        };
+        await _service.SaveFinanceEntryAsync(split);
+        split.Category = categories[0].Model;
+        parentVm.SplitEntries.Add(new FinanceEntryViewModel(split, _service));
+    }
+
+    // ─── Debts ───────────────────────────────────────────────────
+
     [RelayCommand]
     private async Task AddDebtAsync(string? directionStr)
     {
@@ -327,6 +470,8 @@ public sealed partial class FinanceViewModel : ObservableObject
         DebtIOwn = BorrowedDebts.Sum(d => d.RemainingAmount);
     }
 
+    // ─── Recurring Payments ──────────────────────────────────────
+
     [RelayCommand]
     private async Task AddRecurringPaymentAsync(string? typeStr)
     {
@@ -356,6 +501,8 @@ public sealed partial class FinanceViewModel : ObservableObject
         await _service.RemoveRecurringPaymentAsync(vm.Model.Id);
         RecurringPayments.Remove(vm);
     }
+
+    // ─── Budgets ─────────────────────────────────────────────────
 
     [RelayCommand]
     private async Task AddBudgetAsync()
@@ -392,6 +539,100 @@ public sealed partial class FinanceViewModel : ObservableObject
         Budgets.Remove(vm);
     }
 
+    // ─── Financial Goals ─────────────────────────────────────────
+
+    [RelayCommand]
+    private async Task AddFinancialGoalAsync()
+    {
+        var goal = new FinancialGoal
+        {
+            Order = FinancialGoals.Count + 1,
+            CreatedDate = DateOnly.FromDateTime(DateTime.Today)
+        };
+        await _service.SaveFinancialGoalAsync(goal);
+        FinancialGoals.Add(new FinancialGoalViewModel(goal, _service));
+    }
+
+    [RelayCommand]
+    private async Task RemoveFinancialGoalAsync(FinancialGoalViewModel? vm)
+    {
+        if (vm is null) return;
+        await _service.RemoveFinancialGoalAsync(vm.Model.Id);
+        FinancialGoals.Remove(vm);
+    }
+
+    // ─── Accounts ────────────────────────────────────────────────
+
+    [RelayCommand]
+    private async Task AddAccountAsync()
+    {
+        var account = new Account { Order = Accounts.Count + 1 };
+        await _service.SaveAccountAsync(account);
+        Accounts.Add(new AccountViewModel(account, _service));
+    }
+
+    [RelayCommand]
+    private async Task RemoveAccountAsync(AccountViewModel? vm)
+    {
+        if (vm is null) return;
+        await _service.RemoveAccountAsync(vm.Model.Id);
+        Accounts.Remove(vm);
+    }
+
+    [RelayCommand]
+    private async Task AddTransferAsync()
+    {
+        if (Accounts.Count < 2) return;
+        var transfer = new AccountTransfer
+        {
+            FromAccountId = Accounts[0].Id,
+            ToAccountId = Accounts[1].Id,
+            Date = DateOnly.FromDateTime(DateTime.Today)
+        };
+        await _service.SaveAccountTransferAsync(transfer);
+        transfer.FromAccount = Accounts[0].Model;
+        transfer.ToAccount = Accounts[1].Model;
+        Transfers.Insert(0, new AccountTransferViewModel(transfer, _service));
+    }
+
+    [RelayCommand]
+    private async Task RemoveTransferAsync(AccountTransferViewModel? vm)
+    {
+        if (vm is null) return;
+        await _service.RemoveAccountTransferAsync(vm.Model.Id);
+        Transfers.Remove(vm);
+    }
+
+    // ─── Import ──────────────────────────────────────────────────
+
+    [RelayCommand]
+    private async Task ImportFromFileAsync()
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Filter = $"{Loc.Get("ImportCSV")}|{Loc.Get("ImportExcel")}",
+            Title = Loc.Get("ImportFile")
+        };
+
+        if (dialog.ShowDialog() != true) return;
+
+        try
+        {
+            var count = await _service.ImportFinanceEntriesFromCsvAsync(dialog.FileName);
+            System.Windows.MessageBox.Show(
+                string.Format(Loc.Get("ImportSuccess"), count),
+                Loc.Get("ImportFile"));
+            await LoadDataAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[FinanceVM] Import failed: {ex}");
+            System.Windows.MessageBox.Show(Loc.Get("ImportError"), Loc.Get("ImportFile"));
+        }
+    }
+
+    // ─── Navigation ──────────────────────────────────────────────
+
     [RelayCommand]
     private async Task PreviousMonthAsync()
     {
@@ -420,8 +661,6 @@ public sealed partial class FinanceViewModel : ObservableObject
 
         if (dialog.ShowDialog() == true)
         {
-            var firstDay = new DateOnly(SelectedYear, SelectedMonth, 1);
-            var lastDay = firstDay.AddMonths(1).AddDays(-1);
             var success = ExportService.ExportFinanceToExcel(
                 PeriodLabel, IncomeEntries, ExpenseEntries, Budgets,
                 CategoryBreakdown, TotalIncome, TotalExpenses, Balance, dialog.FileName);

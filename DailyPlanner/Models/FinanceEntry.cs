@@ -12,8 +12,13 @@ public sealed class FinanceEntry
     public bool IsRecurring { get; set; }
     public int? RecurringPaymentId { get; set; }
     public bool IsPaid { get; set; } = true;
+    public int? AccountId { get; set; }
+    public int? ParentEntryId { get; set; }
 
     public PlannerWeek? Week { get; set; }
     public FinanceCategory? Category { get; set; }
     public RecurringPayment? RecurringPayment { get; set; }
+    public Account? Account { get; set; }
+    public FinanceEntry? ParentEntry { get; set; }
+    public List<FinanceEntry> SplitEntries { get; set; } = [];
 }
