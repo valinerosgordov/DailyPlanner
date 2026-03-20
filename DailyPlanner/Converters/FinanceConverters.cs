@@ -165,6 +165,18 @@ public sealed class TrendBarHeightConverter : MarkupExtension, IValueConverter
     public override object ProvideValue(IServiceProvider serviceProvider) => this;
 }
 
+/// <summary>Shows element when decimal > 0.</summary>
+public sealed class DecimalToVisibilityConverter : MarkupExtension, IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        => value is decimal d && d != 0 ? Visibility.Visible : Visibility.Collapsed;
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+
+    public override object ProvideValue(IServiceProvider serviceProvider) => this;
+}
+
 /// <summary>Shows element only when int == parameter.</summary>
 public sealed class IntToVisibilityConverter : MarkupExtension, IValueConverter
 {
