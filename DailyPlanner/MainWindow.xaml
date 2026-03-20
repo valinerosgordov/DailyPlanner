@@ -5,7 +5,7 @@
         xmlns:views="clr-namespace:DailyPlanner.Views"
         xmlns:conv="clr-namespace:DailyPlanner.Converters"
         xmlns:svc="clr-namespace:DailyPlanner.Services"
-        Title="Daily Planner"
+        Title="Daily &amp; Financial Planner"
         Width="1480" Height="920"
         MinWidth="1200" MinHeight="700"
         WindowStartupLocation="CenterScreen"

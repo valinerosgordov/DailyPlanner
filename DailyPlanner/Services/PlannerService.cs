@@ -689,7 +689,7 @@ public sealed class PlannerService
     public async Task<List<Debt>> GetDebtsAsync(bool includeSettled = false, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        var query = db.Debts.Include(d => d.Payments).AsQueryable();
+        var query = db.Debts.Include(d => d.Payments).AsNoTracking();
         if (!includeSettled) query = query.Where(d => !d.IsSettled);
         return await query.OrderByDescending(d => d.CreatedDate).ToListAsync(ct).ConfigureAwait(false);
     }
@@ -897,6 +897,270 @@ public sealed class PlannerService
 
         return result;
     }
+    // ─── Financial Goals ──────────────────────────────────────────
+
+    public async Task<List<FinancialGoal>> GetFinancialGoalsAsync(CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        return await db.FinancialGoals.OrderBy(g => g.Order).ToListAsync(ct).ConfigureAwait(false);
+    }
+
+    public async Task SaveFinancialGoalAsync(FinancialGoal goal, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        if (goal.Id == 0) db.FinancialGoals.Add(goal);
+        else db.FinancialGoals.Update(goal);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
+    }
+
+    public async Task RemoveFinancialGoalAsync(int goalId, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var goal = await db.FinancialGoals.FindAsync([goalId], ct).ConfigureAwait(false);
+        if (goal is not null) { db.FinancialGoals.Remove(goal); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
+    }
+
+    // ─── Accounts ────────────────────────────────────────────────
+
+    public async Task<List<Account>> GetAccountsAsync(CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        return await db.Accounts.Where(a => !a.IsArchived).OrderBy(a => a.Order).ToListAsync(ct).ConfigureAwait(false);
+    }
+
+    public async Task SaveAccountAsync(Account account, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        if (account.Id == 0) db.Accounts.Add(account);
+        else db.Accounts.Update(account);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
+    }
+
+    public async Task RemoveAccountAsync(int accountId, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var account = await db.Accounts.FindAsync([accountId], ct).ConfigureAwait(false);
+        if (account is not null) { db.Accounts.Remove(account); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
+    }
+
+    public async Task<decimal> GetAccountBalanceAsync(int accountId, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var account = await db.Accounts.FindAsync([accountId], ct).ConfigureAwait(false);
+        if (account is null) return 0;
+
+        var income = await db.FinanceEntries
+            .Where(e => e.AccountId == accountId && e.Type == FinanceEntryType.Income)
+            .SumAsync(e => e.Amount, ct).ConfigureAwait(false);
+        var expense = await db.FinanceEntries
+            .Where(e => e.AccountId == accountId && e.Type == FinanceEntryType.Expense)
+            .SumAsync(e => e.Amount, ct).ConfigureAwait(false);
+        var transfersIn = await db.AccountTransfers
+            .Where(t => t.ToAccountId == accountId)
+            .SumAsync(t => t.Amount, ct).ConfigureAwait(false);
+        var transfersOut = await db.AccountTransfers
+            .Where(t => t.FromAccountId == accountId)
+            .SumAsync(t => t.Amount, ct).ConfigureAwait(false);
+
+        return account.InitialBalance + income - expense + transfersIn - transfersOut;
+    }
+
+    // ─── Account Transfers ───────────────────────────────────────
+
+    public async Task<List<AccountTransfer>> GetAccountTransfersAsync(DateOnly from, DateOnly to, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        return await db.AccountTransfers
+            .Include(t => t.FromAccount)
+            .Include(t => t.ToAccount)
+            .Where(t => t.Date >= from && t.Date <= to)
+            .OrderByDescending(t => t.Date)
+            .ToListAsync(ct).ConfigureAwait(false);
+    }
+
+    public async Task SaveAccountTransferAsync(AccountTransfer transfer, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        if (transfer.Id == 0) db.AccountTransfers.Add(transfer);
+        else db.AccountTransfers.Update(transfer);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
+    }
+
+    public async Task RemoveAccountTransferAsync(int transferId, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var transfer = await db.AccountTransfers.FindAsync([transferId], ct).ConfigureAwait(false);
+        if (transfer is not null) { db.AccountTransfers.Remove(transfer); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
+    }
+
+    // ─── Split Entries ───────────────────────────────────────────
+
+    public async Task<List<FinanceEntry>> GetSplitEntriesAsync(int parentEntryId, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        return await db.FinanceEntries
+            .Include(e => e.Category)
+            .Where(e => e.ParentEntryId == parentEntryId)
+            .OrderBy(e => e.Id)
+            .ToListAsync(ct).ConfigureAwait(false);
+    }
+
+    // ─── Forecast ────────────────────────────────────────────────
+
+    public async Task<List<ForecastDay>> GetBalanceForecastAsync(int days, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var endDate = today.AddDays(days);
+
+        // Current balance (all time)
+        var allIncome = await db.FinanceEntries
+            .Where(e => e.Type == FinanceEntryType.Income && e.Date <= today)
+            .SumAsync(e => e.Amount, ct).ConfigureAwait(false);
+        var allExpense = await db.FinanceEntries
+            .Where(e => e.Type == FinanceEntryType.Expense && e.Date <= today)
+            .SumAsync(e => e.Amount, ct).ConfigureAwait(false);
+        var currentBalance = allIncome - allExpense;
+
+        // Already-planned entries in the future
+        var futureEntries = await db.FinanceEntries
+            .Where(e => e.Date > today && e.Date <= endDate)
+            .ToListAsync(ct).ConfigureAwait(false);
+
+        // Active recurring payments
+        var recurring = await db.RecurringPayments
+            .Where(rp => rp.IsActive && (rp.EndDate == null || rp.EndDate >= today))
+            .ToListAsync(ct).ConfigureAwait(false);
+
+        var result = new List<ForecastDay>();
+        var runningBalance = currentBalance;
+
+        for (var d = today; d <= endDate; d = d.AddDays(1))
+        {
+            decimal dayIncome = 0, dayExpense = 0;
+
+            // Future entries
+            foreach (var e in futureEntries.Where(e => e.Date == d))
+            {
+                if (e.Type == FinanceEntryType.Income) dayIncome += e.Amount;
+                else dayExpense += e.Amount;
+            }
+
+            // Recurring payments
+            foreach (var rp in recurring)
+            {
+                if (MatchesRecurringDate(rp, d))
+                {
+                    if (rp.Type == FinanceEntryType.Income) dayIncome += rp.Amount;
+                    else dayExpense += rp.Amount;
+                }
+            }
+
+            if (d > today) runningBalance += dayIncome - dayExpense;
+            result.Add(new ForecastDay(d, dayIncome, dayExpense, runningBalance));
+        }
+
+        return result;
+    }
+
+    private static bool MatchesRecurringDate(RecurringPayment rp, DateOnly date)
+    {
+        if (date < rp.StartDate) return false;
+        if (rp.EndDate is not null && date > rp.EndDate) return false;
+
+        return rp.Frequency switch
+        {
+            PaymentFrequency.Monthly => rp.DayOfMonth is not null && date.Day == rp.DayOfMonth,
+            PaymentFrequency.Weekly => rp.DayOfWeek is not null && date.DayOfWeek == rp.DayOfWeek,
+            PaymentFrequency.Biweekly => rp.DayOfWeek is not null && date.DayOfWeek == rp.DayOfWeek
+                && Math.Abs(date.ToDateTime(TimeOnly.MinValue).Subtract(rp.StartDate.ToDateTime(TimeOnly.MinValue)).Days) % 14 == 0,
+            PaymentFrequency.Quarterly => rp.DayOfMonth is not null && date.Day == rp.DayOfMonth
+                && ((date.Year - rp.StartDate.Year) * 12 + date.Month - rp.StartDate.Month) % 3 == 0,
+            PaymentFrequency.Yearly => rp.DayOfMonth is not null && date.Day == rp.DayOfMonth
+                && date.Month == rp.StartDate.Month,
+            _ => false
+        };
+    }
+
+    // ─── Cashflow Calendar ───────────────────────────────────────
+
+    public async Task<List<CashflowDay>> GetCashflowCalendarAsync(int year, int month, CancellationToken ct = default)
+    {
+        var firstDay = new DateOnly(year, month, 1);
+        var lastDay = firstDay.AddMonths(1).AddDays(-1);
+
+        await using var db = PlannerDbContextFactory.Create();
+        var entries = await db.FinanceEntries
+            .Where(e => e.Date >= firstDay && e.Date <= lastDay)
+            .ToListAsync(ct).ConfigureAwait(false);
+
+        var recurring = await db.RecurringPayments
+            .Where(rp => rp.IsActive)
+            .ToListAsync(ct).ConfigureAwait(false);
+
+        var result = new List<CashflowDay>();
+        for (var d = firstDay; d <= lastDay; d = d.AddDays(1))
+        {
+            var dayEntries = entries.Where(e => e.Date == d).ToList();
+            var income = dayEntries.Where(e => e.Type == FinanceEntryType.Income).Sum(e => e.Amount);
+            var expense = dayEntries.Where(e => e.Type == FinanceEntryType.Expense).Sum(e => e.Amount);
+
+            // Add recurring that aren't already generated
+            foreach (var rp in recurring.Where(rp => MatchesRecurringDate(rp, d)))
+            {
+                if (!entries.Any(e => e.RecurringPaymentId == rp.Id && e.Date == d))
+                {
+                    if (rp.Type == FinanceEntryType.Income) income += rp.Amount;
+                    else expense += rp.Amount;
+                }
+            }
+
+            result.Add(new CashflowDay(d, income, expense));
+        }
+
+        return result;
+    }
+
+    // ─── Import ──────────────────────────────────────────────────
+
+    public async Task<int> ImportFinanceEntriesFromCsvAsync(string filePath, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var lines = await System.IO.File.ReadAllLinesAsync(filePath, System.Text.Encoding.UTF8, ct).ConfigureAwait(false);
+        if (lines.Length < 2) return 0;
+
+        var defaultCategory = await db.FinanceCategories.FirstOrDefaultAsync(ct).ConfigureAwait(false);
+        if (defaultCategory is null) return 0;
+
+        var imported = 0;
+        // Expected CSV: Date,Description,Amount (positive = income, negative = expense)
+        foreach (var line in lines.Skip(1))
+        {
+            var parts = line.Split(',', StringSplitOptions.TrimEntries);
+            if (parts.Length < 3) continue;
+
+            if (!DateOnly.TryParse(parts[0], out var date)) continue;
+            if (!decimal.TryParse(parts[2], System.Globalization.NumberStyles.Any,
+                    System.Globalization.CultureInfo.InvariantCulture, out var amount)
+                && !decimal.TryParse(parts[2], System.Globalization.NumberStyles.Any,
+                    System.Globalization.CultureInfo.CurrentCulture, out amount)) continue;
+
+            var entry = new FinanceEntry
+            {
+                Date = date,
+                Description = parts[1],
+                Amount = Math.Abs(amount),
+                Type = amount >= 0 ? FinanceEntryType.Income : FinanceEntryType.Expense,
+                CategoryId = defaultCategory.Id,
+                IsPaid = true
+            };
+            db.FinanceEntries.Add(entry);
+            imported++;
+        }
+
+        if (imported > 0) await db.SaveChangesAsync(ct).ConfigureAwait(false);
+        return imported;
+    }
 }
 
 public sealed record CategoryBreakdownItem(int CategoryId, string Name, string Icon, string Color, decimal Amount);
@@ -904,4 +1168,15 @@ public sealed record MonthlyFinanceSummary(int Year, int Month, decimal Income, 
 {
     public decimal Balance => Income - Expenses;
     public string Label => $"{Loc.GetMonthName(Month)[..3]} {Year % 100:D2}";
+}
+public sealed record ForecastDay(DateOnly Date, decimal Income, decimal Expenses, decimal Balance)
+{
+    public decimal NetFlow => Income - Expenses;
+    public string Label => Date.ToString("dd.MM");
+}
+public sealed record CashflowDay(DateOnly Date, decimal Income, decimal Expenses)
+{
+    public decimal Net => Income - Expenses;
+    public bool HasActivity => Income > 0 || Expenses > 0;
+    public string DayLabel => Date.Day.ToString();
 }

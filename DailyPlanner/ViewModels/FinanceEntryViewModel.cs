@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using DailyPlanner.Models;
 using DailyPlanner.Services;
@@ -19,6 +20,16 @@ public sealed partial class FinanceEntryViewModel : ObservableObject
         _type = model.Type;
         _categoryId = model.CategoryId;
         _isPaid = model.IsPaid;
+
+        // Load existing splits
+        foreach (var split in model.SplitEntries)
+            SplitEntries.Add(new FinanceEntryViewModel(split, service));
+
+        SplitEntries.CollectionChanged += (_, _) =>
+        {
+            OnPropertyChanged(nameof(HasSplits));
+            OnPropertyChanged(nameof(SplitTotal));
+        };
     }
 
     public FinanceEntry Model => _model;
@@ -34,12 +45,17 @@ public sealed partial class FinanceEntryViewModel : ObservableObject
     public string CategoryIcon => _model.Category?.Icon ?? string.Empty;
     public string CategoryColor => _model.Category?.Color ?? string.Empty;
     public bool IsRecurring => _model.IsRecurring;
+    public bool IsSplit => _model.ParentEntryId is not null;
+    public bool HasSplits => SplitEntries.Count > 0;
+
+    public ObservableCollection<FinanceEntryViewModel> SplitEntries { get; } = [];
 
     public string DisplayAmount => Type == FinanceEntryType.Income
         ? $"+{Amount:N2}"
         : $"-{Amount:N2}";
 
     public string DisplayDate => Date.ToString("dd.MM");
+    public decimal SplitTotal => SplitEntries.Sum(s => s.Amount);
 
     partial void OnAmountChanged(decimal value)
     {
