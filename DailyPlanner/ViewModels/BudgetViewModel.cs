@@ -31,7 +31,7 @@ public sealed partial class BudgetViewModel : ObservableObject
     public bool IsWarning => ProgressPercent >= 80 && !IsOverBudget;
     public string RemainingText => IsOverBudget
         ? $"{Loc.Get("OverBudget")}: {SpentAmount - Amount:N2}"
-        : $"{Loc.Get("Remaining")}: {RemainingAmount:N2}";
+        : $"{Loc.Get("FinRemaining")}: {RemainingAmount:N2}";
     public bool ShowWarning => IsOverBudget || IsWarning;
     public string WarningText => IsOverBudget
         ? Loc.Get("OverBudget")

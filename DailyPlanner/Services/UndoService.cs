@@ -105,6 +105,7 @@ public static class UndoService
                 var fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(250));
                 toast.BeginAnimation(UIElement.OpacityProperty, fadeIn);
 
+                _timer?.Stop();
                 _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(6) };
                 _timer.Tick += (_, _) =>
                 {

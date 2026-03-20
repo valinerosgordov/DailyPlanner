@@ -185,7 +185,7 @@ public sealed class CategoryToTooltipConverter : IValueConverter
             DailyPlanner.Models.TaskCategory.Work => Loc.Get("CatWork"),
             DailyPlanner.Models.TaskCategory.Study => Loc.Get("CatStudy"),
             DailyPlanner.Models.TaskCategory.Personal => Loc.Get("CatPersonal"),
-            DailyPlanner.Models.TaskCategory.Health => Loc.Get("CatHealth"),
+            DailyPlanner.Models.TaskCategory.Health => Loc.Get("CatHealthTip"),
             DailyPlanner.Models.TaskCategory.Other => Loc.Get("CatOther"),
             _ => ""
         } : "";

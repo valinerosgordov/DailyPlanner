@@ -11,6 +11,24 @@ public partial class App : Application
 {
     protected override async void OnStartup(StartupEventArgs e)
     {
+        DispatcherUnhandledException += (_, e) =>
+        {
+            System.Diagnostics.Debug.WriteLine($"[App] Unhandled: {e.Exception}");
+            try
+            {
+                var logPath = System.IO.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "DailyPlanner", "crash.log");
+                System.IO.File.AppendAllText(logPath,
+                    $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {e.Exception}\n\n");
+            }
+            catch { }
+            System.Windows.MessageBox.Show(
+                $"An unexpected error occurred:\n{e.Exception.Message}",
+                "Daily Planner", MessageBoxButton.OK, MessageBoxImage.Error);
+            e.Handled = true;
+        };
+
         base.OnStartup(e);
 
         // Velopack: handle install/uninstall/update hooks (creates shortcuts, etc.)
@@ -100,13 +118,13 @@ public partial class App : Application
 
                     // Rotate: keep only last 5 backups
                     var old = System.IO.Directory.GetFiles(backupDir, "planner_*.db")
-                        .OrderByDescending(f => f)
+                        .OrderByDescending(f => System.IO.File.GetCreationTimeUtc(f))
                         .Skip(5);
                     foreach (var f in old)
-                        try { System.IO.File.Delete(f); } catch { }
+                        try { System.IO.File.Delete(f); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[App] Backup cleanup: {ex.Message}"); }
                 }
             }
-            catch { /* non-critical */ }
+            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[App] Backup failed: {ex.Message}"); }
         });
 
         // Initialize DB
