@@ -16,6 +16,7 @@ public partial class MainWindow : FluentWindow
     private readonly WeekPage _weekPage = new();
     private readonly SettingsPage _settingsPage;
     private StatisticsPage? _statisticsPage;
+    private FinancePage? _financePage;
     private System.Windows.Forms.NotifyIcon? _trayIcon;
 
     public MainWindow()
@@ -103,6 +104,7 @@ public partial class MainWindow : FluentWindow
         {
             _viewModel.IsSettingsOpen = true;
             _viewModel.IsStatisticsOpen = false;
+            _viewModel.IsFinanceOpen = false;
             NavigateWithAnimation(_settingsPage);
         }
     }
@@ -118,10 +120,30 @@ public partial class MainWindow : FluentWindow
         {
             _viewModel.IsStatisticsOpen = true;
             _viewModel.IsSettingsOpen = false;
+            _viewModel.IsFinanceOpen = false;
             _viewModel.Statistics.SelectedYear = _viewModel.SelectedYear;
             _viewModel.Statistics.SelectedMonth = _viewModel.SelectedMonth;
             _statisticsPage = new StatisticsPage(_viewModel.Statistics);
             NavigateWithAnimation(_statisticsPage);
+        }
+    }
+
+    private void Finance_Click(object sender, RoutedEventArgs e)
+    {
+        if (ContentFrame.Content is FinancePage)
+        {
+            _viewModel.IsFinanceOpen = false;
+            NavigateWithAnimation(_weekPage);
+        }
+        else
+        {
+            _viewModel.IsFinanceOpen = true;
+            _viewModel.IsSettingsOpen = false;
+            _viewModel.IsStatisticsOpen = false;
+            _viewModel.Finance.SelectedYear = _viewModel.SelectedYear;
+            _viewModel.Finance.SelectedMonth = _viewModel.SelectedMonth;
+            _financePage = new FinancePage(_viewModel.Finance);
+            NavigateWithAnimation(_financePage);
         }
     }
 
