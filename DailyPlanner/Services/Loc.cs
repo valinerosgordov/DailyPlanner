@@ -445,6 +445,15 @@ public sealed class Loc : INotifyPropertyChanged
             ["Paid"] = "Оплачено",
             ["Pending"] = "Ожидает",
             ["FinanceDescription"] = "Описание",
+            ["Savings"] = "Накопления",
+            ["SavingsRate"] = "Норма сбережений",
+            ["Analytics"] = "Аналитика",
+            ["FinCategories"] = "По категориям",
+            ["MonthlyTrend"] = "Тренд по месяцам",
+            ["ExportFinance"] = "Экспорт финансов",
+            ["AnnualTotal"] = "В год",
+            ["NextPayment"] = "Следующий платёж",
+            ["Date"] = "Дата",
         },
 
         ["en"] = new()
@@ -749,6 +758,15 @@ public sealed class Loc : INotifyPropertyChanged
             ["Paid"] = "Paid",
             ["Pending"] = "Pending",
             ["FinanceDescription"] = "Description",
+            ["Savings"] = "Savings",
+            ["SavingsRate"] = "Savings rate",
+            ["Analytics"] = "Analytics",
+            ["FinCategories"] = "By category",
+            ["MonthlyTrend"] = "Monthly trend",
+            ["ExportFinance"] = "Export finance",
+            ["AnnualTotal"] = "Per year",
+            ["NextPayment"] = "Next payment",
+            ["Date"] = "Date",
         },
 
         ["es"] = new()
@@ -1053,6 +1071,15 @@ public sealed class Loc : INotifyPropertyChanged
             ["Paid"] = "Pagado",
             ["Pending"] = "Pendiente",
             ["FinanceDescription"] = "Descripción",
+            ["Savings"] = "Ahorros",
+            ["SavingsRate"] = "Tasa de ahorro",
+            ["Analytics"] = "Analítica",
+            ["FinCategories"] = "Por categoría",
+            ["MonthlyTrend"] = "Tendencia mensual",
+            ["ExportFinance"] = "Exportar finanzas",
+            ["AnnualTotal"] = "Anual",
+            ["NextPayment"] = "Próximo pago",
+            ["Date"] = "Fecha",
         },
 
         ["fr"] = new()
@@ -1357,6 +1384,15 @@ public sealed class Loc : INotifyPropertyChanged
             ["Paid"] = "Payé",
             ["Pending"] = "En attente",
             ["FinanceDescription"] = "Description",
+            ["Savings"] = "Épargne",
+            ["SavingsRate"] = "Taux d'épargne",
+            ["Analytics"] = "Analytique",
+            ["FinCategories"] = "Par catégorie",
+            ["MonthlyTrend"] = "Tendance mensuelle",
+            ["ExportFinance"] = "Exporter les finances",
+            ["AnnualTotal"] = "Par an",
+            ["NextPayment"] = "Prochain paiement",
+            ["Date"] = "Date",
         },
     };
 

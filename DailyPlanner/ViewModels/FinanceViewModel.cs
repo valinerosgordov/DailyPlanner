@@ -23,6 +23,9 @@ public sealed partial class FinanceViewModel : ObservableObject
     [ObservableProperty] private decimal _debtOwedToMe;
     [ObservableProperty] private decimal _debtIOwn;
     [ObservableProperty] private decimal _monthlyObligatory;
+    [ObservableProperty] private decimal _savings;
+    [ObservableProperty] private string _savingsTrendArrow = string.Empty;
+    [ObservableProperty] private double _savingsRatePercent;
 
     public ObservableCollection<FinanceEntryViewModel> IncomeEntries { get; } = [];
     public ObservableCollection<FinanceEntryViewModel> ExpenseEntries { get; } = [];
@@ -32,6 +35,8 @@ public sealed partial class FinanceViewModel : ObservableObject
     public ObservableCollection<DebtViewModel> LentDebts { get; } = [];
     public ObservableCollection<DebtViewModel> BorrowedDebts { get; } = [];
     public ObservableCollection<RecurringPaymentViewModel> RecurringPayments { get; } = [];
+    public ObservableCollection<CategoryBreakdownItem> CategoryBreakdown { get; } = [];
+    public ObservableCollection<MonthlyFinanceSummary> MonthlyTrend { get; } = [];
 
     public FinanceViewModel(PlannerService service)
     {
@@ -141,6 +146,34 @@ public sealed partial class FinanceViewModel : ObservableObject
                 };
         }
         MonthlyObligatory = Math.Round(obligatory, 2);
+
+        // Savings
+        Savings = income - expenses;
+        SavingsRatePercent = income > 0 ? Math.Round((double)(Savings / income) * 100, 1) : 0;
+
+        // Analytics: category breakdown
+        var breakdown = await _service.GetExpensesByCategoryAsync(firstDay, lastDay);
+        CategoryBreakdown.Clear();
+        foreach (var item in breakdown)
+            CategoryBreakdown.Add(item);
+
+        // Analytics: 6-month trend
+        var trend = await _service.GetMonthlyTotalsAsync(6);
+        MonthlyTrend.Clear();
+        foreach (var item in trend)
+            MonthlyTrend.Add(item);
+
+        // Savings trend arrow (compare to previous month)
+        if (trend.Count >= 2)
+        {
+            var prev = trend[^2].Balance;
+            SavingsTrendArrow = Savings > prev ? "↑" : Savings < prev ? "↓" : "→";
+        }
+        else
+        {
+            SavingsTrendArrow = string.Empty;
+        }
+
         IsLoading = false;
         _isLoadingData = false;
     }
@@ -334,5 +367,30 @@ public sealed partial class FinanceViewModel : ObservableObject
         if (SelectedMonth == 12) { SelectedMonth = 1; SelectedYear++; }
         else SelectedMonth++;
         await LoadDataAsync();
+    }
+
+    [RelayCommand]
+    private void ExportFinance()
+    {
+        var dialog = new Microsoft.Win32.SaveFileDialog
+        {
+            FileName = $"Finance_{SelectedYear}-{SelectedMonth:D2}",
+            DefaultExt = ".xlsx",
+            Filter = "Excel (.xlsx)|*.xlsx"
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            var firstDay = new DateOnly(SelectedYear, SelectedMonth, 1);
+            var lastDay = firstDay.AddMonths(1).AddDays(-1);
+            var success = ExportService.ExportFinanceToExcel(
+                PeriodLabel, IncomeEntries, ExpenseEntries, Budgets,
+                CategoryBreakdown, TotalIncome, TotalExpenses, Balance, dialog.FileName);
+
+            if (success)
+                System.Windows.MessageBox.Show(Loc.Get("ExportSuccess"), Loc.Get("ExportTitle"));
+            else
+                System.Windows.MessageBox.Show(Loc.Get("ExportError"), Loc.Get("ExportTitle"));
+        }
     }
 }
