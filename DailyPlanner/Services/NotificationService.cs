@@ -23,7 +23,11 @@ public static class NotificationService
         _checkTimer.Start();
     }
 
-    public static void Stop() => _checkTimer.Stop();
+    public static void Stop()
+    {
+        _checkTimer.Tick -= OnCheck;
+        _checkTimer.Stop();
+    }
 
     private static void OnCheck(object? sender, EventArgs e)
     {
