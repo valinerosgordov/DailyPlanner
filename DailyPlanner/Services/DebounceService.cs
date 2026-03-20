@@ -26,7 +26,6 @@ public static class DebounceService
         try
         {
             await Task.Delay(delayMs, ct);
-            _pending.TryRemove(key, out _);
             await action();
         }
         catch (TaskCanceledException)
@@ -36,6 +35,10 @@ public static class DebounceService
         catch (Exception ex)
         {
             Debug.WriteLine($"[DebounceService] Error in '{key}': {ex.Message}");
+        }
+        finally
+        {
+            _pending.TryRemove(key, out _);
         }
     }
 }

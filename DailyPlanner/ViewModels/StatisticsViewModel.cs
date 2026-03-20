@@ -93,7 +93,12 @@ public sealed partial class StatisticsViewModel : ObservableObject
                 wTasks.Count(t => t.IsCompleted)));
         }
 
-        // Week comparison
+        // Week comparison — reset before conditional assignment
+        CurrentWeekTasks = 0;
+        CurrentWeekCompleted = 0;
+        PreviousWeekTasks = 0;
+        PreviousWeekCompleted = 0;
+
         var today = DateOnly.FromDateTime(DateTime.Today);
         var currentStart = PlannerService.GetWeekStart(today);
         var prevStart = currentStart.AddDays(-7);

@@ -448,7 +448,7 @@
                                                          Style="{DynamicResource AccentProgressBar}"/>
                                             <DockPanel>
                                                 <TextBlock FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center">
-                                                    <Run Text="{Binding [Remaining], Source={x:Static svc:Loc.Instance}, Mode=OneWay}"/>
+                                                    <Run Text="{Binding [FinRemaining], Source={x:Static svc:Loc.Instance}, Mode=OneWay}"/>
                                                     <Run Text=": "/>
                                                     <Run Text="{Binding RemainingAmount, StringFormat=N2, Mode=OneWay}" FontWeight="SemiBold"/>
                                                 </TextBlock>
@@ -517,7 +517,7 @@
                                                          Style="{DynamicResource AccentProgressBar}"/>
                                             <DockPanel>
                                                 <TextBlock FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center">
-                                                    <Run Text="{Binding [Remaining], Source={x:Static svc:Loc.Instance}, Mode=OneWay}"/>
+                                                    <Run Text="{Binding [FinRemaining], Source={x:Static svc:Loc.Instance}, Mode=OneWay}"/>
                                                     <Run Text=": "/>
                                                     <Run Text="{Binding RemainingAmount, StringFormat=N2, Mode=OneWay}" FontWeight="SemiBold"/>
                                                 </TextBlock>

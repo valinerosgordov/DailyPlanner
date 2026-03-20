@@ -455,10 +455,14 @@ public sealed class PlannerService
         await db.SaveChangesAsync(ct);
 
         // Carry over subtasks (batch — one SaveChanges for all)
+        var targetLookup = toDay.Tasks
+            .Where(t => t.ParentTaskId is null)
+            .GroupBy(t => t.Text)
+            .ToDictionary(g => g.Key, g => g.First());
+
         foreach (var task in incomplete)
         {
-            var target = toDay.Tasks.FirstOrDefault(t => t.Text == task.Text && t.ParentTaskId is null)
-                         ?? toDay.Tasks.Last(t => t.Text == task.Text);
+            if (!targetLookup.TryGetValue(task.Text, out var target)) continue;
             foreach (var sub in task.SubTasks.Where(s => !s.IsCompleted && !string.IsNullOrWhiteSpace(s.Text)).OrderBy(s => s.Order))
             {
                 db.DailyTasks.Add(new DailyTask
