@@ -210,19 +210,29 @@ public sealed partial class WeekViewModel : ObservableObject
         OnPropertyChanged(nameof(HasNoHabits));
     }
 
+    private CancellationTokenSource? _analyticsDebounce;
+
     private void RefreshAnalytics()
     {
-        OnPropertyChanged(nameof(TotalTasks));
-        OnPropertyChanged(nameof(CompletedTasks));
-        OnPropertyChanged(nameof(NotCompletedTasks));
-        OnPropertyChanged(nameof(AverageProgress));
-        OnPropertyChanged(nameof(CompletedGoals));
-        OnPropertyChanged(nameof(MostProductiveDay));
-        OnPropertyChanged(nameof(WeeklySummary));
-        OnPropertyChanged(nameof(AvgSleep));
-        OnPropertyChanged(nameof(AvgEnergy));
-        OnPropertyChanged(nameof(AvgMood));
-        OnPropertyChanged(nameof(HasStateData));
-        OnPropertyChanged(nameof(StateInsight));
+        _analyticsDebounce?.Cancel();
+        _analyticsDebounce = new CancellationTokenSource();
+        var token = _analyticsDebounce.Token;
+
+        System.Windows.Application.Current?.Dispatcher.InvokeAsync(() =>
+        {
+            if (token.IsCancellationRequested) return;
+            OnPropertyChanged(nameof(TotalTasks));
+            OnPropertyChanged(nameof(CompletedTasks));
+            OnPropertyChanged(nameof(NotCompletedTasks));
+            OnPropertyChanged(nameof(AverageProgress));
+            OnPropertyChanged(nameof(CompletedGoals));
+            OnPropertyChanged(nameof(MostProductiveDay));
+            OnPropertyChanged(nameof(WeeklySummary));
+            OnPropertyChanged(nameof(AvgSleep));
+            OnPropertyChanged(nameof(AvgEnergy));
+            OnPropertyChanged(nameof(AvgMood));
+            OnPropertyChanged(nameof(HasStateData));
+            OnPropertyChanged(nameof(StateInsight));
+        }, System.Windows.Threading.DispatcherPriority.Background);
     }
 }
