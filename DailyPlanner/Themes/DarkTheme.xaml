@@ -334,6 +334,25 @@
         </Setter>
     </Style>
 
+    <!-- Budget progress bar (respects Foreground binding) -->
+    <Style x:Key="BudgetProgressBar" TargetType="ProgressBar">
+        <Setter Property="Height" Value="4"/>
+        <Setter Property="Background" Value="{DynamicResource SubtleBgBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ProgressBar">
+                    <Grid>
+                        <Border Background="{TemplateBinding Background}" CornerRadius="2"/>
+                        <Border x:Name="PART_Indicator" HorizontalAlignment="Left" CornerRadius="2"
+                                Background="{TemplateBinding Foreground}"/>
+                        <Border x:Name="PART_Track"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- Accent progress bar -->
     <Style x:Key="AccentProgressBar" TargetType="ProgressBar">
         <Setter Property="Height" Value="6"/>

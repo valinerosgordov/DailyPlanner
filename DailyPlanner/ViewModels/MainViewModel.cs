@@ -22,6 +22,12 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty] private bool _isPomodoroOpen;
     [ObservableProperty] private bool _isStatisticsOpen;
     [ObservableProperty] private bool _isFinanceOpen;
+
+    public bool IsMainNavVisible => !IsSettingsOpen && !IsStatisticsOpen && !IsFinanceOpen;
+
+    partial void OnIsSettingsOpenChanged(bool value) => OnPropertyChanged(nameof(IsMainNavVisible));
+    partial void OnIsStatisticsOpenChanged(bool value) => OnPropertyChanged(nameof(IsMainNavVisible));
+    partial void OnIsFinanceOpenChanged(bool value) => OnPropertyChanged(nameof(IsMainNavVisible));
     [ObservableProperty] private bool _isAutoStartEnabled;
     [ObservableProperty] private TaskCategory _filterCategory = TaskCategory.None;
     [ObservableProperty] private bool _isLoading;

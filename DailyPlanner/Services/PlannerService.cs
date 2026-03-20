@@ -574,11 +574,23 @@ public sealed class PlannerService
             if (cat is { IsArchived: true }) return;
         }
 
+        // Detach navigation properties to avoid tracking conflicts
+        var savedCategory = entry.Category;
+        var savedWeek = entry.Week;
+        var savedRecurring = entry.RecurringPayment;
+        entry.Category = null;
+        entry.Week = null;
+        entry.RecurringPayment = null;
+
         if (entry.Id == 0)
             db.FinanceEntries.Add(entry);
         else
             db.FinanceEntries.Update(entry);
         await db.SaveChangesAsync(ct);
+
+        entry.Category = savedCategory;
+        entry.Week = savedWeek;
+        entry.RecurringPayment = savedRecurring;
     }
 
     public async Task RemoveFinanceEntryAsync(int entryId, CancellationToken ct = default)
@@ -599,11 +611,16 @@ public sealed class PlannerService
     public async Task SaveBudgetAsync(FinanceBudget budget, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
+        var savedCategory = budget.Category;
+        budget.Category = null;
+
         if (budget.Id == 0)
             db.FinanceBudgets.Add(budget);
         else
             db.FinanceBudgets.Update(budget);
         await db.SaveChangesAsync(ct);
+
+        budget.Category = savedCategory;
     }
 
     public async Task RemoveBudgetAsync(int budgetId, CancellationToken ct = default)
@@ -626,11 +643,16 @@ public sealed class PlannerService
     public async Task SaveDebtAsync(Debt debt, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
+        var savedPayments = debt.Payments;
+        debt.Payments = [];
+
         if (debt.Id == 0)
             db.Debts.Add(debt);
         else
             db.Debts.Update(debt);
         await db.SaveChangesAsync(ct);
+
+        debt.Payments = savedPayments;
     }
 
     public async Task RemoveDebtAsync(int debtId, CancellationToken ct = default)
@@ -672,11 +694,19 @@ public sealed class PlannerService
     public async Task SaveRecurringPaymentAsync(RecurringPayment payment, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
+        var savedCategory = payment.Category;
+        var savedEntries = payment.GeneratedEntries;
+        payment.Category = null;
+        payment.GeneratedEntries = [];
+
         if (payment.Id == 0)
             db.RecurringPayments.Add(payment);
         else
             db.RecurringPayments.Update(payment);
         await db.SaveChangesAsync(ct);
+
+        payment.Category = savedCategory;
+        payment.GeneratedEntries = savedEntries;
     }
 
     public async Task RemoveRecurringPaymentAsync(int paymentId, CancellationToken ct = default)
@@ -693,12 +723,12 @@ public sealed class PlannerService
             .Where(rp => rp.IsActive && rp.AutoCreate && rp.StartDate <= to && (rp.EndDate == null || rp.EndDate >= from))
             .ToListAsync(ct);
 
-        var existingEntries = await db.FinanceEntries
+        var existingKeys = (await db.FinanceEntries
             .Where(e => e.RecurringPaymentId != null && e.Date >= from && e.Date <= to)
             .Select(e => new { e.RecurringPaymentId, e.Date })
-            .ToListAsync(ct);
+            .ToListAsync(ct))
+            .ToHashSet();
 
-        var existingSet = existingEntries.ToHashSet();
         var newEntries = new List<FinanceEntry>();
 
         foreach (var rp in payments)
@@ -712,7 +742,7 @@ public sealed class PlannerService
                     PaymentFrequency.Monthly => rp.DayOfMonth is not null && date.Day == rp.DayOfMonth,
                     PaymentFrequency.Weekly => rp.DayOfWeek is not null && date.DayOfWeek == rp.DayOfWeek,
                     PaymentFrequency.Biweekly => rp.DayOfWeek is not null && date.DayOfWeek == rp.DayOfWeek
-                        && Math.Abs(date.ToDateTime(TimeOnly.MinValue).Subtract(rp.StartDate.ToDateTime(TimeOnly.MinValue)).Days) % 14 < 7,
+                        && Math.Abs(date.ToDateTime(TimeOnly.MinValue).Subtract(rp.StartDate.ToDateTime(TimeOnly.MinValue)).Days) % 14 == 0,
                     PaymentFrequency.Quarterly => rp.DayOfMonth is not null && date.Day == rp.DayOfMonth
                         && ((date.Year - rp.StartDate.Year) * 12 + date.Month - rp.StartDate.Month) % 3 == 0,
                     PaymentFrequency.Yearly => rp.DayOfMonth is not null && date.Day == rp.DayOfMonth
@@ -721,7 +751,7 @@ public sealed class PlannerService
                 };
 
                 if (!match) continue;
-                if (existingSet.Any(e => e.RecurringPaymentId == rp.Id && e.Date == date)) continue;
+                if (!existingKeys.Add(new { RecurringPaymentId = (int?)rp.Id, Date = date })) continue;
 
                 newEntries.Add(new FinanceEntry
                 {

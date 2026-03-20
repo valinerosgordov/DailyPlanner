@@ -38,9 +38,13 @@ public sealed partial class FinanceViewModel : ObservableObject
         _service = service;
     }
 
+    private bool _isLoadingData;
+
     [RelayCommand]
     public async Task LoadDataAsync()
     {
+        if (_isLoadingData) return;
+        _isLoadingData = true;
         IsLoading = true;
         await _service.SeedFinanceCategoriesAsync();
 
@@ -138,6 +142,7 @@ public sealed partial class FinanceViewModel : ObservableObject
         }
         MonthlyObligatory = Math.Round(obligatory, 2);
         IsLoading = false;
+        _isLoadingData = false;
     }
 
     private async Task LoadCategoriesAsync()
@@ -160,15 +165,16 @@ public sealed partial class FinanceViewModel : ObservableObject
     private async Task AddIncomeEntryAsync()
     {
         if (IncomeCategories.Count == 0) return;
+        var cat = IncomeCategories[0];
         var entry = new FinanceEntry
         {
             Date = DateOnly.FromDateTime(DateTime.Today),
             Type = FinanceEntryType.Income,
-            CategoryId = IncomeCategories[0].Id,
-            Category = IncomeCategories[0].Model,
+            CategoryId = cat.Id,
             IsPaid = true
         };
         await _service.SaveFinanceEntryAsync(entry);
+        entry.Category = cat.Model;
         IncomeEntries.Add(new FinanceEntryViewModel(entry, _service));
     }
 
@@ -176,15 +182,16 @@ public sealed partial class FinanceViewModel : ObservableObject
     private async Task AddExpenseEntryAsync()
     {
         if (ExpenseCategories.Count == 0) return;
+        var cat = ExpenseCategories[0];
         var entry = new FinanceEntry
         {
             Date = DateOnly.FromDateTime(DateTime.Today),
             Type = FinanceEntryType.Expense,
-            CategoryId = ExpenseCategories[0].Id,
-            Category = ExpenseCategories[0].Model,
+            CategoryId = cat.Id,
             IsPaid = true
         };
         await _service.SaveFinanceEntryAsync(entry);
+        entry.Category = cat.Model;
         ExpenseEntries.Add(new FinanceEntryViewModel(entry, _service));
     }
 
@@ -245,6 +252,13 @@ public sealed partial class FinanceViewModel : ObservableObject
         };
         await _service.AddDebtPaymentAsync(payment);
         debtVm.AddPayment(payment);
+        RefreshDebtSummary();
+    }
+
+    private void RefreshDebtSummary()
+    {
+        DebtOwedToMe = LentDebts.Sum(d => d.RemainingAmount);
+        DebtIOwn = BorrowedDebts.Sum(d => d.RemainingAmount);
     }
 
     [RelayCommand]
@@ -253,11 +267,11 @@ public sealed partial class FinanceViewModel : ObservableObject
         var type = typeStr == "Income" ? FinanceEntryType.Income : FinanceEntryType.Expense;
         var categories = await _service.GetFinanceCategoriesAsync(type);
         if (categories.Count == 0) return;
+        var cat = categories[0];
         var rp = new RecurringPayment
         {
             Type = type,
-            CategoryId = categories[0].Id,
-            Category = categories[0],
+            CategoryId = cat.Id,
             Frequency = PaymentFrequency.Monthly,
             DayOfMonth = 1,
             StartDate = DateOnly.FromDateTime(DateTime.Today),
@@ -265,6 +279,7 @@ public sealed partial class FinanceViewModel : ObservableObject
             AutoCreate = true
         };
         await _service.SaveRecurringPaymentAsync(rp);
+        rp.Category = cat;
         RecurringPayments.Add(new RecurringPaymentViewModel(rp, _service));
     }
 
@@ -280,15 +295,20 @@ public sealed partial class FinanceViewModel : ObservableObject
     private async Task AddBudgetAsync()
     {
         if (ExpenseCategories.Count == 0) return;
+        // Find first category without a budget this month
         var monthYear = $"{SelectedYear:D4}-{SelectedMonth:D2}";
+        var usedCategoryIds = Budgets.Select(b => b.Model.CategoryId).ToHashSet();
+        var cat = ExpenseCategories.FirstOrDefault(c => !usedCategoryIds.Contains(c.Id));
+        if (cat is null) return; // All categories already have budgets
+
         var budget = new FinanceBudget
         {
-            CategoryId = ExpenseCategories[0].Id,
-            Category = ExpenseCategories[0].Model,
+            CategoryId = cat.Id,
             MonthYear = monthYear,
             Amount = 0
         };
         await _service.SaveBudgetAsync(budget);
+        budget.Category = cat.Model;
         Budgets.Add(new BudgetViewModel(budget, _service));
     }
 
