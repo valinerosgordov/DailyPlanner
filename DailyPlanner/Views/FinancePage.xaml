@@ -247,7 +247,7 @@
                         <TextBlock Text="{Binding [NoEntries], Source={x:Static svc:Loc.Instance}}"
                                    FontSize="12" Foreground="{DynamicResource MutedBrush}"
                                    HorizontalAlignment="Center" Margin="0,16"
-                                   Visibility="{Binding IncomeEntries.Count, Converter={StaticResource InvVisConv}}"/>
+                                   Visibility="{Binding HasIncomeEntries, Converter={StaticResource InvVisConv}}"/>
 
                         <ui:Button Content="{Binding [AddEntry], Source={x:Static svc:Loc.Instance}}"
                                    Icon="{ui:SymbolIcon Add24}" Appearance="Transparent"
@@ -309,7 +309,7 @@
                         <TextBlock Text="{Binding [NoEntries], Source={x:Static svc:Loc.Instance}}"
                                    FontSize="12" Foreground="{DynamicResource MutedBrush}"
                                    HorizontalAlignment="Center" Margin="0,16"
-                                   Visibility="{Binding ExpenseEntries.Count, Converter={StaticResource InvVisConv}}"/>
+                                   Visibility="{Binding HasExpenseEntries, Converter={StaticResource InvVisConv}}"/>
 
                         <ui:Button Content="{Binding [AddEntry], Source={x:Static svc:Loc.Instance}}"
                                    Icon="{ui:SymbolIcon Add24}" Appearance="Transparent"
@@ -367,7 +367,7 @@
                         <TextBlock Text="{Binding [NoEntries], Source={x:Static svc:Loc.Instance}}"
                                    FontSize="12" Foreground="{DynamicResource MutedBrush}"
                                    HorizontalAlignment="Center" Margin="0,12"
-                                   Visibility="{Binding Budgets.Count, Converter={StaticResource InvVisConv}}"/>
+                                   Visibility="{Binding HasBudgets, Converter={StaticResource InvVisConv}}"/>
 
                         <ui:Button Content="{Binding [AddBudget], Source={x:Static svc:Loc.Instance}}"
                                    Icon="{ui:SymbolIcon Add24}" Appearance="Transparent"
@@ -429,10 +429,11 @@
                                                            DockPanel.Dock="Right" Padding="4" VerticalAlignment="Top"
                                                            Command="{Binding DataContext.RemoveDebtCommand, RelativeSource={RelativeSource AncestorType=Page}}"
                                                            CommandParameter="{Binding}"/>
-                                                <TextBlock DockPanel.Dock="Right" FontSize="20" FontWeight="Bold"
-                                                           Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Top" Margin="8,0">
-                                                    <Run Text="{Binding Amount, StringFormat=N2, Mode=OneWay}"/>
-                                                </TextBlock>
+                                                <TextBox DockPanel.Dock="Right"
+                                                         Text="{Binding Amount, Converter={StaticResource CurrencyConv}, UpdateSourceTrigger=LostFocus}"
+                                                         Style="{StaticResource FinanceAmountTextBox}"
+                                                         Foreground="{DynamicResource SuccessBrush}"
+                                                         VerticalAlignment="Top" Margin="8,0"/>
                                                 <StackPanel>
                                                     <TextBox Text="{Binding PersonName, UpdateSourceTrigger=PropertyChanged}"
                                                              Style="{StaticResource FinanceInlineTextBox}"
@@ -467,7 +468,7 @@
                         <TextBlock Text="{Binding [NoEntries], Source={x:Static svc:Loc.Instance}}"
                                    FontSize="12" Foreground="{DynamicResource MutedBrush}"
                                    HorizontalAlignment="Center" Margin="0,8"
-                                   Visibility="{Binding LentDebts.Count, Converter={StaticResource InvVisConv}}"/>
+                                   Visibility="{Binding HasLentDebts, Converter={StaticResource InvVisConv}}"/>
 
                         <ui:Button Content="{Binding [AddDebt], Source={x:Static svc:Loc.Instance}}"
                                    Icon="{ui:SymbolIcon Add24}" Appearance="Transparent"
@@ -497,10 +498,11 @@
                                                            DockPanel.Dock="Right" Padding="4" VerticalAlignment="Top"
                                                            Command="{Binding DataContext.RemoveDebtCommand, RelativeSource={RelativeSource AncestorType=Page}}"
                                                            CommandParameter="{Binding}"/>
-                                                <TextBlock DockPanel.Dock="Right" FontSize="20" FontWeight="Bold"
-                                                           Foreground="{DynamicResource DangerBrush}" VerticalAlignment="Top" Margin="8,0">
-                                                    <Run Text="{Binding Amount, StringFormat=N2, Mode=OneWay}"/>
-                                                </TextBlock>
+                                                <TextBox DockPanel.Dock="Right"
+                                                         Text="{Binding Amount, Converter={StaticResource CurrencyConv}, UpdateSourceTrigger=LostFocus}"
+                                                         Style="{StaticResource FinanceAmountTextBox}"
+                                                         Foreground="{DynamicResource DangerBrush}"
+                                                         VerticalAlignment="Top" Margin="8,0"/>
                                                 <StackPanel>
                                                     <TextBox Text="{Binding PersonName, UpdateSourceTrigger=PropertyChanged}"
                                                              Style="{StaticResource FinanceInlineTextBox}"
@@ -535,7 +537,7 @@
                         <TextBlock Text="{Binding [NoEntries], Source={x:Static svc:Loc.Instance}}"
                                    FontSize="12" Foreground="{DynamicResource MutedBrush}"
                                    HorizontalAlignment="Center" Margin="0,8"
-                                   Visibility="{Binding BorrowedDebts.Count, Converter={StaticResource InvVisConv}}"/>
+                                   Visibility="{Binding HasBorrowedDebts, Converter={StaticResource InvVisConv}}"/>
 
                         <ui:Button Content="{Binding [AddDebt], Source={x:Static svc:Loc.Instance}}"
                                    Icon="{ui:SymbolIcon Add24}" Appearance="Transparent"
@@ -623,7 +625,7 @@
                         <TextBlock Text="{Binding [NoEntries], Source={x:Static svc:Loc.Instance}}"
                                    FontSize="12" Foreground="{DynamicResource MutedBrush}"
                                    HorizontalAlignment="Center" Margin="0,12"
-                                   Visibility="{Binding RecurringPayments.Count, Converter={StaticResource InvVisConv}}"/>
+                                   Visibility="{Binding HasRecurringPayments, Converter={StaticResource InvVisConv}}"/>
 
                         <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                             <ui:Button Content="{Binding [AddRecurring], Source={x:Static svc:Loc.Instance}}"
@@ -670,15 +672,9 @@
                                         <Border Background="{DynamicResource ProgressTrackBrush}" CornerRadius="3" Height="8">
                                             <Border CornerRadius="3" HorizontalAlignment="Left"
                                                     Height="8" MinWidth="4">
-                                                <Border.Style>
-                                                    <Style TargetType="Border">
-                                                        <Setter Property="Background">
-                                                            <Setter.Value>
-                                                                <SolidColorBrush Color="{Binding Color, FallbackValue=#cba6f7}"/>
-                                                            </Setter.Value>
-                                                        </Setter>
-                                                    </Style>
-                                                </Border.Style>
+                                                <Border.Background>
+                                                    <Binding Path="Color" Converter="{conv:StringToBrushConverter}" FallbackValue="#cba6f7"/>
+                                                </Border.Background>
                                                 <Border.Width>
                                                     <MultiBinding Converter="{conv:CategoryBarWidthConverter}">
                                                         <Binding Path="Amount"/>
@@ -696,7 +692,7 @@
                         <TextBlock Text="{Binding [NoEntries], Source={x:Static svc:Loc.Instance}}"
                                    FontSize="12" Foreground="{DynamicResource MutedBrush}"
                                    HorizontalAlignment="Center" Margin="0,12"
-                                   Visibility="{Binding CategoryBreakdown.Count, Converter={StaticResource InvVisConv}}"/>
+                                   Visibility="{Binding HasCategoryBreakdown, Converter={StaticResource InvVisConv}}"/>
                     </StackPanel>
                 </Border>
 
@@ -713,7 +709,7 @@
                         <ItemsControl ItemsSource="{Binding MonthlyTrend}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <UniformGrid Columns="{Binding MonthlyTrend.Count}" Rows="1"/>
+                                    <UniformGrid Columns="{Binding DataContext.MonthlyTrendCount, RelativeSource={RelativeSource AncestorType=Page}}" Rows="1"/>
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
@@ -745,7 +741,7 @@
                         <TextBlock Text="{Binding [NoEntries], Source={x:Static svc:Loc.Instance}}"
                                    FontSize="12" Foreground="{DynamicResource MutedBrush}"
                                    HorizontalAlignment="Center" Margin="0,12"
-                                   Visibility="{Binding MonthlyTrend.Count, Converter={StaticResource InvVisConv}}"/>
+                                   Visibility="{Binding HasMonthlyTrend, Converter={StaticResource InvVisConv}}"/>
                     </StackPanel>
                 </Border>
 
