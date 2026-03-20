@@ -22,7 +22,7 @@ public sealed partial class DebtViewModel : ObservableObject
         _isSettled = model.IsSettled;
 
         foreach (var p in model.Payments.OrderByDescending(p => p.Date))
-            Payments.Add(new DebtPaymentViewModel(p));
+            Payments.Add(new DebtPaymentViewModel(p, service, this));
     }
 
     public Debt Model => _model;
@@ -73,7 +73,7 @@ public sealed partial class DebtViewModel : ObservableObject
     public void AddPayment(DebtPayment payment)
     {
         _model.Payments.Add(payment);
-        Payments.Insert(0, new DebtPaymentViewModel(payment));
+        Payments.Insert(0, new DebtPaymentViewModel(payment, _service, this));
         RefreshComputed();
     }
 
