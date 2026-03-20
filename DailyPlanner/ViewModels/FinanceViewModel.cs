@@ -38,9 +38,32 @@ public sealed partial class FinanceViewModel : ObservableObject
     public ObservableCollection<CategoryBreakdownItem> CategoryBreakdown { get; } = [];
     public ObservableCollection<MonthlyFinanceSummary> MonthlyTrend { get; } = [];
 
+    // Empty state flags
+    public bool HasIncomeEntries => IncomeEntries.Count > 0;
+    public bool HasExpenseEntries => ExpenseEntries.Count > 0;
+    public bool HasBudgets => Budgets.Count > 0;
+    public bool HasLentDebts => LentDebts.Count > 0;
+    public bool HasBorrowedDebts => BorrowedDebts.Count > 0;
+    public bool HasRecurringPayments => RecurringPayments.Count > 0;
+    public bool HasCategoryBreakdown => CategoryBreakdown.Count > 0;
+    public bool HasMonthlyTrend => MonthlyTrend.Count > 0;
+    public int MonthlyTrendCount => MonthlyTrend.Count;
+
     public FinanceViewModel(PlannerService service)
     {
         _service = service;
+        IncomeEntries.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasIncomeEntries));
+        ExpenseEntries.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasExpenseEntries));
+        Budgets.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasBudgets));
+        LentDebts.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasLentDebts));
+        BorrowedDebts.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasBorrowedDebts));
+        RecurringPayments.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasRecurringPayments));
+        CategoryBreakdown.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasCategoryBreakdown));
+        MonthlyTrend.CollectionChanged += (_, _) =>
+        {
+            OnPropertyChanged(nameof(HasMonthlyTrend));
+            OnPropertyChanged(nameof(MonthlyTrendCount));
+        };
     }
 
     private bool _isLoadingData;
@@ -149,7 +172,7 @@ public sealed partial class FinanceViewModel : ObservableObject
 
         // Savings
         Savings = income - expenses;
-        SavingsRatePercent = income > 0 ? Math.Round((double)(Savings / income) * 100, 1) : 0;
+        SavingsRatePercent = income > 0 ? Math.Max(0, Math.Round((double)(Savings / income) * 100, 1)) : 0;
 
         // Analytics: category breakdown
         var breakdown = await _service.GetExpensesByCategoryAsync(firstDay, lastDay);
