@@ -63,12 +63,18 @@ public sealed class BudgetProgressToBrushConverter : IValueConverter
 public sealed class DecimalToCurrencyConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        => value is decimal d ? $"{d:N2}" : "0.00";
+        => value is decimal d ? d.ToString("N2", CultureInfo.InvariantCulture) : "0.00";
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (value is string s && decimal.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out var result))
-            return result;
+        if (value is string s)
+        {
+            // Try invariant first, then current culture
+            if (decimal.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out var result))
+                return result;
+            if (decimal.TryParse(s, NumberStyles.Any, CultureInfo.CurrentCulture, out result))
+                return result;
+        }
         return 0m;
     }
 }
@@ -98,6 +104,29 @@ public sealed class IntEqualConverter : MarkupExtension, IValueConverter
             return p;
         return System.Windows.Data.Binding.DoNothing;
     }
+
+    public override object ProvideValue(IServiceProvider serviceProvider) => this;
+}
+
+/// <summary>Converts a color hex string to SolidColorBrush.</summary>
+public sealed class StringToBrushConverter : MarkupExtension, IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is string s && !string.IsNullOrEmpty(s))
+        {
+            try
+            {
+                var color = (Color)ColorConverter.ConvertFromString(s);
+                return new SolidColorBrush(color);
+            }
+            catch { }
+        }
+        return new SolidColorBrush(Color.FromRgb(0xcb, 0xa6, 0xf7));
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
 
     public override object ProvideValue(IServiceProvider serviceProvider) => this;
 }
