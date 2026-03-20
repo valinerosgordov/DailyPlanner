@@ -102,9 +102,10 @@ public static class ExportService
             ws.Cell(row, 1).Value = habit.Name;
             var ordered = new[] { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday,
                 DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday };
+            var entryMap = habit.Entries.ToDictionary(e => e.DayOfWeek);
             for (var i = 0; i < ordered.Length; i++)
             {
-                var entry = habit.Entries.FirstOrDefault(e => e.DayOfWeek == ordered[i]);
+                entryMap.TryGetValue(ordered[i], out var entry);
                 ws.Cell(row, i + 2).Value = entry?.IsCompleted == true ? "\u2713" : "";
             }
             ws.Cell(row, 9).Value = $"{habit.Entries.Count(e => e.IsCompleted)}/7";

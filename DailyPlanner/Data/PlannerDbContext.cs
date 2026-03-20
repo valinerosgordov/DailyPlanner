@@ -131,6 +131,7 @@ public sealed class PlannerDbContext(DbContextOptions<PlannerDbContext> options)
             e.HasKey(fe => fe.Id);
             e.HasIndex(fe => fe.Date);
             e.HasIndex(fe => fe.CategoryId);
+            e.HasIndex(fe => fe.RecurringPaymentId);
             e.Property(fe => fe.Amount).HasColumnType("decimal(18,2)");
             e.Property(fe => fe.Description).HasMaxLength(500);
             e.HasOne(fe => fe.Week).WithMany().HasForeignKey(fe => fe.WeekId).OnDelete(DeleteBehavior.SetNull);
@@ -165,6 +166,8 @@ public sealed class PlannerDbContext(DbContextOptions<PlannerDbContext> options)
         modelBuilder.Entity<RecurringPayment>(e =>
         {
             e.HasKey(rp => rp.Id);
+            e.HasIndex(rp => rp.CategoryId);
+            e.HasIndex(rp => rp.IsActive);
             e.Property(rp => rp.Name).HasMaxLength(200);
             e.Property(rp => rp.Amount).HasColumnType("decimal(18,2)");
             e.Property(rp => rp.Note).HasMaxLength(1000);

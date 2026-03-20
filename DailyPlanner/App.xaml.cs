@@ -16,9 +16,7 @@ public partial class App : Application
             System.Diagnostics.Debug.WriteLine($"[App] Unhandled: {e.Exception}");
             try
             {
-                var logPath = System.IO.Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "DailyPlanner", "crash.log");
+                var logPath = System.IO.Path.Combine(PlannerDbContextFactory.AppDataFolder, "crash.log");
                 System.IO.File.AppendAllText(logPath,
                     $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {e.Exception}\n\n");
             }
@@ -104,14 +102,10 @@ public partial class App : Application
         {
             try
             {
-                var dbPath = System.IO.Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "DailyPlanner", "planner.db");
+                var dbPath = PlannerDbContextFactory.DbPath;
                 if (System.IO.File.Exists(dbPath))
                 {
-                    var backupDir = System.IO.Path.Combine(
-                        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                        "DailyPlanner", "backups");
+                    var backupDir = System.IO.Path.Combine(PlannerDbContextFactory.AppDataFolder, "backups");
                     System.IO.Directory.CreateDirectory(backupDir);
                     var backupName = $"planner_{DateTime.Now:yyyyMMdd_HHmmss}.db";
                     System.IO.File.Copy(dbPath, System.IO.Path.Combine(backupDir, backupName), true);

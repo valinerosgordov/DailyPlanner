@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DailyPlanner.Data;
 using DailyPlanner.Models;
 using DailyPlanner.Services;
 using Microsoft.Win32;
@@ -314,9 +315,7 @@ public sealed partial class MainViewModel : ObservableObject
         };
         if (dialog.ShowDialog() != true) return;
 
-        var dbPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "DailyPlanner", "planner.db");
+        var dbPath = PlannerDbContextFactory.DbPath;
         if (File.Exists(dbPath))
             File.Copy(dbPath, dialog.FileName, true);
     }
@@ -331,9 +330,7 @@ public sealed partial class MainViewModel : ObservableObject
         };
         if (dialog.ShowDialog() != true) return;
 
-        var dbPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "DailyPlanner", "planner.db");
+        var dbPath = PlannerDbContextFactory.DbPath;
 
         // Validate the backup file is a valid SQLite database
         try
@@ -360,10 +357,14 @@ public sealed partial class MainViewModel : ObservableObject
 
             File.Copy(dialog.FileName, dbPath, true);
 
-            var walPath = dbPath + "-wal";
-            var shmPath = dbPath + "-shm";
-            if (File.Exists(walPath)) File.Delete(walPath);
-            if (File.Exists(shmPath)) File.Delete(shmPath);
+            // WAL/SHM files may be briefly locked after pool clear
+            foreach (var suffix in new[] { "-wal", "-shm" })
+            {
+                var path = dbPath + suffix;
+                if (!File.Exists(path)) continue;
+                try { File.Delete(path); }
+                catch (IOException) { /* SQLite will recreate if needed */ }
+            }
         }
         catch (Exception ex)
         {
