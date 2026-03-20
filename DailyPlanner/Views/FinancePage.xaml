@@ -173,7 +173,7 @@
                 <Border Style="{StaticResource PlannerCard}" Padding="20">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-                            <ui:SymbolIcon Symbol="ArrowTrendingUp24" FontSize="18"
+                            <ui:SymbolIcon Symbol="ArrowTrendingLines24" FontSize="18"
                                            Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <TextBlock Text="{Binding [Income], Source={x:Static svc:Loc.Instance}}"
                                        FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
@@ -229,7 +229,7 @@
                 <Border Style="{StaticResource PlannerCard}" Padding="20" Margin="0,0,0,16">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-                            <ui:SymbolIcon Symbol="ArrowTrendingDown24" FontSize="18"
+                            <ui:SymbolIcon Symbol="DataBarVertical24" FontSize="18"
                                            Foreground="{DynamicResource DangerBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <TextBlock Text="{Binding [Expenses], Source={x:Static svc:Loc.Instance}}"
                                        FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
@@ -282,7 +282,7 @@
                 <Border Style="{StaticResource PlannerCard}" Padding="20">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-                            <ui:SymbolIcon Symbol="Gauge24" FontSize="18"
+                            <ui:SymbolIcon Symbol="DataPie24" FontSize="18"
                                            Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <TextBlock Text="{Binding [Budget], Source={x:Static svc:Loc.Instance}}"
                                        FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
@@ -369,7 +369,7 @@
                 <Border Style="{StaticResource PlannerCard}" Padding="20" Margin="0,0,0,16">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-                            <ui:SymbolIcon Symbol="ArrowUpRight24" FontSize="18"
+                            <ui:SymbolIcon Symbol="ArrowForward16" FontSize="18"
                                            Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <TextBlock Text="{Binding [DebtLent], Source={x:Static svc:Loc.Instance}}"
                                        FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
@@ -437,7 +437,7 @@
                 <Border Style="{StaticResource PlannerCard}" Padding="20">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-                            <ui:SymbolIcon Symbol="ArrowDownLeft24" FontSize="18"
+                            <ui:SymbolIcon Symbol="ArrowDownload24" FontSize="18"
                                            Foreground="{DynamicResource DangerBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <TextBlock Text="{Binding [DebtBorrowed], Source={x:Static svc:Loc.Instance}}"
                                        FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
