@@ -66,13 +66,23 @@
             <Setter Property="TextAlignment" Value="Right"/>
             <Setter Property="MinWidth" Value="80"/>
         </Style>
+
+        <!-- Compact DatePicker style -->
+        <Style x:Key="CompactDatePicker" TargetType="DatePicker">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Padding" Value="2,1"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="MinWidth" Value="90"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
     </Page.Resources>
 
     <Grid>
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="24,0,24,24" MaxWidth="960" HorizontalAlignment="Left">
 
-            <!-- Header with month navigation + export -->
+            <!-- Header with month navigation + export + import -->
             <DockPanel Margin="0,0,0,20">
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
                     <ui:Button Icon="{ui:SymbolIcon ChevronLeft24}" Appearance="Transparent"
@@ -83,10 +93,14 @@
                     <ui:Button Icon="{ui:SymbolIcon ChevronRight24}" Appearance="Transparent"
                                Command="{Binding NextMonthCommand}" Padding="8"/>
                 </StackPanel>
-                <ui:Button Content="{Binding [ExportFinance], Source={x:Static svc:Loc.Instance}}"
-                           Icon="{ui:SymbolIcon ArrowDownload24}" Appearance="Transparent"
-                           Command="{Binding ExportFinanceCommand}"
-                           HorizontalAlignment="Right" DockPanel.Dock="Right"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" DockPanel.Dock="Right">
+                    <ui:Button Content="{Binding [ImportFile], Source={x:Static svc:Loc.Instance}}"
+                               Icon="{ui:SymbolIcon ArrowUpload24}" Appearance="Transparent"
+                               Command="{Binding ImportFromFileCommand}" Margin="0,0,8,0"/>
+                    <ui:Button Content="{Binding [ExportFinance], Source={x:Static svc:Loc.Instance}}"
+                               Icon="{ui:SymbolIcon ArrowDownload24}" Appearance="Transparent"
+                               Command="{Binding ExportFinanceCommand}"/>
+                </StackPanel>
             </DockPanel>
 
             <!-- Summary Cards (5 cards) -->
@@ -164,34 +178,84 @@
                 </Border>
             </Grid>
 
-            <!-- Tab Strip (5 tabs) -->
-            <Border Style="{StaticResource PlannerCard}" Padding="4" Margin="0,0,0,20">
+            <!-- Tab Strip (7 tabs) -->
+            <Border Style="{StaticResource PlannerCard}" Padding="4" Margin="0,0,0,12">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
                 <StackPanel Orientation="Horizontal">
                     <RadioButton Content="{Binding [Income], Source={x:Static svc:Loc.Instance}}"
                                  Style="{StaticResource FinanceTabButton}"
                                  IsChecked="{Binding SelectedTabIndex, Converter={conv:IntEqualConverter}, ConverterParameter=0}"
-                                 GroupName="FinanceTab"
-                                 Checked="TabChanged" Tag="0"/>
+                                 GroupName="FinanceTab" Checked="TabChanged" Tag="0"/>
                     <RadioButton Content="{Binding [Expenses], Source={x:Static svc:Loc.Instance}}"
                                  Style="{StaticResource FinanceTabButton}"
                                  IsChecked="{Binding SelectedTabIndex, Converter={conv:IntEqualConverter}, ConverterParameter=1}"
-                                 GroupName="FinanceTab"
-                                 Checked="TabChanged" Tag="1"/>
+                                 GroupName="FinanceTab" Checked="TabChanged" Tag="1"/>
                     <RadioButton Content="{Binding [Debts], Source={x:Static svc:Loc.Instance}}"
                                  Style="{StaticResource FinanceTabButton}"
                                  IsChecked="{Binding SelectedTabIndex, Converter={conv:IntEqualConverter}, ConverterParameter=2}"
-                                 GroupName="FinanceTab"
-                                 Checked="TabChanged" Tag="2"/>
+                                 GroupName="FinanceTab" Checked="TabChanged" Tag="2"/>
                     <RadioButton Content="{Binding [RecurringPayments], Source={x:Static svc:Loc.Instance}}"
                                  Style="{StaticResource FinanceTabButton}"
                                  IsChecked="{Binding SelectedTabIndex, Converter={conv:IntEqualConverter}, ConverterParameter=3}"
-                                 GroupName="FinanceTab"
-                                 Checked="TabChanged" Tag="3"/>
-                    <RadioButton Content="{Binding [Analytics], Source={x:Static svc:Loc.Instance}}"
+                                 GroupName="FinanceTab" Checked="TabChanged" Tag="3"/>
+                    <RadioButton Content="{Binding [FinGoals], Source={x:Static svc:Loc.Instance}}"
                                  Style="{StaticResource FinanceTabButton}"
                                  IsChecked="{Binding SelectedTabIndex, Converter={conv:IntEqualConverter}, ConverterParameter=4}"
-                                 GroupName="FinanceTab"
-                                 Checked="TabChanged" Tag="4"/>
+                                 GroupName="FinanceTab" Checked="TabChanged" Tag="4"/>
+                    <RadioButton Content="{Binding [Accounts], Source={x:Static svc:Loc.Instance}}"
+                                 Style="{StaticResource FinanceTabButton}"
+                                 IsChecked="{Binding SelectedTabIndex, Converter={conv:IntEqualConverter}, ConverterParameter=5}"
+                                 GroupName="FinanceTab" Checked="TabChanged" Tag="5"/>
+                    <RadioButton Content="{Binding [Analytics], Source={x:Static svc:Loc.Instance}}"
+                                 Style="{StaticResource FinanceTabButton}"
+                                 IsChecked="{Binding SelectedTabIndex, Converter={conv:IntEqualConverter}, ConverterParameter=6}"
+                                 GroupName="FinanceTab" Checked="TabChanged" Tag="6"/>
+                </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- ═══ Filter Bar (shown on Income/Expenses tabs) ═══ -->
+            <Border Style="{StaticResource PlannerCard}" Padding="12,8" Margin="0,0,0,12"
+                    Visibility="{Binding SelectedTabIndex, Converter={conv:IntToVisibilityConverter}, ConverterParameter=0}">
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Search24" FontSize="14" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <ui:TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                               PlaceholderText="{Binding [SearchPlaceholder], Source={x:Static svc:Loc.Instance}}"
+                               MinWidth="150" FontSize="12" Padding="6,4"/>
+                    <TextBlock Text="{Binding [DateFrom], Source={x:Static svc:Loc.Instance}}"
+                               FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="16,0,6,0"/>
+                    <DatePicker SelectedDate="{Binding FilterDateFrom, Converter={conv:NullableDateOnlyToDateTimeConverter}}"
+                                Style="{StaticResource CompactDatePicker}"/>
+                    <TextBlock Text="{Binding [DateTo], Source={x:Static svc:Loc.Instance}}"
+                               FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="12,0,6,0"/>
+                    <DatePicker SelectedDate="{Binding FilterDateTo, Converter={conv:NullableDateOnlyToDateTimeConverter}}"
+                                Style="{StaticResource CompactDatePicker}"/>
+                    <ui:Button Content="{Binding [ClearFilter], Source={x:Static svc:Loc.Instance}}"
+                               Appearance="Transparent" FontSize="11" Padding="8,3"
+                               Command="{Binding ClearFilterCommand}" Margin="12,0,0,0"
+                               Visibility="{Binding IsFilterActive, Converter={StaticResource VisConv}}"/>
+                </StackPanel>
+            </Border>
+            <!-- Duplicate filter bar for expenses tab -->
+            <Border Style="{StaticResource PlannerCard}" Padding="12,8" Margin="0,0,0,12"
+                    Visibility="{Binding SelectedTabIndex, Converter={conv:IntToVisibilityConverter}, ConverterParameter=1}">
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Search24" FontSize="14" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <ui:TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                               PlaceholderText="{Binding [SearchPlaceholder], Source={x:Static svc:Loc.Instance}}"
+                               MinWidth="150" FontSize="12" Padding="6,4"/>
+                    <TextBlock Text="{Binding [DateFrom], Source={x:Static svc:Loc.Instance}}"
+                               FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="16,0,6,0"/>
+                    <DatePicker SelectedDate="{Binding FilterDateFrom, Converter={conv:NullableDateOnlyToDateTimeConverter}}"
+                                Style="{StaticResource CompactDatePicker}"/>
+                    <TextBlock Text="{Binding [DateTo], Source={x:Static svc:Loc.Instance}}"
+                               FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="12,0,6,0"/>
+                    <DatePicker SelectedDate="{Binding FilterDateTo, Converter={conv:NullableDateOnlyToDateTimeConverter}}"
+                                Style="{StaticResource CompactDatePicker}"/>
+                    <ui:Button Content="{Binding [ClearFilter], Source={x:Static svc:Loc.Instance}}"
+                               Appearance="Transparent" FontSize="11" Padding="8,3"
+                               Command="{Binding ClearFilterCommand}" Margin="12,0,0,0"
+                               Visibility="{Binding IsFilterActive, Converter={StaticResource VisConv}}"/>
                 </StackPanel>
             </Border>
 
@@ -206,11 +270,12 @@
                                        FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
                         </StackPanel>
 
-                        <ItemsControl ItemsSource="{Binding IncomeEntries}">
+                        <ItemsControl ItemsSource="{Binding FilteredIncomeEntries}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Background="{DynamicResource InputBgBrush}" CornerRadius="10"
                                             Padding="14,10" Margin="0,0,0,6">
+                                        <StackPanel>
                                         <DockPanel>
                                             <TextBlock Text="{Binding CategoryIcon}" FontSize="20"
                                                        VerticalAlignment="Center" Margin="0,0,12,0"/>
@@ -233,12 +298,32 @@
                                                               DisplayMemberPath="Name"
                                                               FontSize="11" Padding="4,1" MinWidth="100"
                                                               Background="Transparent" BorderThickness="0"/>
-                                                    <TextBlock FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="8,0,0,0">
-                                                        <Run Text="{Binding DisplayDate, Mode=OneWay}"/>
-                                                    </TextBlock>
+                                                    <DatePicker SelectedDate="{Binding Date, Converter={conv:DateOnlyToDateTimeConverter}}"
+                                                                Style="{StaticResource CompactDatePicker}" Margin="8,0,0,0"/>
                                                 </StackPanel>
                                             </StackPanel>
                                         </DockPanel>
+                                        <!-- Split entries -->
+                                        <ItemsControl ItemsSource="{Binding SplitEntries}" Margin="32,4,0,0"
+                                                      Visibility="{Binding HasSplits, Converter={StaticResource VisConv}}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" Margin="0,2">
+                                                        <TextBlock Text="├" FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,0,6,0"/>
+                                                        <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
+                                                                 Style="{StaticResource FinanceInlineTextBox}" FontSize="11" MinWidth="80"/>
+                                                        <TextBox Text="{Binding Amount, Converter={StaticResource CurrencyConv}, UpdateSourceTrigger=LostFocus}"
+                                                                 Style="{StaticResource FinanceInlineTextBox}" FontSize="11" MinWidth="60"
+                                                                 TextAlignment="Right" Margin="8,0"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <ui:Button Content="{Binding [AddSplit], Source={x:Static svc:Loc.Instance}}"
+                                                   Appearance="Transparent" FontSize="10" Padding="4,2" Margin="32,2,0,0"
+                                                   Command="{Binding DataContext.AddSplitEntryCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                   CommandParameter="{Binding}"/>
+                                        </StackPanel>
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -247,7 +332,7 @@
                         <TextBlock Text="{Binding [NoEntries], Source={x:Static svc:Loc.Instance}}"
                                    FontSize="12" Foreground="{DynamicResource MutedBrush}"
                                    HorizontalAlignment="Center" Margin="0,16"
-                                   Visibility="{Binding HasIncomeEntries, Converter={StaticResource InvVisConv}}"/>
+                                   Visibility="{Binding HasFilteredIncome, Converter={StaticResource InvVisConv}}"/>
 
                         <ui:Button Content="{Binding [AddEntry], Source={x:Static svc:Loc.Instance}}"
                                    Icon="{ui:SymbolIcon Add24}" Appearance="Transparent"
@@ -268,11 +353,12 @@
                                        FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
                         </StackPanel>
 
-                        <ItemsControl ItemsSource="{Binding ExpenseEntries}">
+                        <ItemsControl ItemsSource="{Binding FilteredExpenseEntries}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Background="{DynamicResource InputBgBrush}" CornerRadius="10"
                                             Padding="14,10" Margin="0,0,0,6">
+                                        <StackPanel>
                                         <DockPanel>
                                             <TextBlock Text="{Binding CategoryIcon}" FontSize="20"
                                                        VerticalAlignment="Center" Margin="0,0,12,0"/>
@@ -295,12 +381,32 @@
                                                               DisplayMemberPath="Name"
                                                               FontSize="11" Padding="4,1" MinWidth="100"
                                                               Background="Transparent" BorderThickness="0"/>
-                                                    <TextBlock FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="8,0,0,0">
-                                                        <Run Text="{Binding DisplayDate, Mode=OneWay}"/>
-                                                    </TextBlock>
+                                                    <DatePicker SelectedDate="{Binding Date, Converter={conv:DateOnlyToDateTimeConverter}}"
+                                                                Style="{StaticResource CompactDatePicker}" Margin="8,0,0,0"/>
                                                 </StackPanel>
                                             </StackPanel>
                                         </DockPanel>
+                                        <!-- Split entries -->
+                                        <ItemsControl ItemsSource="{Binding SplitEntries}" Margin="32,4,0,0"
+                                                      Visibility="{Binding HasSplits, Converter={StaticResource VisConv}}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" Margin="0,2">
+                                                        <TextBlock Text="├" FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,0,6,0"/>
+                                                        <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
+                                                                 Style="{StaticResource FinanceInlineTextBox}" FontSize="11" MinWidth="80"/>
+                                                        <TextBox Text="{Binding Amount, Converter={StaticResource CurrencyConv}, UpdateSourceTrigger=LostFocus}"
+                                                                 Style="{StaticResource FinanceInlineTextBox}" FontSize="11" MinWidth="60"
+                                                                 TextAlignment="Right" Margin="8,0"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <ui:Button Content="{Binding [AddSplit], Source={x:Static svc:Loc.Instance}}"
+                                                   Appearance="Transparent" FontSize="10" Padding="4,2" Margin="32,2,0,0"
+                                                   Command="{Binding DataContext.AddSplitEntryCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                   CommandParameter="{Binding}"/>
+                                        </StackPanel>
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -309,7 +415,7 @@
                         <TextBlock Text="{Binding [NoEntries], Source={x:Static svc:Loc.Instance}}"
                                    FontSize="12" Foreground="{DynamicResource MutedBrush}"
                                    HorizontalAlignment="Center" Margin="0,16"
-                                   Visibility="{Binding HasExpenseEntries, Converter={StaticResource InvVisConv}}"/>
+                                   Visibility="{Binding HasFilteredExpense, Converter={StaticResource InvVisConv}}"/>
 
                         <ui:Button Content="{Binding [AddEntry], Source={x:Static svc:Loc.Instance}}"
                                    Icon="{ui:SymbolIcon Add24}" Appearance="Transparent"
@@ -354,7 +460,6 @@
                                                          Height="4" Margin="0,8,0,0"
                                                          Foreground="{Binding ProgressPercent, Converter={StaticResource BudgetBrushConv}}"
                                                          Style="{DynamicResource BudgetProgressBar}"/>
-                                            <!-- Budget warning -->
                                             <TextBlock Text="{Binding WarningText}" FontSize="11" FontWeight="SemiBold"
                                                        Foreground="{DynamicResource WarningBrush}" Margin="0,4,0,0"
                                                        Visibility="{Binding ShowWarning, Converter={StaticResource VisConv}}"/>
@@ -441,6 +546,13 @@
                                                     <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
                                                              Style="{StaticResource FinanceInlineTextBox}"
                                                              FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
+                                                    <!-- DueDate picker -->
+                                                    <StackPanel Orientation="Horizontal" Margin="4,4,0,0">
+                                                        <TextBlock Text="{Binding [DueDate], Source={x:Static svc:Loc.Instance}}"
+                                                                   FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                        <DatePicker SelectedDate="{Binding DueDate, Converter={conv:NullableDateOnlyToDateTimeConverter}}"
+                                                                    Style="{StaticResource CompactDatePicker}"/>
+                                                    </StackPanel>
                                                 </StackPanel>
                                             </DockPanel>
                                             <ProgressBar Value="{Binding ProgressPercent}" Maximum="100"
@@ -510,6 +622,13 @@
                                                     <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
                                                              Style="{StaticResource FinanceInlineTextBox}"
                                                              FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
+                                                    <!-- DueDate picker -->
+                                                    <StackPanel Orientation="Horizontal" Margin="4,4,0,0">
+                                                        <TextBlock Text="{Binding [DueDate], Source={x:Static svc:Loc.Instance}}"
+                                                                   FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                        <DatePicker SelectedDate="{Binding DueDate, Converter={conv:NullableDateOnlyToDateTimeConverter}}"
+                                                                    Style="{StaticResource CompactDatePicker}"/>
+                                                    </StackPanel>
                                                 </StackPanel>
                                             </DockPanel>
                                             <ProgressBar Value="{Binding ProgressPercent}" Maximum="100"
@@ -588,7 +707,6 @@
                                                     <Run Text=" · "/>
                                                     <Run Text="{Binding CategoryName, Mode=OneWay}"/>
                                                 </TextBlock>
-                                                <!-- Next payment + annual total -->
                                                 <StackPanel Orientation="Horizontal" Margin="4,2,0,0">
                                                     <TextBlock FontSize="10" Foreground="{DynamicResource InfoBrush}"
                                                                Text="{Binding NextPaymentDate, Mode=OneWay}"
@@ -640,10 +758,310 @@
                 </Border>
             </StackPanel>
 
-            <!-- ═══════════════ TAB 4: Analytics ═══════════════ -->
+            <!-- ═══════════════ TAB 4: Financial Goals ═══════════════ -->
             <StackPanel Visibility="{Binding SelectedTabIndex, Converter={conv:IntToVisibilityConverter}, ConverterParameter=4}">
+                <Border Style="{StaticResource PlannerCard}" Padding="20">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                            <TextBlock Text="🎯" FontSize="18" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBlock Text="{Binding [FinGoals], Source={x:Static svc:Loc.Instance}}"
+                                       FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
 
-                <!-- Category Breakdown (horizontal bars) -->
+                        <ItemsControl ItemsSource="{Binding FinancialGoals}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource InputBgBrush}" CornerRadius="10"
+                                            Padding="16,14" Margin="0,0,0,8">
+                                        <StackPanel>
+                                            <DockPanel>
+                                                <TextBlock Text="{Binding Icon}" FontSize="22" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                                <ui:Button Icon="{ui:SymbolIcon Delete24}" Appearance="Transparent"
+                                                           DockPanel.Dock="Right" Padding="4" VerticalAlignment="Top"
+                                                           Command="{Binding DataContext.RemoveFinancialGoalCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                           CommandParameter="{Binding}"/>
+                                                <StackPanel>
+                                                    <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                                                             Style="{StaticResource FinanceInlineTextBox}"
+                                                             FontSize="15" FontWeight="SemiBold"/>
+                                                    <Grid Margin="0,6,0,0">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="12"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="12"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <StackPanel Grid.Column="0">
+                                                            <TextBlock Text="{Binding [TargetAmount], Source={x:Static svc:Loc.Instance}}"
+                                                                       FontSize="10" Foreground="{DynamicResource MutedBrush}"/>
+                                                            <TextBox Text="{Binding TargetAmount, Converter={StaticResource CurrencyConv}, UpdateSourceTrigger=LostFocus}"
+                                                                     Style="{StaticResource FinanceInlineTextBox}" FontSize="13" MinWidth="80"/>
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="2">
+                                                            <TextBlock Text="{Binding [SavedAmount], Source={x:Static svc:Loc.Instance}}"
+                                                                       FontSize="10" Foreground="{DynamicResource MutedBrush}"/>
+                                                            <TextBox Text="{Binding SavedAmount, Converter={StaticResource CurrencyConv}, UpdateSourceTrigger=LostFocus}"
+                                                                     Style="{StaticResource FinanceInlineTextBox}" FontSize="13" MinWidth="80"
+                                                                     Foreground="{DynamicResource SuccessBrush}"/>
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="4">
+                                                            <TextBlock Text="{Binding [TargetDate], Source={x:Static svc:Loc.Instance}}"
+                                                                       FontSize="10" Foreground="{DynamicResource MutedBrush}"/>
+                                                            <DatePicker SelectedDate="{Binding TargetDate, Converter={conv:NullableDateOnlyToDateTimeConverter}}"
+                                                                        Style="{StaticResource CompactDatePicker}"/>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </StackPanel>
+                                            </DockPanel>
+                                            <ProgressBar Value="{Binding ProgressPercent}" Maximum="100"
+                                                         Height="6" Margin="0,10,0,4"
+                                                         Style="{DynamicResource AccentProgressBar}"/>
+                                            <DockPanel>
+                                                <TextBlock Text="{Binding ProgressText}" FontSize="11"
+                                                           Foreground="{DynamicResource AccentBrush}"/>
+                                                <TextBlock DockPanel.Dock="Right" HorizontalAlignment="Right"
+                                                           FontSize="11" Foreground="{DynamicResource MutedBrush}">
+                                                    <Run Text="{Binding [FinRemaining], Source={x:Static svc:Loc.Instance}, Mode=OneWay}"/>
+                                                    <Run Text=": "/>
+                                                    <Run Text="{Binding RemainingAmount, StringFormat=N2, Mode=OneWay}"/>
+                                                </TextBlock>
+                                            </DockPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <TextBlock Text="{Binding [NoFinGoals], Source={x:Static svc:Loc.Instance}}"
+                                   FontSize="12" Foreground="{DynamicResource MutedBrush}"
+                                   HorizontalAlignment="Center" Margin="0,12"
+                                   Visibility="{Binding HasFinancialGoals, Converter={StaticResource InvVisConv}}"/>
+
+                        <ui:Button Content="{Binding [AddFinGoal], Source={x:Static svc:Loc.Instance}}"
+                                   Icon="{ui:SymbolIcon Add24}" Appearance="Transparent"
+                                   Command="{Binding AddFinancialGoalCommand}" Margin="0,6,0,0"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- ═══════════════ TAB 5: Accounts ═══════════════ -->
+            <StackPanel Visibility="{Binding SelectedTabIndex, Converter={conv:IntToVisibilityConverter}, ConverterParameter=5}">
+                <!-- Account cards -->
+                <Border Style="{StaticResource PlannerCard}" Padding="20" Margin="0,0,0,16">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                            <TextBlock Text="💳" FontSize="18" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBlock Text="{Binding [Accounts], Source={x:Static svc:Loc.Instance}}"
+                                       FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <ItemsControl ItemsSource="{Binding Accounts}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource InputBgBrush}" CornerRadius="10"
+                                            Padding="16,12" Margin="0,0,0,8">
+                                        <DockPanel>
+                                            <TextBlock Text="{Binding Icon}" FontSize="24" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                                            <ui:Button Icon="{ui:SymbolIcon Delete24}" Appearance="Transparent"
+                                                       DockPanel.Dock="Right" Padding="4" VerticalAlignment="Center"
+                                                       Command="{Binding DataContext.RemoveAccountCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                       CommandParameter="{Binding}"/>
+                                            <StackPanel>
+                                                <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                                                         Style="{StaticResource FinanceInlineTextBox}"
+                                                         FontSize="15" FontWeight="SemiBold"/>
+                                                <TextBlock FontSize="22" FontWeight="Bold"
+                                                           Foreground="{DynamicResource AccentBrush}" Margin="4,4,0,0">
+                                                    <Run Text="{Binding CurrentBalance, StringFormat=N2, Mode=OneWay}"/>
+                                                </TextBlock>
+                                                <StackPanel Orientation="Horizontal" Margin="4,4,0,0">
+                                                    <TextBlock Text="{Binding [InitialBalance], Source={x:Static svc:Loc.Instance}}"
+                                                               FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                    <TextBox Text="{Binding InitialBalance, Converter={StaticResource CurrencyConv}, UpdateSourceTrigger=LostFocus}"
+                                                             Style="{StaticResource FinanceInlineTextBox}" FontSize="11" MinWidth="80"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </DockPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <TextBlock Text="{Binding [NoAccounts], Source={x:Static svc:Loc.Instance}}"
+                                   FontSize="12" Foreground="{DynamicResource MutedBrush}"
+                                   HorizontalAlignment="Center" Margin="0,12"
+                                   Visibility="{Binding HasAccounts, Converter={StaticResource InvVisConv}}"/>
+
+                        <ui:Button Content="{Binding [AddAccount], Source={x:Static svc:Loc.Instance}}"
+                                   Icon="{ui:SymbolIcon Add24}" Appearance="Transparent"
+                                   Command="{Binding AddAccountCommand}" Margin="0,6,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Transfers -->
+                <Border Style="{StaticResource PlannerCard}" Padding="20">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                            <ui:SymbolIcon Symbol="ArrowSync24" FontSize="18"
+                                           Foreground="{DynamicResource InfoBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBlock Text="{Binding [Transfer], Source={x:Static svc:Loc.Instance}}"
+                                       FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <ItemsControl ItemsSource="{Binding Transfers}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource InputBgBrush}" CornerRadius="10"
+                                            Padding="14,10" Margin="0,0,0,6">
+                                        <DockPanel>
+                                            <ui:Button Icon="{ui:SymbolIcon Delete24}" Appearance="Transparent"
+                                                       DockPanel.Dock="Right" Padding="4" VerticalAlignment="Center"
+                                                       Command="{Binding DataContext.RemoveTransferCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                       CommandParameter="{Binding}"/>
+                                            <TextBox DockPanel.Dock="Right"
+                                                     Text="{Binding Amount, Converter={StaticResource CurrencyConv}, UpdateSourceTrigger=LostFocus}"
+                                                     Style="{StaticResource FinanceAmountTextBox}"
+                                                     Foreground="{DynamicResource InfoBrush}"
+                                                     VerticalAlignment="Center" Margin="8,0"/>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock FontSize="13">
+                                                    <Run Text="{Binding FromIcon, Mode=OneWay}"/>
+                                                    <Run Text="{Binding FromAccountName, Mode=OneWay}"/>
+                                                    <Run Text=" → "/>
+                                                    <Run Text="{Binding ToIcon, Mode=OneWay}"/>
+                                                    <Run Text="{Binding ToAccountName, Mode=OneWay}"/>
+                                                </TextBlock>
+                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                    <DatePicker SelectedDate="{Binding Date, Converter={conv:DateOnlyToDateTimeConverter}}"
+                                                                Style="{StaticResource CompactDatePicker}"/>
+                                                    <TextBox Text="{Binding Note, UpdateSourceTrigger=PropertyChanged}"
+                                                             Style="{StaticResource FinanceInlineTextBox}" FontSize="11"
+                                                             Foreground="{DynamicResource MutedBrush}" Margin="8,0,0,0"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </DockPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <TextBlock Text="{Binding [NoEntries], Source={x:Static svc:Loc.Instance}}"
+                                   FontSize="12" Foreground="{DynamicResource MutedBrush}"
+                                   HorizontalAlignment="Center" Margin="0,12"
+                                   Visibility="{Binding HasTransfers, Converter={StaticResource InvVisConv}}"/>
+
+                        <ui:Button Content="{Binding [AddTransfer], Source={x:Static svc:Loc.Instance}}"
+                                   Icon="{ui:SymbolIcon Add24}" Appearance="Transparent"
+                                   Command="{Binding AddTransferCommand}" Margin="0,6,0,0"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- ═══════════════ TAB 6: Analytics ═══════════════ -->
+            <StackPanel Visibility="{Binding SelectedTabIndex, Converter={conv:IntToVisibilityConverter}, ConverterParameter=6}">
+
+                <!-- Balance Forecast -->
+                <Border Style="{StaticResource PlannerCard}" Padding="20" Margin="0,0,0,16">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                            <ui:SymbolIcon Symbol="ArrowTrendingLines24" FontSize="18"
+                                           Foreground="{DynamicResource InfoBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBlock Text="{Binding [ForecastBalance], Source={x:Static svc:Loc.Instance}}"
+                                       FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <TextBlock FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="12,0,0,0"
+                                       Text="{Binding [ForecastDays], Source={x:Static svc:Loc.Instance}}"/>
+                        </StackPanel>
+
+                        <!-- Forecast summary -->
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding [ProjectedIncome], Source={x:Static svc:Loc.Instance}}"
+                                           FontSize="10" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding ProjectedIncome, StringFormat=N2}" FontSize="16" FontWeight="Bold"
+                                           Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding [ProjectedExpenses], Source={x:Static svc:Loc.Instance}}"
+                                           FontSize="10" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding ProjectedExpenses, StringFormat=N2}" FontSize="16" FontWeight="Bold"
+                                           Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding [Forecast], Source={x:Static svc:Loc.Instance}}"
+                                           FontSize="10" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding ForecastBalance, StringFormat=N2}" FontSize="16" FontWeight="Bold"
+                                           Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Forecast bar chart -->
+                        <ItemsControl ItemsSource="{Binding ForecastDays}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Rows="1"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="1,0" ToolTip="{Binding Balance, StringFormat=N2}">
+                                        <Border Height="3" CornerRadius="1"
+                                                Background="{DynamicResource AccentBrush}" Opacity="0.5"
+                                                VerticalAlignment="Bottom"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- Cashflow Calendar -->
+                <Border Style="{StaticResource PlannerCard}" Padding="20" Margin="0,0,0,16">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                            <ui:SymbolIcon Symbol="CalendarLtr24" FontSize="18"
+                                           Foreground="{DynamicResource WarningBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBlock Text="{Binding [CashflowCalendar], Source={x:Static svc:Loc.Instance}}"
+                                       FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <ItemsControl ItemsSource="{Binding CashflowDays}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Width="42" Height="48" Margin="2" CornerRadius="6"
+                                            Background="{DynamicResource InputBgBrush}"
+                                            ToolTip="{Binding Net, StringFormat=N2}">
+                                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                            <TextBlock Text="{Binding DayLabel}" FontSize="12" FontWeight="SemiBold"
+                                                       HorizontalAlignment="Center"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                <Ellipse Width="5" Height="5" Margin="1"
+                                                         Fill="{DynamicResource SuccessBrush}"
+                                                         Visibility="{Binding Income, Converter={conv:DecimalToVisibilityConverter}}"/>
+                                                <Ellipse Width="5" Height="5" Margin="1"
+                                                         Fill="{DynamicResource DangerBrush}"
+                                                         Visibility="{Binding Expenses, Converter={conv:DecimalToVisibilityConverter}}"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- Category Breakdown -->
                 <Border Style="{StaticResource PlannerCard}" Padding="20" Margin="0,0,0,16">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
@@ -696,7 +1114,7 @@
                     </StackPanel>
                 </Border>
 
-                <!-- 6-Month Income/Expense Trend (bar chart) -->
+                <!-- 6-Month Trend -->
                 <Border Style="{StaticResource PlannerCard}" Padding="20" Margin="0,0,0,16">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
@@ -715,12 +1133,10 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Margin="4,0">
-                                        <!-- Income bar -->
                                         <Border Background="{DynamicResource SuccessBrush}" CornerRadius="4,4,0,0"
                                                 Height="{Binding Income, Converter={conv:TrendBarHeightConverter}}"
                                                 VerticalAlignment="Bottom" Opacity="0.7"
                                                 ToolTip="{Binding Income, StringFormat=N2}"/>
-                                        <!-- Expense bar -->
                                         <Border Background="{DynamicResource DangerBrush}" CornerRadius="0,0,4,4"
                                                 Height="{Binding Expenses, Converter={conv:TrendBarHeightConverter}}"
                                                 VerticalAlignment="Top" Opacity="0.7"
