@@ -20,7 +20,7 @@ public sealed class PlannerService
             .Include(w => w.Habits.OrderBy(h => h.Order))
                 .ThenInclude(h => h.Entries)
             .Include(w => w.WeeklyNotes.OrderBy(n => n.Order))
-            .FirstOrDefaultAsync(w => w.StartDate == startDate, ct);
+            .FirstOrDefaultAsync(w => w.StartDate == startDate, ct).ConfigureAwait(false);
 
         if (week is not null)
         {
@@ -30,7 +30,7 @@ public sealed class PlannerService
             {
                 foreach (var day in missingStates)
                     day.State = new DailyState();
-                await db.SaveChangesAsync(ct);
+                await db.SaveChangesAsync(ct).ConfigureAwait(false);
             }
             return week;
         }
@@ -58,7 +58,7 @@ public sealed class PlannerService
             .Include(w => w.Habits)
             .Where(w => w.StartDate < startDate)
             .OrderByDescending(w => w.StartDate)
-            .FirstOrDefaultAsync(ct);
+            .FirstOrDefaultAsync(ct).ConfigureAwait(false);
 
         var prevHabits = prevWeek?.Habits
             .Where(h => !string.IsNullOrWhiteSpace(h.Name))
@@ -80,7 +80,7 @@ public sealed class PlannerService
         }
 
         db.Weeks.Add(week);
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
 
         return week;
     }
@@ -90,47 +90,47 @@ public sealed class PlannerService
     {
         await using var db = PlannerDbContextFactory.Create();
         db.DailyTasks.Update(task);
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task AddSubTaskAsync(DailyTask subTask, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
         db.DailyTasks.Add(subTask);
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task RemoveSubTaskAsync(int subTaskId, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        var task = await db.DailyTasks.FindAsync([subTaskId], ct);
+        var task = await db.DailyTasks.FindAsync([subTaskId], ct).ConfigureAwait(false);
         if (task is not null)
         {
             db.DailyTasks.Remove(task);
-            await db.SaveChangesAsync(ct);
+            await db.SaveChangesAsync(ct).ConfigureAwait(false);
         }
     }
 
     public async Task RemoveTaskAsync(int taskId, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        var task = await db.DailyTasks.Include(t => t.SubTasks).FirstOrDefaultAsync(t => t.Id == taskId, ct);
+        var task = await db.DailyTasks.Include(t => t.SubTasks).FirstOrDefaultAsync(t => t.Id == taskId, ct).ConfigureAwait(false);
         if (task is null) return;
 
         if (task.SubTasks.Count > 0)
             db.DailyTasks.RemoveRange(task.SubTasks);
         db.DailyTasks.Remove(task);
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task MoveTaskToNextDayAsync(int taskId, DateOnly targetDate, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        var task = await db.DailyTasks.Include(t => t.SubTasks).FirstOrDefaultAsync(t => t.Id == taskId, ct);
+        var task = await db.DailyTasks.Include(t => t.SubTasks).FirstOrDefaultAsync(t => t.Id == taskId, ct).ConfigureAwait(false);
         if (task is null) return;
 
         var targetDay = await db.DailyPlans.Include(d => d.Tasks)
-            .FirstOrDefaultAsync(d => d.Date == targetDate, ct);
+            .FirstOrDefaultAsync(d => d.Date == targetDate, ct).ConfigureAwait(false);
         if (targetDay is null) return;
 
         // Try to fill an empty slot first (so the task doesn't land at the bottom)
@@ -162,7 +162,7 @@ public sealed class PlannerService
             };
             db.DailyTasks.Add(targetTask);
         }
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
 
         // Move subtasks (preserve all properties)
         foreach (var sub in task.SubTasks.OrderBy(s => s.Order))
@@ -183,28 +183,28 @@ public sealed class PlannerService
         if (task.SubTasks.Count > 0)
             db.DailyTasks.RemoveRange(task.SubTasks);
         db.DailyTasks.Remove(task);
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task AddGoalAsync(WeeklyGoal goal, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
         db.WeeklyGoals.Add(goal);
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task SaveGoalAsync(WeeklyGoal goal, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
         db.WeeklyGoals.Update(goal);
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task RemoveGoalAsync(int goalId, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        var goal = await db.WeeklyGoals.FindAsync([goalId], ct);
-        if (goal is not null) { db.WeeklyGoals.Remove(goal); await db.SaveChangesAsync(ct); }
+        var goal = await db.WeeklyGoals.FindAsync([goalId], ct).ConfigureAwait(false);
+        if (goal is not null) { db.WeeklyGoals.Remove(goal); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
     }
 
     public async Task SaveDailyStateAsync(DailyState state, CancellationToken ct = default)
@@ -214,28 +214,28 @@ public sealed class PlannerService
             db.DailyStates.Add(state);
         else
             db.DailyStates.Update(state);
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task SaveHabitEntryAsync(HabitEntry entry, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
         db.HabitEntries.Update(entry);
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task AddHabitAsync(HabitDefinition habit, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
         db.HabitDefinitions.Add(habit);
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task SaveHabitDefinitionAsync(HabitDefinition habit, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
         db.HabitDefinitions.Update(habit);
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task RemoveHabitAsync(HabitDefinition habit, CancellationToken ct = default)
@@ -243,30 +243,30 @@ public sealed class PlannerService
         await using var db = PlannerDbContextFactory.Create();
         var existing = await db.HabitDefinitions
             .Include(h => h.Entries)
-            .FirstOrDefaultAsync(h => h.Id == habit.Id, ct);
+            .FirstOrDefaultAsync(h => h.Id == habit.Id, ct).ConfigureAwait(false);
         if (existing is not null)
         {
             db.HabitEntries.RemoveRange(existing.Entries);
             db.HabitDefinitions.Remove(existing);
-            await db.SaveChangesAsync(ct);
+            await db.SaveChangesAsync(ct).ConfigureAwait(false);
         }
     }
 
     public async Task SaveNotesAsync(int weekId, string notes, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        var week = await db.Weeks.FindAsync([weekId], ct);
+        var week = await db.Weeks.FindAsync([weekId], ct).ConfigureAwait(false);
         if (week is not null)
         {
             week.Notes = notes;
-            await db.SaveChangesAsync(ct);
+            await db.SaveChangesAsync(ct).ConfigureAwait(false);
         }
     }
 
     public async Task<List<RecurringTemplate>> GetActiveTemplatesAsync(CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        return await db.RecurringTemplates.Where(t => t.IsActive).ToListAsync(ct);
+        return await db.RecurringTemplates.Where(t => t.IsActive).ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task SaveTemplateAsync(RecurringTemplate template, CancellationToken ct = default)
@@ -276,20 +276,20 @@ public sealed class PlannerService
             db.RecurringTemplates.Add(template);
         else
             db.RecurringTemplates.Update(template);
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task RemoveTemplateAsync(int templateId, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        var t = await db.RecurringTemplates.FindAsync([templateId], ct);
-        if (t is not null) { db.RecurringTemplates.Remove(t); await db.SaveChangesAsync(ct); }
+        var t = await db.RecurringTemplates.FindAsync([templateId], ct).ConfigureAwait(false);
+        if (t is not null) { db.RecurringTemplates.Remove(t); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
     }
 
     public async Task ApplyTemplatesAsync(PlannerWeek week, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        var templates = await db.RecurringTemplates.Where(t => t.IsActive && !string.IsNullOrEmpty(t.Text)).ToListAsync(ct);
+        var templates = await db.RecurringTemplates.Where(t => t.IsActive && !string.IsNullOrEmpty(t.Text)).ToListAsync(ct).ConfigureAwait(false);
         if (templates.Count == 0) return;
 
         var modifiedTasks = new List<DailyTask>();
@@ -318,7 +318,7 @@ public sealed class PlannerService
         {
             foreach (var task in modifiedTasks)
                 db.DailyTasks.Update(task);
-            await db.SaveChangesAsync(ct);
+            await db.SaveChangesAsync(ct).ConfigureAwait(false);
         }
     }
 
@@ -329,14 +329,14 @@ public sealed class PlannerService
             db.WeeklyNotes.Add(note);
         else
             db.WeeklyNotes.Update(note);
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task RemoveWeeklyNoteAsync(int noteId, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        var note = await db.WeeklyNotes.FindAsync([noteId], ct);
-        if (note is not null) { db.WeeklyNotes.Remove(note); await db.SaveChangesAsync(ct); }
+        var note = await db.WeeklyNotes.FindAsync([noteId], ct).ConfigureAwait(false);
+        if (note is not null) { db.WeeklyNotes.Remove(note); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
     }
 
     public async Task SaveReminderAsync(Reminder reminder, CancellationToken ct = default)
@@ -346,20 +346,20 @@ public sealed class PlannerService
             db.Reminders.Add(reminder);
         else
             db.Reminders.Update(reminder);
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task RemoveReminderAsync(int reminderId, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        var r = await db.Reminders.FindAsync([reminderId], ct);
-        if (r is not null) { db.Reminders.Remove(r); await db.SaveChangesAsync(ct); }
+        var r = await db.Reminders.FindAsync([reminderId], ct).ConfigureAwait(false);
+        if (r is not null) { db.Reminders.Remove(r); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
     }
 
     public async Task<List<Reminder>> GetRemindersAsync(CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        return await db.Reminders.OrderBy(r => r.Time).ToListAsync(ct);
+        return await db.Reminders.OrderBy(r => r.Time).ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task SaveMeetingAsync(Meeting meeting, CancellationToken ct = default)
@@ -369,20 +369,20 @@ public sealed class PlannerService
             db.Meetings.Add(meeting);
         else
             db.Meetings.Update(meeting);
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task RemoveMeetingAsync(int meetingId, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        var m = await db.Meetings.FindAsync([meetingId], ct);
-        if (m is not null) { db.Meetings.Remove(m); await db.SaveChangesAsync(ct); }
+        var m = await db.Meetings.FindAsync([meetingId], ct).ConfigureAwait(false);
+        if (m is not null) { db.Meetings.Remove(m); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
     }
 
     public async Task<List<Meeting>> GetMeetingsAsync(CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        return await db.Meetings.OrderBy(m => m.DateTime).ToListAsync(ct);
+        return await db.Meetings.OrderBy(m => m.DateTime).ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task CopyWeekStructureAsync(int sourceWeekId, int targetWeekId, CancellationToken ct = default)
@@ -390,10 +390,10 @@ public sealed class PlannerService
         await using var db = PlannerDbContextFactory.Create();
         var source = await db.Weeks
             .Include(w => w.Days).ThenInclude(d => d.Tasks)
-            .FirstOrDefaultAsync(w => w.Id == sourceWeekId, ct);
+            .FirstOrDefaultAsync(w => w.Id == sourceWeekId, ct).ConfigureAwait(false);
         var target = await db.Weeks
             .Include(w => w.Days).ThenInclude(d => d.Tasks)
-            .FirstOrDefaultAsync(w => w.Id == targetWeekId, ct);
+            .FirstOrDefaultAsync(w => w.Id == targetWeekId, ct).ConfigureAwait(false);
         if (source is null || target is null) return;
 
         var sourceDays = source.Days.OrderBy(d => d.Date).ToList();
@@ -413,14 +413,14 @@ public sealed class PlannerService
                 }
             }
         }
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task CarryOverTasksAsync(DateOnly fromDate, DateOnly toDate, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        var fromDay = await db.DailyPlans.Include(d => d.Tasks).ThenInclude(t => t.SubTasks).FirstOrDefaultAsync(d => d.Date == fromDate, ct);
-        var toDay = await db.DailyPlans.Include(d => d.Tasks).ThenInclude(t => t.SubTasks).FirstOrDefaultAsync(d => d.Date == toDate, ct);
+        var fromDay = await db.DailyPlans.Include(d => d.Tasks).ThenInclude(t => t.SubTasks).FirstOrDefaultAsync(d => d.Date == fromDate, ct).ConfigureAwait(false);
+        var toDay = await db.DailyPlans.Include(d => d.Tasks).ThenInclude(t => t.SubTasks).FirstOrDefaultAsync(d => d.Date == toDate, ct).ConfigureAwait(false);
         if (fromDay is null || toDay is null) return;
 
         var incomplete = fromDay.Tasks
@@ -452,7 +452,7 @@ public sealed class PlannerService
         }
 
         // Flush so every new/updated parent task gets a real Id
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
 
         // Carry over subtasks (batch — one SaveChanges for all)
         var targetLookup = toDay.Tasks
@@ -477,7 +477,7 @@ public sealed class PlannerService
                 });
             }
         }
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task<List<PlannerWeek>> GetWeeksInRangeAsync(DateOnly from, DateOnly to, CancellationToken ct = default)
@@ -490,7 +490,7 @@ public sealed class PlannerService
             .Include(w => w.Habits).ThenInclude(h => h.Entries)
             .Where(w => w.StartDate >= from && w.StartDate <= to)
             .OrderBy(w => w.StartDate)
-            .ToListAsync(ct);
+            .ToListAsync(ct).ConfigureAwait(false);
     }
 
     public static DateOnly GetWeekStart(DateOnly date)
@@ -506,7 +506,7 @@ public sealed class PlannerService
         await using var db = PlannerDbContextFactory.Create();
         var query = db.FinanceCategories.Where(c => !c.IsArchived);
         if (type is not null) query = query.Where(c => c.Type == type);
-        return await query.OrderBy(c => c.Order).ToListAsync(ct);
+        return await query.OrderBy(c => c.Order).ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task SaveFinanceCategoryAsync(FinanceCategory category, CancellationToken ct = default)
@@ -516,18 +516,40 @@ public sealed class PlannerService
             db.FinanceCategories.Add(category);
         else
             db.FinanceCategories.Update(category);
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task ArchiveFinanceCategoryAsync(int categoryId, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        var cat = await db.FinanceCategories.FindAsync([categoryId], ct);
+        var cat = await db.FinanceCategories.FindAsync([categoryId], ct).ConfigureAwait(false);
         if (cat is not null)
         {
             cat.IsArchived = true;
-            await db.SaveChangesAsync(ct);
+            await db.SaveChangesAsync(ct).ConfigureAwait(false);
         }
+    }
+
+    public async Task<bool> CanDeleteFinanceCategoryAsync(int categoryId, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var hasEntries = await db.FinanceEntries.AnyAsync(e => e.CategoryId == categoryId, ct).ConfigureAwait(false);
+        var hasPayments = await db.RecurringPayments.AnyAsync(rp => rp.CategoryId == categoryId, ct).ConfigureAwait(false);
+        return !hasEntries && !hasPayments;
+    }
+
+    public async Task<bool> RemoveFinanceCategoryAsync(int categoryId, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var hasEntries = await db.FinanceEntries.AnyAsync(e => e.CategoryId == categoryId, ct).ConfigureAwait(false);
+        var hasPayments = await db.RecurringPayments.AnyAsync(rp => rp.CategoryId == categoryId, ct).ConfigureAwait(false);
+        if (hasEntries || hasPayments) return false;
+
+        var entity = await db.FinanceCategories.FindAsync([categoryId], ct).ConfigureAwait(false);
+        if (entity is null) return false;
+        db.FinanceCategories.Remove(entity);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
+        return true;
     }
 
     private static readonly Dictionary<string, string> SeedCategoryKeys = new()
@@ -544,7 +566,7 @@ public sealed class PlannerService
     {
         await using var db = PlannerDbContextFactory.Create();
 
-        if (!await db.FinanceCategories.AnyAsync(ct))
+                if (!await db.FinanceCategories.AnyAsync(ct).ConfigureAwait(false))
         {
             var categories = new List<FinanceCategory>
             {
@@ -565,12 +587,12 @@ public sealed class PlannerService
             };
 
             db.FinanceCategories.AddRange(categories);
-            await db.SaveChangesAsync(ct);
+            await db.SaveChangesAsync(ct).ConfigureAwait(false);
             return;
         }
 
         // Update existing seed category names to current language
-        var allCats = await db.FinanceCategories.ToListAsync(ct);
+        var allCats = await db.FinanceCategories.ToListAsync(ct).ConfigureAwait(false);
         var changed = false;
         foreach (var cat in allCats)
         {
@@ -582,7 +604,7 @@ public sealed class PlannerService
                 changed = true;
             }
         }
-        if (changed) await db.SaveChangesAsync(ct);
+        if (changed) await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     // ─── Finance: Entries ─────────────────────────────────────────
@@ -592,7 +614,7 @@ public sealed class PlannerService
         await using var db = PlannerDbContextFactory.Create();
         var query = db.FinanceEntries.Include(e => e.Category).Where(e => e.Date >= from && e.Date <= to);
         if (type is not null) query = query.Where(e => e.Type == type);
-        return await query.OrderBy(e => e.Date).ThenBy(e => e.Id).ToListAsync(ct);
+        return await query.OrderBy(e => e.Date).ThenBy(e => e.Id).ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task SaveFinanceEntryAsync(FinanceEntry entry, CancellationToken ct = default)
@@ -602,7 +624,7 @@ public sealed class PlannerService
         // Prevent entries on archived categories
         if (entry.CategoryId > 0)
         {
-            var cat = await db.FinanceCategories.FindAsync([entry.CategoryId], ct);
+            var cat = await db.FinanceCategories.FindAsync([entry.CategoryId], ct).ConfigureAwait(false);
             if (cat is { IsArchived: true }) return;
         }
 
@@ -618,7 +640,7 @@ public sealed class PlannerService
             db.FinanceEntries.Add(entry);
         else
             db.FinanceEntries.Update(entry);
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
 
         entry.Category = savedCategory;
         entry.Week = savedWeek;
@@ -628,8 +650,8 @@ public sealed class PlannerService
     public async Task RemoveFinanceEntryAsync(int entryId, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        var entry = await db.FinanceEntries.FindAsync([entryId], ct);
-        if (entry is not null) { db.FinanceEntries.Remove(entry); await db.SaveChangesAsync(ct); }
+        var entry = await db.FinanceEntries.FindAsync([entryId], ct).ConfigureAwait(false);
+        if (entry is not null) { db.FinanceEntries.Remove(entry); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
     }
 
     // ─── Finance: Budgets ─────────────────────────────────────────
@@ -637,7 +659,7 @@ public sealed class PlannerService
     public async Task<List<FinanceBudget>> GetBudgetsAsync(string monthYear, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        return await db.FinanceBudgets.Include(b => b.Category).Where(b => b.MonthYear == monthYear).ToListAsync(ct);
+        return await db.FinanceBudgets.Include(b => b.Category).Where(b => b.MonthYear == monthYear).ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task SaveBudgetAsync(FinanceBudget budget, CancellationToken ct = default)
@@ -650,7 +672,7 @@ public sealed class PlannerService
             db.FinanceBudgets.Add(budget);
         else
             db.FinanceBudgets.Update(budget);
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
 
         budget.Category = savedCategory;
     }
@@ -658,8 +680,8 @@ public sealed class PlannerService
     public async Task RemoveBudgetAsync(int budgetId, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        var b = await db.FinanceBudgets.FindAsync([budgetId], ct);
-        if (b is not null) { db.FinanceBudgets.Remove(b); await db.SaveChangesAsync(ct); }
+        var b = await db.FinanceBudgets.FindAsync([budgetId], ct).ConfigureAwait(false);
+        if (b is not null) { db.FinanceBudgets.Remove(b); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
     }
 
     // ─── Finance: Debts ───────────────────────────────────────────
@@ -669,7 +691,7 @@ public sealed class PlannerService
         await using var db = PlannerDbContextFactory.Create();
         var query = db.Debts.Include(d => d.Payments).AsQueryable();
         if (!includeSettled) query = query.Where(d => !d.IsSettled);
-        return await query.OrderByDescending(d => d.CreatedDate).ToListAsync(ct);
+        return await query.OrderByDescending(d => d.CreatedDate).ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task SaveDebtAsync(Debt debt, CancellationToken ct = default)
@@ -682,7 +704,7 @@ public sealed class PlannerService
             db.Debts.Add(debt);
         else
             db.Debts.Update(debt);
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
 
         debt.Payments = savedPayments;
     }
@@ -690,12 +712,12 @@ public sealed class PlannerService
     public async Task RemoveDebtAsync(int debtId, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        var debt = await db.Debts.Include(d => d.Payments).FirstOrDefaultAsync(d => d.Id == debtId, ct);
+        var debt = await db.Debts.Include(d => d.Payments).FirstOrDefaultAsync(d => d.Id == debtId, ct).ConfigureAwait(false);
         if (debt is not null)
         {
             db.DebtPayments.RemoveRange(debt.Payments);
             db.Debts.Remove(debt);
-            await db.SaveChangesAsync(ct);
+            await db.SaveChangesAsync(ct).ConfigureAwait(false);
         }
     }
 
@@ -703,14 +725,14 @@ public sealed class PlannerService
     {
         await using var db = PlannerDbContextFactory.Create();
         db.DebtPayments.Add(payment);
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task RemoveDebtPaymentAsync(int paymentId, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        var p = await db.DebtPayments.FindAsync([paymentId], ct);
-        if (p is not null) { db.DebtPayments.Remove(p); await db.SaveChangesAsync(ct); }
+        var p = await db.DebtPayments.FindAsync([paymentId], ct).ConfigureAwait(false);
+        if (p is not null) { db.DebtPayments.Remove(p); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
     }
 
     // ─── Finance: Recurring Payments ──────────────────────────────
@@ -720,7 +742,7 @@ public sealed class PlannerService
         await using var db = PlannerDbContextFactory.Create();
         var query = db.RecurringPayments.Include(rp => rp.Category).AsQueryable();
         if (activeOnly) query = query.Where(rp => rp.IsActive);
-        return await query.OrderBy(rp => rp.Type).ThenBy(rp => rp.Name).ToListAsync(ct);
+        return await query.OrderBy(rp => rp.Type).ThenBy(rp => rp.Name).ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task SaveRecurringPaymentAsync(RecurringPayment payment, CancellationToken ct = default)
@@ -735,7 +757,7 @@ public sealed class PlannerService
             db.RecurringPayments.Add(payment);
         else
             db.RecurringPayments.Update(payment);
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
 
         payment.Category = savedCategory;
         payment.GeneratedEntries = savedEntries;
@@ -744,8 +766,8 @@ public sealed class PlannerService
     public async Task RemoveRecurringPaymentAsync(int paymentId, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        var rp = await db.RecurringPayments.FindAsync([paymentId], ct);
-        if (rp is not null) { db.RecurringPayments.Remove(rp); await db.SaveChangesAsync(ct); }
+        var rp = await db.RecurringPayments.FindAsync([paymentId], ct).ConfigureAwait(false);
+        if (rp is not null) { db.RecurringPayments.Remove(rp); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
     }
 
     public async Task GenerateRecurringEntriesAsync(DateOnly from, DateOnly to, CancellationToken ct = default)
@@ -753,12 +775,12 @@ public sealed class PlannerService
         await using var db = PlannerDbContextFactory.Create();
         var payments = await db.RecurringPayments
             .Where(rp => rp.IsActive && rp.AutoCreate && rp.StartDate <= to && (rp.EndDate == null || rp.EndDate >= from))
-            .ToListAsync(ct);
+            .ToListAsync(ct).ConfigureAwait(false);
 
         var existingKeys = (await db.FinanceEntries
             .Where(e => e.RecurringPaymentId != null && e.Date >= from && e.Date <= to)
             .Select(e => new { e.RecurringPaymentId, e.Date })
-            .ToListAsync(ct))
+            .ToListAsync(ct).ConfigureAwait(false))
             .ToHashSet();
 
         var newEntries = new List<FinanceEntry>();
@@ -802,7 +824,7 @@ public sealed class PlannerService
         if (newEntries.Count > 0)
         {
             db.FinanceEntries.AddRange(newEntries);
-            await db.SaveChangesAsync(ct);
+            await db.SaveChangesAsync(ct).ConfigureAwait(false);
         }
     }
 
@@ -831,7 +853,7 @@ public sealed class PlannerService
         var entries = await db.FinanceEntries
             .Include(e => e.Category)
             .Where(e => e.Type == FinanceEntryType.Expense && e.Date >= from && e.Date <= to)
-            .ToListAsync(ct);
+            .ToListAsync(ct).ConfigureAwait(false);
 
         return entries
             .GroupBy(e => e.CategoryId)
@@ -855,7 +877,7 @@ public sealed class PlannerService
         var rawEntries = await db.FinanceEntries
             .Where(e => e.Date >= cutoff)
             .Select(e => new { e.Date, e.Type, e.Amount })
-            .ToListAsync(ct);
+            .ToListAsync(ct).ConfigureAwait(false);
 
         var entries = rawEntries
             .GroupBy(e => new { e.Date.Year, e.Date.Month, e.Type })

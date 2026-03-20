@@ -6,10 +6,11 @@ namespace DailyPlanner.Data;
 
 public sealed class PlannerDbContextFactory : IDesignTimeDbContextFactory<PlannerDbContext>
 {
-    private static string DbPath => Path.Combine(
+    public static string AppDataFolder => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "DailyPlanner",
-        "planner.db");
+        "DailyPlanner");
+
+    public static string DbPath => Path.Combine(AppDataFolder, "planner.db");
 
     public PlannerDbContext CreateDbContext(string[] args)
     {
