@@ -495,6 +495,255 @@ public sealed class PlannerService
         return date.AddDays(-diff);
     }
 
+    // ─── Finance: Categories ────────────────────────────────────────
+
+    public async Task<List<FinanceCategory>> GetFinanceCategoriesAsync(FinanceEntryType? type = null, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var query = db.FinanceCategories.Where(c => !c.IsArchived);
+        if (type is not null) query = query.Where(c => c.Type == type);
+        return await query.OrderBy(c => c.Order).ToListAsync(ct);
+    }
+
+    public async Task SaveFinanceCategoryAsync(FinanceCategory category, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        if (category.Id == 0)
+            db.FinanceCategories.Add(category);
+        else
+            db.FinanceCategories.Update(category);
+        await db.SaveChangesAsync(ct);
+    }
+
+    public async Task ArchiveFinanceCategoryAsync(int categoryId, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var cat = await db.FinanceCategories.FindAsync([categoryId], ct);
+        if (cat is not null)
+        {
+            cat.IsArchived = true;
+            await db.SaveChangesAsync(ct);
+        }
+    }
+
+    public async Task SeedFinanceCategoriesAsync(CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        if (await db.FinanceCategories.AnyAsync(ct)) return;
+
+        var categories = new List<FinanceCategory>
+        {
+            new() { Name = "Salary", Icon = "\uD83D\uDCBC", Color = "#34D399", Type = FinanceEntryType.Income, Order = 1 },
+            new() { Name = "Freelance", Icon = "\uD83D\uDCBB", Color = "#38BDF8", Type = FinanceEntryType.Income, Order = 2 },
+            new() { Name = "Gifts", Icon = "\uD83C\uDF81", Color = "#A78BFA", Type = FinanceEntryType.Income, Order = 3 },
+            new() { Name = "Investments", Icon = "\uD83D\uDCC8", Color = "#FBBF24", Type = FinanceEntryType.Income, Order = 4 },
+            new() { Name = "Other Income", Icon = "\u2795", Color = "#6EE7B7", Type = FinanceEntryType.Income, Order = 5 },
+            new() { Name = "Food", Icon = "\uD83C\uDF54", Color = "#FB923C", Type = FinanceEntryType.Expense, Order = 1 },
+            new() { Name = "Transport", Icon = "\uD83D\uDE97", Color = "#38BDF8", Type = FinanceEntryType.Expense, Order = 2 },
+            new() { Name = "Housing", Icon = "\uD83C\uDFE0", Color = "#A78BFA", Type = FinanceEntryType.Expense, Order = 3 },
+            new() { Name = "Entertainment", Icon = "\uD83C\uDFAE", Color = "#F472B6", Type = FinanceEntryType.Expense, Order = 4 },
+            new() { Name = "Health", Icon = "\uD83D\uDC8A", Color = "#34D399", Type = FinanceEntryType.Expense, Order = 5 },
+            new() { Name = "Clothing", Icon = "\uD83D\uDC55", Color = "#FBBF24", Type = FinanceEntryType.Expense, Order = 6 },
+            new() { Name = "Subscriptions", Icon = "\uD83D\uDCF1", Color = "#FB7185", Type = FinanceEntryType.Expense, Order = 7 },
+            new() { Name = "Education", Icon = "\uD83D\uDCDA", Color = "#818CF8", Type = FinanceEntryType.Expense, Order = 8 },
+            new() { Name = "Other Expense", Icon = "\u2796", Color = "#585878", Type = FinanceEntryType.Expense, Order = 9 },
+        };
+
+        db.FinanceCategories.AddRange(categories);
+        await db.SaveChangesAsync(ct);
+    }
+
+    // ─── Finance: Entries ─────────────────────────────────────────
+
+    public async Task<List<FinanceEntry>> GetFinanceEntriesAsync(DateOnly from, DateOnly to, FinanceEntryType? type = null, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var query = db.FinanceEntries.Include(e => e.Category).Where(e => e.Date >= from && e.Date <= to);
+        if (type is not null) query = query.Where(e => e.Type == type);
+        return await query.OrderBy(e => e.Date).ThenBy(e => e.Id).ToListAsync(ct);
+    }
+
+    public async Task SaveFinanceEntryAsync(FinanceEntry entry, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+
+        // Prevent entries on archived categories
+        if (entry.CategoryId > 0)
+        {
+            var cat = await db.FinanceCategories.FindAsync([entry.CategoryId], ct);
+            if (cat is { IsArchived: true }) return;
+        }
+
+        if (entry.Id == 0)
+            db.FinanceEntries.Add(entry);
+        else
+            db.FinanceEntries.Update(entry);
+        await db.SaveChangesAsync(ct);
+    }
+
+    public async Task RemoveFinanceEntryAsync(int entryId, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var entry = await db.FinanceEntries.FindAsync([entryId], ct);
+        if (entry is not null) { db.FinanceEntries.Remove(entry); await db.SaveChangesAsync(ct); }
+    }
+
+    // ─── Finance: Budgets ─────────────────────────────────────────
+
+    public async Task<List<FinanceBudget>> GetBudgetsAsync(string monthYear, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        return await db.FinanceBudgets.Include(b => b.Category).Where(b => b.MonthYear == monthYear).ToListAsync(ct);
+    }
+
+    public async Task SaveBudgetAsync(FinanceBudget budget, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        if (budget.Id == 0)
+            db.FinanceBudgets.Add(budget);
+        else
+            db.FinanceBudgets.Update(budget);
+        await db.SaveChangesAsync(ct);
+    }
+
+    public async Task RemoveBudgetAsync(int budgetId, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var b = await db.FinanceBudgets.FindAsync([budgetId], ct);
+        if (b is not null) { db.FinanceBudgets.Remove(b); await db.SaveChangesAsync(ct); }
+    }
+
+    // ─── Finance: Debts ───────────────────────────────────────────
+
+    public async Task<List<Debt>> GetDebtsAsync(bool includeSettled = false, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var query = db.Debts.Include(d => d.Payments).AsQueryable();
+        if (!includeSettled) query = query.Where(d => !d.IsSettled);
+        return await query.OrderByDescending(d => d.CreatedDate).ToListAsync(ct);
+    }
+
+    public async Task SaveDebtAsync(Debt debt, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        if (debt.Id == 0)
+            db.Debts.Add(debt);
+        else
+            db.Debts.Update(debt);
+        await db.SaveChangesAsync(ct);
+    }
+
+    public async Task RemoveDebtAsync(int debtId, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var debt = await db.Debts.Include(d => d.Payments).FirstOrDefaultAsync(d => d.Id == debtId, ct);
+        if (debt is not null)
+        {
+            db.DebtPayments.RemoveRange(debt.Payments);
+            db.Debts.Remove(debt);
+            await db.SaveChangesAsync(ct);
+        }
+    }
+
+    public async Task AddDebtPaymentAsync(DebtPayment payment, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        db.DebtPayments.Add(payment);
+        await db.SaveChangesAsync(ct);
+    }
+
+    public async Task RemoveDebtPaymentAsync(int paymentId, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var p = await db.DebtPayments.FindAsync([paymentId], ct);
+        if (p is not null) { db.DebtPayments.Remove(p); await db.SaveChangesAsync(ct); }
+    }
+
+    // ─── Finance: Recurring Payments ──────────────────────────────
+
+    public async Task<List<RecurringPayment>> GetRecurringPaymentsAsync(bool activeOnly = true, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var query = db.RecurringPayments.Include(rp => rp.Category).AsQueryable();
+        if (activeOnly) query = query.Where(rp => rp.IsActive);
+        return await query.OrderBy(rp => rp.Type).ThenBy(rp => rp.Name).ToListAsync(ct);
+    }
+
+    public async Task SaveRecurringPaymentAsync(RecurringPayment payment, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        if (payment.Id == 0)
+            db.RecurringPayments.Add(payment);
+        else
+            db.RecurringPayments.Update(payment);
+        await db.SaveChangesAsync(ct);
+    }
+
+    public async Task RemoveRecurringPaymentAsync(int paymentId, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var rp = await db.RecurringPayments.FindAsync([paymentId], ct);
+        if (rp is not null) { db.RecurringPayments.Remove(rp); await db.SaveChangesAsync(ct); }
+    }
+
+    public async Task GenerateRecurringEntriesAsync(DateOnly from, DateOnly to, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var payments = await db.RecurringPayments
+            .Where(rp => rp.IsActive && rp.AutoCreate && rp.StartDate <= to && (rp.EndDate == null || rp.EndDate >= from))
+            .ToListAsync(ct);
+
+        var existingEntries = await db.FinanceEntries
+            .Where(e => e.RecurringPaymentId != null && e.Date >= from && e.Date <= to)
+            .Select(e => new { e.RecurringPaymentId, e.Date })
+            .ToListAsync(ct);
+
+        var existingSet = existingEntries.ToHashSet();
+        var newEntries = new List<FinanceEntry>();
+
+        foreach (var rp in payments)
+        {
+            for (var date = from; date <= to; date = date.AddDays(1))
+            {
+                if (date < rp.StartDate || (rp.EndDate is not null && date > rp.EndDate)) continue;
+
+                var match = rp.Frequency switch
+                {
+                    PaymentFrequency.Monthly => rp.DayOfMonth is not null && date.Day == rp.DayOfMonth,
+                    PaymentFrequency.Weekly => rp.DayOfWeek is not null && date.DayOfWeek == rp.DayOfWeek,
+                    PaymentFrequency.Biweekly => rp.DayOfWeek is not null && date.DayOfWeek == rp.DayOfWeek
+                        && Math.Abs(date.ToDateTime(TimeOnly.MinValue).Subtract(rp.StartDate.ToDateTime(TimeOnly.MinValue)).Days) % 14 < 7,
+                    PaymentFrequency.Quarterly => rp.DayOfMonth is not null && date.Day == rp.DayOfMonth
+                        && ((date.Year - rp.StartDate.Year) * 12 + date.Month - rp.StartDate.Month) % 3 == 0,
+                    PaymentFrequency.Yearly => rp.DayOfMonth is not null && date.Day == rp.DayOfMonth
+                        && date.Month == rp.StartDate.Month,
+                    _ => false
+                };
+
+                if (!match) continue;
+                if (existingSet.Any(e => e.RecurringPaymentId == rp.Id && e.Date == date)) continue;
+
+                newEntries.Add(new FinanceEntry
+                {
+                    Date = date,
+                    CategoryId = rp.CategoryId,
+                    Type = rp.Type,
+                    Amount = rp.Amount,
+                    Description = rp.Name,
+                    IsRecurring = true,
+                    RecurringPaymentId = rp.Id,
+                    IsPaid = false
+                });
+            }
+        }
+
+        if (newEntries.Count > 0)
+        {
+            db.FinanceEntries.AddRange(newEntries);
+            await db.SaveChangesAsync(ct);
+        }
+    }
+
     public static List<DateOnly> GetWeekStartsForMonth(int year, int month)
     {
         var starts = new List<DateOnly>();
