@@ -65,12 +65,47 @@ public sealed partial class RecurringPaymentViewModel : ObservableObject
     public bool HasEndDate => _model.EndDate is not null;
     public string EndDateLabel => _model.EndDate?.ToString("dd.MM.yyyy") ?? string.Empty;
 
+    public decimal AnnualTotal => Frequency switch
+    {
+        PaymentFrequency.Monthly => Amount * 12,
+        PaymentFrequency.Weekly => Amount * 52,
+        PaymentFrequency.Biweekly => Amount * 26,
+        PaymentFrequency.Quarterly => Amount * 4,
+        PaymentFrequency.Yearly => Amount,
+        _ => 0
+    };
+
+    public string NextPaymentDate
+    {
+        get
+        {
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            if (!IsActive) return string.Empty;
+            if (_model.EndDate is not null && _model.EndDate < today) return string.Empty;
+
+            return Frequency switch
+            {
+                PaymentFrequency.Monthly when DayOfMonth is not null =>
+                    (today.Day <= DayOfMonth
+                        ? new DateOnly(today.Year, today.Month, Math.Min(DayOfMonth.Value, DateTime.DaysInMonth(today.Year, today.Month)))
+                        : new DateOnly(today.Year, today.Month, 1).AddMonths(1)
+                            .AddDays(Math.Min(DayOfMonth.Value, DateTime.DaysInMonth(today.AddMonths(1).Year, today.AddMonths(1).Month)) - 1))
+                    .ToString("dd.MM.yyyy"),
+                PaymentFrequency.Weekly when _model.DayOfWeek is not null =>
+                    Enumerable.Range(0, 7).Select(i => today.AddDays(i))
+                        .First(d => d.DayOfWeek == _model.DayOfWeek).ToString("dd.MM.yyyy"),
+                _ => string.Empty
+            };
+        }
+    }
+
     partial void OnNameChanged(string value) { _model.Name = value; Save(); }
     partial void OnAmountChanged(decimal value)
     {
         if (value < 0) { Amount = 0; return; }
         _model.Amount = value;
         OnPropertyChanged(nameof(DisplayAmount));
+        OnPropertyChanged(nameof(AnnualTotal));
         Save();
     }
     partial void OnFrequencyChanged(PaymentFrequency value) { _model.Frequency = value; OnPropertyChanged(nameof(FrequencyLabel)); OnPropertyChanged(nameof(ScheduleLabel)); Save(); }

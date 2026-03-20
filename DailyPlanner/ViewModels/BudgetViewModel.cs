@@ -29,6 +29,13 @@ public sealed partial class BudgetViewModel : ObservableObject
 
     public bool IsOverBudget => SpentAmount > Amount;
     public bool IsWarning => ProgressPercent >= 80 && !IsOverBudget;
+    public string RemainingText => IsOverBudget
+        ? $"{Loc.Get("OverBudget")}: {SpentAmount - Amount:N2}"
+        : $"{Loc.Get("Remaining")}: {RemainingAmount:N2}";
+    public bool ShowWarning => IsOverBudget || IsWarning;
+    public string WarningText => IsOverBudget
+        ? Loc.Get("OverBudget")
+        : IsWarning ? $"{ProgressPercent:N0}% {Loc.Get("Spent").ToLowerInvariant()}" : string.Empty;
 
     partial void OnAmountChanged(decimal value)
     {
@@ -38,6 +45,9 @@ public sealed partial class BudgetViewModel : ObservableObject
         OnPropertyChanged(nameof(ProgressPercent));
         OnPropertyChanged(nameof(IsOverBudget));
         OnPropertyChanged(nameof(IsWarning));
+        OnPropertyChanged(nameof(RemainingText));
+        OnPropertyChanged(nameof(ShowWarning));
+        OnPropertyChanged(nameof(WarningText));
         Save();
     }
 
@@ -47,6 +57,9 @@ public sealed partial class BudgetViewModel : ObservableObject
         OnPropertyChanged(nameof(ProgressPercent));
         OnPropertyChanged(nameof(IsOverBudget));
         OnPropertyChanged(nameof(IsWarning));
+        OnPropertyChanged(nameof(RemainingText));
+        OnPropertyChanged(nameof(ShowWarning));
+        OnPropertyChanged(nameof(WarningText));
     }
 
     private void Save()
