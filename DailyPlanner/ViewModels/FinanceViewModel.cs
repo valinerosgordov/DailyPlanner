@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DailyPlanner.Models;
@@ -66,13 +67,12 @@ public sealed partial class FinanceViewModel : ObservableObject
         };
     }
 
-    private bool _isLoadingData;
+    private readonly SemaphoreSlim _loadGate = new(1, 1);
 
     [RelayCommand]
     public async Task LoadDataAsync()
     {
-        if (_isLoadingData) return;
-        _isLoadingData = true;
+        if (!_loadGate.Wait(0)) return;
         IsLoading = true;
         try
         {
@@ -207,7 +207,7 @@ public sealed partial class FinanceViewModel : ObservableObject
         finally
         {
             IsLoading = false;
-            _isLoadingData = false;
+            _loadGate.Release();
         }
     }
 
