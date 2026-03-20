@@ -74,6 +74,8 @@ public sealed partial class FinanceViewModel : ObservableObject
         if (_isLoadingData) return;
         _isLoadingData = true;
         IsLoading = true;
+        try
+        {
         await _service.SeedFinanceCategoriesAsync();
 
         PeriodLabel = $"{Loc.GetMonthName(SelectedMonth)} {SelectedYear}";
@@ -197,8 +199,16 @@ public sealed partial class FinanceViewModel : ObservableObject
             SavingsTrendArrow = string.Empty;
         }
 
-        IsLoading = false;
-        _isLoadingData = false;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[FinanceVM] LoadData failed: {ex}");
+        }
+        finally
+        {
+            IsLoading = false;
+            _isLoadingData = false;
+        }
     }
 
     private async Task LoadCategoriesAsync()
