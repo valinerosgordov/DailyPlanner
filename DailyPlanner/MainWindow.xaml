@@ -25,6 +25,7 @@
         <KeyBinding Key="F" Modifiers="Ctrl" Command="{Binding ToggleSearchCommand}"/>
         <KeyBinding Key="E" Modifiers="Ctrl" Command="{Binding ExportToExcelCommand}"/>
         <KeyBinding Key="P" Modifiers="Ctrl" Command="{Binding TogglePomodoroCommand}"/>
+        <KeyBinding Key="M" Modifiers="Ctrl" Command="{Binding ToggleFinanceCommand}"/>
     </ui:FluentWindow.InputBindings>
 
     <Grid>
@@ -112,6 +113,27 @@
                                 <Setter Property="Appearance" Value="Transparent"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsStatisticsOpen}" Value="True">
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <SolidColorBrush Color="{DynamicResource AccentColor}" Opacity="0.15"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                        <Setter Property="BorderThickness" Value="0,0,2,0"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ui:Button.Style>
+                    </ui:Button>
+                    <ui:Button Content="{Binding [Finance], Source={x:Static svc:Loc.Instance}}" Icon="{ui:SymbolIcon Money24}"
+                               HorizontalAlignment="Stretch"
+                               Click="Finance_Click" Margin="0,0,0,4"
+                               ToolTip="{Binding [FinanceTooltip], Source={x:Static svc:Loc.Instance}}">
+                        <ui:Button.Style>
+                            <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                <Setter Property="Appearance" Value="Transparent"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsFinanceOpen}" Value="True">
                                         <Setter Property="Background">
                                             <Setter.Value>
                                                 <SolidColorBrush Color="{DynamicResource AccentColor}" Opacity="0.15"/>
