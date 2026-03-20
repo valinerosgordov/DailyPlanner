@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
 using DailyPlanner.ViewModels;
 
@@ -21,5 +22,14 @@ public partial class FinancePage : Page
                 Debug.WriteLine($"[FinancePage] Failed to load data: {ex.Message}");
             }
         };
+    }
+
+    private void TabChanged(object sender, RoutedEventArgs e)
+    {
+        if (sender is RadioButton rb && rb.Tag is string tag && int.TryParse(tag, out var index))
+        {
+            if (DataContext is FinanceViewModel vm)
+                vm.SelectedTabIndex = index;
+        }
     }
 }
