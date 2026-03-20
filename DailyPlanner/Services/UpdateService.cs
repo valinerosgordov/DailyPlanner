@@ -15,7 +15,7 @@ public sealed class UpdateService
 
     public bool IsInstalled => _manager.IsInstalled;
 
-    public async Task<UpdateInfo?> CheckForUpdatesAsync()
+    public async Task<UpdateInfo?> CheckForUpdatesAsync(CancellationToken ct = default)
     {
         try
         {
@@ -28,7 +28,7 @@ public sealed class UpdateService
         }
     }
 
-    public async Task DownloadAndApplyAsync(UpdateInfo update, Action<int>? progress = null)
+    public async Task DownloadAndApplyAsync(UpdateInfo update, Action<int>? progress = null, CancellationToken ct = default)
     {
         await _manager.DownloadUpdatesAsync(update, progress);
         _manager.ApplyUpdatesAndRestart(update);

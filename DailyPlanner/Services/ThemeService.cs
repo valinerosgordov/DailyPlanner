@@ -39,7 +39,7 @@ public static class ThemeService
                 if (Palettes.ContainsKey(name)) return name;
             }
         }
-        catch { /* fallback to default */ }
+        catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[ThemeService] Load failed: {ex.Message}"); }
         return "Catppuccin Mocha";
     }
 
@@ -51,7 +51,7 @@ public static class ThemeService
             Directory.CreateDirectory(dir);
             File.WriteAllText(SettingsPath, name);
         }
-        catch { /* non-critical */ }
+        catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[ThemeService] Save failed: {ex.Message}"); }
     }
 
     public static readonly Dictionary<string, ThemePalette> Palettes = new()
