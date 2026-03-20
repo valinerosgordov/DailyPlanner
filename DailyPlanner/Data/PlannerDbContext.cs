@@ -16,6 +16,12 @@ public sealed class PlannerDbContext(DbContextOptions<PlannerDbContext> options)
     public DbSet<WeeklyNote> WeeklyNotes => Set<WeeklyNote>();
     public DbSet<Reminder> Reminders => Set<Reminder>();
     public DbSet<Meeting> Meetings => Set<Meeting>();
+    public DbSet<FinanceCategory> FinanceCategories => Set<FinanceCategory>();
+    public DbSet<FinanceEntry> FinanceEntries => Set<FinanceEntry>();
+    public DbSet<FinanceBudget> FinanceBudgets => Set<FinanceBudget>();
+    public DbSet<Debt> Debts => Set<Debt>();
+    public DbSet<DebtPayment> DebtPayments => Set<DebtPayment>();
+    public DbSet<RecurringPayment> RecurringPayments => Set<RecurringPayment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -105,6 +111,63 @@ public sealed class PlannerDbContext(DbContextOptions<PlannerDbContext> options)
             e.Property(m => m.Title).HasMaxLength(300);
             e.Property(m => m.Description).HasMaxLength(2000);
             e.Property(m => m.Attendees).HasMaxLength(1000);
+        });
+
+        // ─── Finance ───────────────────────────────────────────────────
+
+        modelBuilder.Entity<FinanceCategory>(e =>
+        {
+            e.HasKey(c => c.Id);
+            e.Property(c => c.Name).HasMaxLength(200);
+            e.Property(c => c.Icon).HasMaxLength(50);
+            e.Property(c => c.Color).HasMaxLength(20);
+            e.HasMany(c => c.Entries).WithOne(fe => fe.Category).HasForeignKey(fe => fe.CategoryId).OnDelete(DeleteBehavior.Restrict);
+            e.HasMany(c => c.Budgets).WithOne(b => b.Category).HasForeignKey(b => b.CategoryId).OnDelete(DeleteBehavior.Cascade);
+            e.HasMany(c => c.RecurringPayments).WithOne(rp => rp.Category).HasForeignKey(rp => rp.CategoryId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<FinanceEntry>(e =>
+        {
+            e.HasKey(fe => fe.Id);
+            e.HasIndex(fe => fe.Date);
+            e.HasIndex(fe => fe.CategoryId);
+            e.Property(fe => fe.Amount).HasColumnType("decimal(18,2)");
+            e.Property(fe => fe.Description).HasMaxLength(500);
+            e.HasOne(fe => fe.Week).WithMany().HasForeignKey(fe => fe.WeekId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne(fe => fe.RecurringPayment).WithMany(rp => rp.GeneratedEntries).HasForeignKey(fe => fe.RecurringPaymentId).OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<FinanceBudget>(e =>
+        {
+            e.HasKey(b => b.Id);
+            e.HasIndex(b => new { b.CategoryId, b.MonthYear }).IsUnique();
+            e.Property(b => b.Amount).HasColumnType("decimal(18,2)");
+            e.Property(b => b.MonthYear).HasMaxLength(7);
+        });
+
+        modelBuilder.Entity<Debt>(e =>
+        {
+            e.HasKey(d => d.Id);
+            e.Property(d => d.PersonName).HasMaxLength(200);
+            e.Property(d => d.Description).HasMaxLength(500);
+            e.Property(d => d.Amount).HasColumnType("decimal(18,2)");
+            e.HasMany(d => d.Payments).WithOne(p => p.Debt).HasForeignKey(p => p.DebtId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<DebtPayment>(e =>
+        {
+            e.HasKey(p => p.Id);
+            e.HasIndex(p => p.DebtId);
+            e.Property(p => p.Amount).HasColumnType("decimal(18,2)");
+            e.Property(p => p.Note).HasMaxLength(500);
+        });
+
+        modelBuilder.Entity<RecurringPayment>(e =>
+        {
+            e.HasKey(rp => rp.Id);
+            e.Property(rp => rp.Name).HasMaxLength(200);
+            e.Property(rp => rp.Amount).HasColumnType("decimal(18,2)");
+            e.Property(rp => rp.Note).HasMaxLength(1000);
         });
     }
 }

@@ -21,6 +21,7 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty] private string _searchQuery = string.Empty;
     [ObservableProperty] private bool _isPomodoroOpen;
     [ObservableProperty] private bool _isStatisticsOpen;
+    [ObservableProperty] private bool _isFinanceOpen;
     [ObservableProperty] private bool _isAutoStartEnabled;
     [ObservableProperty] private TaskCategory _filterCategory = TaskCategory.None;
     [ObservableProperty] private bool _isLoading;
@@ -33,6 +34,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     public PomodoroViewModel Pomodoro { get; } = new();
     public StatisticsViewModel Statistics { get; }
+    public FinanceViewModel Finance { get; }
     public PlannerService Service => _service;
     public string DailyQuote { get; private set; } = QuoteService.GetDailyQuote();
     public string AppVersion { get; } = typeof(MainViewModel).Assembly.GetName().Version?.ToString(3) ?? "?";
@@ -47,6 +49,7 @@ public sealed partial class MainViewModel : ObservableObject
     public MainViewModel()
     {
         Statistics = new StatisticsViewModel(_service);
+        Finance = new FinanceViewModel(_service);
         Loc.LanguageChanged += OnLanguageChanged;
     }
 
@@ -175,6 +178,7 @@ public sealed partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand] private void ToggleSettings() => IsSettingsOpen = !IsSettingsOpen;
+    [RelayCommand] private void ToggleFinance() => IsFinanceOpen = !IsFinanceOpen;
 
     [RelayCommand]
     private void ToggleSearch()
