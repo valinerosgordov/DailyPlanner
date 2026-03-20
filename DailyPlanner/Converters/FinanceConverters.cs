@@ -102,6 +102,40 @@ public sealed class IntEqualConverter : MarkupExtension, IValueConverter
     public override object ProvideValue(IServiceProvider serviceProvider) => this;
 }
 
+/// <summary>Calculates bar width as proportion of total (max 600px).</summary>
+public sealed class CategoryBarWidthConverter : MarkupExtension, IMultiValueConverter
+{
+    private const double MaxWidth = 600;
+
+    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (values.Length >= 2 && values[0] is decimal amount && values[1] is decimal total && total > 0)
+            return Math.Max(4, (double)(amount / total) * MaxWidth);
+        return 4.0;
+    }
+
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+
+    public override object ProvideValue(IServiceProvider serviceProvider) => this;
+}
+
+/// <summary>Converts decimal amount to bar height (max 80px, log-scaled).</summary>
+public sealed class TrendBarHeightConverter : MarkupExtension, IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is decimal d && d > 0)
+            return Math.Min(80, Math.Max(4, Math.Log10((double)d + 1) * 20));
+        return 4.0;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+
+    public override object ProvideValue(IServiceProvider serviceProvider) => this;
+}
+
 /// <summary>Shows element only when int == parameter.</summary>
 public sealed class IntToVisibilityConverter : MarkupExtension, IValueConverter
 {

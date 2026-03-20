@@ -790,4 +790,51 @@ public sealed class PlannerService
 
         return [.. starts.Distinct().OrderBy(d => d)];
     }
+
+    // ─── Finance: Analytics ─────────────────────────────────────────
+
+    public async Task<List<CategoryBreakdownItem>> GetExpensesByCategoryAsync(DateOnly from, DateOnly to, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        return await db.FinanceEntries
+            .Where(e => e.Type == FinanceEntryType.Expense && e.Date >= from && e.Date <= to)
+            .GroupBy(e => new { e.CategoryId, e.Category!.Name, e.Category.Icon, e.Category.Color })
+            .Select(g => new CategoryBreakdownItem(
+                g.Key.CategoryId, g.Key.Name, g.Key.Icon, g.Key.Color, g.Sum(e => e.Amount)))
+            .OrderByDescending(x => x.Amount)
+            .ToListAsync(ct);
+    }
+
+    public async Task<List<MonthlyFinanceSummary>> GetMonthlyTotalsAsync(int months, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var cutoff = DateOnly.FromDateTime(DateTime.Today).AddMonths(-months + 1);
+        cutoff = new DateOnly(cutoff.Year, cutoff.Month, 1);
+
+        var entries = await db.FinanceEntries
+            .Where(e => e.Date >= cutoff)
+            .GroupBy(e => new { e.Date.Year, e.Date.Month, e.Type })
+            .Select(g => new { g.Key.Year, g.Key.Month, g.Key.Type, Total = g.Sum(e => e.Amount) })
+            .ToListAsync(ct);
+
+        var result = new List<MonthlyFinanceSummary>();
+        for (var i = 0; i < months; i++)
+        {
+            var d = DateOnly.FromDateTime(DateTime.Today).AddMonths(-months + 1 + i);
+            var y = d.Year;
+            var m = d.Month;
+            var inc = entries.FirstOrDefault(e => e.Year == y && e.Month == m && e.Type == FinanceEntryType.Income)?.Total ?? 0;
+            var exp = entries.FirstOrDefault(e => e.Year == y && e.Month == m && e.Type == FinanceEntryType.Expense)?.Total ?? 0;
+            result.Add(new MonthlyFinanceSummary(y, m, inc, exp));
+        }
+
+        return result;
+    }
+}
+
+public sealed record CategoryBreakdownItem(int CategoryId, string Name, string Icon, string Color, decimal Amount);
+public sealed record MonthlyFinanceSummary(int Year, int Month, decimal Income, decimal Expenses)
+{
+    public decimal Balance => Income - Expenses;
+    public string Label => $"{Loc.GetMonthName(Month)[..3]} {Year % 100:D2}";
 }

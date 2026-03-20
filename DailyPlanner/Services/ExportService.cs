@@ -1,5 +1,7 @@
+using System.Collections.ObjectModel;
 using ClosedXML.Excel;
 using DailyPlanner.Models;
+using DailyPlanner.ViewModels;
 
 namespace DailyPlanner.Services;
 
@@ -138,6 +140,134 @@ public static class ExportService
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[ExportService] Export failed: {ex.Message}");
+            return false;
+        }
+    }
+
+    public static bool ExportFinanceToExcel(
+        string periodLabel,
+        ObservableCollection<FinanceEntryViewModel> income,
+        ObservableCollection<FinanceEntryViewModel> expenses,
+        ObservableCollection<BudgetViewModel> budgets,
+        ObservableCollection<CategoryBreakdownItem> breakdown,
+        decimal totalIncome, decimal totalExpenses, decimal balance,
+        string filePath)
+    {
+        try
+        {
+            using var workbook = new XLWorkbook();
+
+            // Summary sheet
+            var ws = workbook.AddWorksheet(Loc.Get("Finance"));
+            ws.Cell("A1").Value = $"{Loc.Get("Finance")} — {periodLabel}";
+            ws.Range("A1:D1").Merge().Style.Font.SetBold(true).Font.SetFontSize(14);
+
+            ws.Cell("A3").Value = Loc.Get("Income");
+            ws.Cell("B3").Value = totalIncome;
+            ws.Cell("B3").Style.NumberFormat.Format = "#,##0.00";
+            ws.Cell("A4").Value = Loc.Get("Expenses");
+            ws.Cell("B4").Value = totalExpenses;
+            ws.Cell("B4").Style.NumberFormat.Format = "#,##0.00";
+            ws.Cell("A5").Value = Loc.Get("BalanceLabel");
+            ws.Cell("B5").Value = balance;
+            ws.Cell("B5").Style.NumberFormat.Format = "#,##0.00";
+            ws.Range("A3:A5").Style.Font.SetBold(true);
+
+            // Income entries
+            var row = 7;
+            ws.Cell(row, 1).Value = Loc.Get("Income");
+            ws.Cell(row, 1).Style.Font.SetBold(true).Font.SetFontSize(12);
+            row++;
+            ws.Cell(row, 1).Value = Loc.Get("CtxCategory");
+            ws.Cell(row, 2).Value = Loc.Get("FinanceDescription");
+            ws.Cell(row, 3).Value = Loc.Get("Amount");
+            ws.Cell(row, 4).Value = Loc.Get("Date");
+            ws.Range(row, 1, row, 4).Style.Font.SetBold(true);
+            row++;
+
+            foreach (var e in income)
+            {
+                ws.Cell(row, 1).Value = $"{e.CategoryIcon} {e.CategoryName}";
+                ws.Cell(row, 2).Value = e.Description;
+                ws.Cell(row, 3).Value = e.Amount;
+                ws.Cell(row, 3).Style.NumberFormat.Format = "#,##0.00";
+                ws.Cell(row, 4).Value = e.DisplayDate;
+                row++;
+            }
+
+            // Expense entries
+            row++;
+            ws.Cell(row, 1).Value = Loc.Get("Expenses");
+            ws.Cell(row, 1).Style.Font.SetBold(true).Font.SetFontSize(12);
+            row++;
+            ws.Cell(row, 1).Value = Loc.Get("CtxCategory");
+            ws.Cell(row, 2).Value = Loc.Get("FinanceDescription");
+            ws.Cell(row, 3).Value = Loc.Get("Amount");
+            ws.Cell(row, 4).Value = Loc.Get("Date");
+            ws.Range(row, 1, row, 4).Style.Font.SetBold(true);
+            row++;
+
+            foreach (var e in expenses)
+            {
+                ws.Cell(row, 1).Value = $"{e.CategoryIcon} {e.CategoryName}";
+                ws.Cell(row, 2).Value = e.Description;
+                ws.Cell(row, 3).Value = e.Amount;
+                ws.Cell(row, 3).Style.NumberFormat.Format = "#,##0.00";
+                ws.Cell(row, 4).Value = e.DisplayDate;
+                row++;
+            }
+
+            // Budgets
+            if (budgets.Count > 0)
+            {
+                row++;
+                ws.Cell(row, 1).Value = Loc.Get("Budget");
+                ws.Cell(row, 1).Style.Font.SetBold(true).Font.SetFontSize(12);
+                row++;
+                ws.Cell(row, 1).Value = Loc.Get("CtxCategory");
+                ws.Cell(row, 2).Value = Loc.Get("Budget");
+                ws.Cell(row, 3).Value = Loc.Get("Spent");
+                ws.Cell(row, 4).Value = "%";
+                ws.Range(row, 1, row, 4).Style.Font.SetBold(true);
+                row++;
+
+                foreach (var b in budgets)
+                {
+                    ws.Cell(row, 1).Value = $"{b.CategoryIcon} {b.CategoryName}";
+                    ws.Cell(row, 2).Value = b.Amount;
+                    ws.Cell(row, 2).Style.NumberFormat.Format = "#,##0.00";
+                    ws.Cell(row, 3).Value = b.SpentAmount;
+                    ws.Cell(row, 3).Style.NumberFormat.Format = "#,##0.00";
+                    ws.Cell(row, 4).Value = b.ProgressPercent / 100;
+                    ws.Cell(row, 4).Style.NumberFormat.Format = "0%";
+                    row++;
+                }
+            }
+
+            // Category breakdown
+            if (breakdown.Count > 0)
+            {
+                row++;
+                ws.Cell(row, 1).Value = Loc.Get("FinCategories");
+                ws.Cell(row, 1).Style.Font.SetBold(true).Font.SetFontSize(12);
+                row++;
+
+                foreach (var c in breakdown)
+                {
+                    ws.Cell(row, 1).Value = $"{c.Icon} {c.Name}";
+                    ws.Cell(row, 2).Value = c.Amount;
+                    ws.Cell(row, 2).Style.NumberFormat.Format = "#,##0.00";
+                    row++;
+                }
+            }
+
+            ws.Columns().AdjustToContents();
+            workbook.SaveAs(filePath);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ExportService] Finance export failed: {ex.Message}");
             return false;
         }
     }
