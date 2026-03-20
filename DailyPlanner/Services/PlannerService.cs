@@ -526,31 +526,59 @@ public sealed class PlannerService
         }
     }
 
+    private static readonly Dictionary<string, string> SeedCategoryKeys = new()
+    {
+        ["Salary"] = "CatSalary", ["Freelance"] = "CatFreelance", ["Gifts"] = "CatGifts",
+        ["Investments"] = "CatInvestments", ["Other Income"] = "CatOtherIncome",
+        ["Food"] = "CatFood", ["Transport"] = "CatTransport", ["Housing"] = "CatHousing",
+        ["Entertainment"] = "CatEntertainment", ["Health"] = "CatHealth",
+        ["Clothing"] = "CatClothing", ["Subscriptions"] = "CatSubscriptions",
+        ["Education"] = "CatEducation", ["Other Expense"] = "CatOtherExpense",
+    };
+
     public async Task SeedFinanceCategoriesAsync(CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        if (await db.FinanceCategories.AnyAsync(ct)) return;
 
-        var categories = new List<FinanceCategory>
+        if (!await db.FinanceCategories.AnyAsync(ct))
         {
-            new() { Name = "Salary", Icon = "\uD83D\uDCBC", Color = "#34D399", Type = FinanceEntryType.Income, Order = 1 },
-            new() { Name = "Freelance", Icon = "\uD83D\uDCBB", Color = "#38BDF8", Type = FinanceEntryType.Income, Order = 2 },
-            new() { Name = "Gifts", Icon = "\uD83C\uDF81", Color = "#A78BFA", Type = FinanceEntryType.Income, Order = 3 },
-            new() { Name = "Investments", Icon = "\uD83D\uDCC8", Color = "#FBBF24", Type = FinanceEntryType.Income, Order = 4 },
-            new() { Name = "Other Income", Icon = "\u2795", Color = "#6EE7B7", Type = FinanceEntryType.Income, Order = 5 },
-            new() { Name = "Food", Icon = "\uD83C\uDF54", Color = "#FB923C", Type = FinanceEntryType.Expense, Order = 1 },
-            new() { Name = "Transport", Icon = "\uD83D\uDE97", Color = "#38BDF8", Type = FinanceEntryType.Expense, Order = 2 },
-            new() { Name = "Housing", Icon = "\uD83C\uDFE0", Color = "#A78BFA", Type = FinanceEntryType.Expense, Order = 3 },
-            new() { Name = "Entertainment", Icon = "\uD83C\uDFAE", Color = "#F472B6", Type = FinanceEntryType.Expense, Order = 4 },
-            new() { Name = "Health", Icon = "\uD83D\uDC8A", Color = "#34D399", Type = FinanceEntryType.Expense, Order = 5 },
-            new() { Name = "Clothing", Icon = "\uD83D\uDC55", Color = "#FBBF24", Type = FinanceEntryType.Expense, Order = 6 },
-            new() { Name = "Subscriptions", Icon = "\uD83D\uDCF1", Color = "#FB7185", Type = FinanceEntryType.Expense, Order = 7 },
-            new() { Name = "Education", Icon = "\uD83D\uDCDA", Color = "#818CF8", Type = FinanceEntryType.Expense, Order = 8 },
-            new() { Name = "Other Expense", Icon = "\u2796", Color = "#585878", Type = FinanceEntryType.Expense, Order = 9 },
-        };
+            var categories = new List<FinanceCategory>
+            {
+                new() { Name = Loc.Get("CatSalary"), Icon = "\uD83D\uDCBC", Color = "#34D399", Type = FinanceEntryType.Income, Order = 1 },
+                new() { Name = Loc.Get("CatFreelance"), Icon = "\uD83D\uDCBB", Color = "#38BDF8", Type = FinanceEntryType.Income, Order = 2 },
+                new() { Name = Loc.Get("CatGifts"), Icon = "\uD83C\uDF81", Color = "#A78BFA", Type = FinanceEntryType.Income, Order = 3 },
+                new() { Name = Loc.Get("CatInvestments"), Icon = "\uD83D\uDCC8", Color = "#FBBF24", Type = FinanceEntryType.Income, Order = 4 },
+                new() { Name = Loc.Get("CatOtherIncome"), Icon = "\u2795", Color = "#6EE7B7", Type = FinanceEntryType.Income, Order = 5 },
+                new() { Name = Loc.Get("CatFood"), Icon = "\uD83C\uDF54", Color = "#FB923C", Type = FinanceEntryType.Expense, Order = 1 },
+                new() { Name = Loc.Get("CatTransport"), Icon = "\uD83D\uDE97", Color = "#38BDF8", Type = FinanceEntryType.Expense, Order = 2 },
+                new() { Name = Loc.Get("CatHousing"), Icon = "\uD83C\uDFE0", Color = "#A78BFA", Type = FinanceEntryType.Expense, Order = 3 },
+                new() { Name = Loc.Get("CatEntertainment"), Icon = "\uD83C\uDFAE", Color = "#F472B6", Type = FinanceEntryType.Expense, Order = 4 },
+                new() { Name = Loc.Get("CatHealth"), Icon = "\uD83D\uDC8A", Color = "#34D399", Type = FinanceEntryType.Expense, Order = 5 },
+                new() { Name = Loc.Get("CatClothing"), Icon = "\uD83D\uDC55", Color = "#FBBF24", Type = FinanceEntryType.Expense, Order = 6 },
+                new() { Name = Loc.Get("CatSubscriptions"), Icon = "\uD83D\uDCF1", Color = "#FB7185", Type = FinanceEntryType.Expense, Order = 7 },
+                new() { Name = Loc.Get("CatEducation"), Icon = "\uD83D\uDCDA", Color = "#818CF8", Type = FinanceEntryType.Expense, Order = 8 },
+                new() { Name = Loc.Get("CatOtherExpense"), Icon = "\u2796", Color = "#585878", Type = FinanceEntryType.Expense, Order = 9 },
+            };
 
-        db.FinanceCategories.AddRange(categories);
-        await db.SaveChangesAsync(ct);
+            db.FinanceCategories.AddRange(categories);
+            await db.SaveChangesAsync(ct);
+            return;
+        }
+
+        // Update existing seed category names to current language
+        var allCats = await db.FinanceCategories.ToListAsync(ct);
+        var changed = false;
+        foreach (var cat in allCats)
+        {
+            // Check if name matches any known English seed name
+            var key = SeedCategoryKeys.GetValueOrDefault(cat.Name);
+            if (key is not null)
+            {
+                cat.Name = Loc.Get(key);
+                changed = true;
+            }
+        }
+        if (changed) await db.SaveChangesAsync(ct);
     }
 
     // ─── Finance: Entries ─────────────────────────────────────────
