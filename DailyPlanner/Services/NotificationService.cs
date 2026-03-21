@@ -32,10 +32,13 @@ public static class NotificationService
     private static void OnCheck(object? sender, EventArgs e)
     {
         var today = DateOnly.FromDateTime(DateTime.Today);
-        if (today != _lastCheckDate)
+        lock (_lock)
         {
-            lock (_lock) { _notifiedToday.Clear(); }
-            _lastCheckDate = today;
+            if (today != _lastCheckDate)
+            {
+                _notifiedToday.Clear();
+                _lastCheckDate = today;
+            }
         }
         // Notification check delegated to MainViewModel
     }
