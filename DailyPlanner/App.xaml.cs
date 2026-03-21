@@ -23,7 +23,7 @@ public partial class App : Application
             catch { }
             System.Windows.MessageBox.Show(
                 $"An unexpected error occurred:\n{e.Exception.Message}",
-                "Daily Planner", MessageBoxButton.OK, MessageBoxImage.Error);
+                "Daily & Financial Planner", MessageBoxButton.OK, MessageBoxImage.Error);
             e.Handled = true;
         };
 
@@ -69,8 +69,10 @@ public partial class App : Application
             HorizontalAlignment = HorizontalAlignment.Center,
             Margin = new Thickness(0, 0, 0, 12)
         };
-        title.Inlines.Add(new System.Windows.Documents.Run("Daily ") { Foreground = new SolidColorBrush(Color.FromRgb(0x7C, 0x5C, 0xFC)) });
-        title.Inlines.Add(new System.Windows.Documents.Run("Planner") { Foreground = Brushes.White });
+        title.Inlines.Add(new System.Windows.Documents.Run("Daily") { Foreground = new SolidColorBrush(Color.FromRgb(0x7C, 0x5C, 0xFC)) });
+        title.Inlines.Add(new System.Windows.Documents.Run(" & ") { Foreground = Brushes.White });
+        title.Inlines.Add(new System.Windows.Documents.Run("Financial") { Foreground = new SolidColorBrush(Color.FromRgb(0x7C, 0x5C, 0xFC)) });
+        title.Inlines.Add(new System.Windows.Documents.Run(" Planner") { Foreground = Brushes.White });
 
         var subtitle = new System.Windows.Controls.TextBlock
         {
@@ -135,7 +137,7 @@ public partial class App : Application
             splash.Close();
             System.Windows.MessageBox.Show(
                 string.Format(Loc.Get("DbError"), ex.Message),
-                "Daily Planner",
+                "Daily & Financial Planner",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
             Shutdown(1);
