@@ -46,7 +46,9 @@
                         <ui:SymbolIcon Symbol="CalendarLtr24" FontSize="22" Foreground="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
                         <TextBlock FontSize="18" FontWeight="Bold" FontFamily="{StaticResource MainFont}">
                             <Run Text="Daily" Foreground="{DynamicResource AccentBrush}"/>
-                            <Run Text="Planner" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <Run Text=" &amp; " Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <Run Text="Financial" Foreground="{DynamicResource AccentBrush}"/>
+                            <Run Text=" Planner" Foreground="{DynamicResource TextPrimaryBrush}"/>
                         </TextBlock>
                     </StackPanel>
                     <TextBlock Text="{Binding SelectedYear}" FontSize="11"
