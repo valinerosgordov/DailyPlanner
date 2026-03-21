@@ -72,6 +72,7 @@
             <Setter Property="FontSize" Value="11"/>
             <Setter Property="Padding" Value="2,1"/>
             <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="MinWidth" Value="90"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -456,7 +457,7 @@
                                                     <Run Text="{Binding Amount, StringFormat=N2, Mode=OneWay}"/>
                                                 </TextBlock>
                                             </DockPanel>
-                                            <ProgressBar Value="{Binding ProgressPercent}" Maximum="100"
+                                            <ProgressBar Value="{Binding ProgressPercent, Mode=OneWay}" Maximum="100"
                                                          Height="4" Margin="0,8,0,0"
                                                          Foreground="{Binding ProgressPercent, Converter={StaticResource BudgetBrushConv}}"
                                                          Style="{DynamicResource BudgetProgressBar}"/>
@@ -555,7 +556,7 @@
                                                     </StackPanel>
                                                 </StackPanel>
                                             </DockPanel>
-                                            <ProgressBar Value="{Binding ProgressPercent}" Maximum="100"
+                                            <ProgressBar Value="{Binding ProgressPercent, Mode=OneWay}" Maximum="100"
                                                          Height="4" Margin="0,10,0,6"
                                                          Style="{DynamicResource AccentProgressBar}"/>
                                             <DockPanel>
@@ -631,7 +632,7 @@
                                                     </StackPanel>
                                                 </StackPanel>
                                             </DockPanel>
-                                            <ProgressBar Value="{Binding ProgressPercent}" Maximum="100"
+                                            <ProgressBar Value="{Binding ProgressPercent, Mode=OneWay}" Maximum="100"
                                                          Height="4" Margin="0,10,0,6"
                                                          Style="{DynamicResource AccentProgressBar}"/>
                                             <DockPanel>
@@ -814,7 +815,7 @@
                                                     </Grid>
                                                 </StackPanel>
                                             </DockPanel>
-                                            <ProgressBar Value="{Binding ProgressPercent}" Maximum="100"
+                                            <ProgressBar Value="{Binding ProgressPercent, Mode=OneWay}" Maximum="100"
                                                          Height="6" Margin="0,10,0,4"
                                                          Style="{DynamicResource AccentProgressBar}"/>
                                             <DockPanel>
@@ -1175,7 +1176,7 @@
                                        Foreground="{DynamicResource InfoBrush}" VerticalAlignment="Center">
                                 <Run Text="{Binding SavingsRatePercent, StringFormat=N1, Mode=OneWay}"/><Run Text="%"/>
                             </TextBlock>
-                            <ProgressBar Value="{Binding SavingsRatePercent}" Maximum="100"
+                            <ProgressBar Value="{Binding SavingsRatePercent, Mode=OneWay}" Maximum="100"
                                          Height="10" Margin="0,0,20,0"
                                          Style="{DynamicResource AccentProgressBar}"/>
                         </DockPanel>

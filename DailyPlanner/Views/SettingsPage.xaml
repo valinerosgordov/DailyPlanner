@@ -100,7 +100,7 @@
                                        Visibility="{Binding IsUpdateAvailable, Converter={StaticResource VisConv}}"/>
                         </StackPanel>
                     </DockPanel>
-                    <ProgressBar Value="{Binding UpdateProgress}" Maximum="100" Height="3"
+                    <ProgressBar Value="{Binding UpdateProgress, Mode=OneWay}" Maximum="100" Height="3"
                                  Visibility="{Binding IsUpdateAvailable, Converter={StaticResource VisConv}}"
                                  Foreground="{DynamicResource AccentBrush}"
                                  Background="{DynamicResource InputBgBrush}"

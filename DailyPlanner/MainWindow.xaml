@@ -392,7 +392,7 @@
                 <TextBlock Text="{Binding TimeDisplay}" FontSize="42" FontWeight="Bold"
                            HorizontalAlignment="Center" FontFamily="Cascadia Code, Consolas"
                            Foreground="{DynamicResource TextPrimaryBrush}"/>
-                <ProgressBar Value="{Binding ProgressPercent}" Maximum="100" Height="3" Margin="0,8,0,8"
+                <ProgressBar Value="{Binding ProgressPercent, Mode=OneWay}" Maximum="100" Height="3" Margin="0,8,0,8"
                              Style="{StaticResource DayProgressBar}"/>
 
                 <!-- Timer Settings -->
