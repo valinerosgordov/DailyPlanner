@@ -23,9 +23,9 @@
         <StackPanel>
             <!-- Header -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                <TextBlock Text="&#x2600;" FontSize="24" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <TextBlock Text="{Binding GreetingIcon}" FontSize="24" VerticalAlignment="Center" Margin="0,0,10,0"/>
                 <StackPanel>
-                    <TextBlock Text="{Binding [MyDayGreeting], Source={x:Static svc:Loc.Instance}}"
+                    <TextBlock Text="{Binding Greeting}"
                                FontSize="18" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                     <TextBlock Text="{Binding TodayDate}" FontSize="12"
                                Foreground="{DynamicResource MutedBrush}"/>

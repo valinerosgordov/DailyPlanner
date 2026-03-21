@@ -18,10 +18,29 @@ public sealed partial class MyDayViewModel : ObservableObject
     [ObservableProperty]
     private bool _dontShowAgain;
 
+    public string Greeting { get; }
+    public string GreetingIcon { get; }
+
     public MyDayViewModel(WeekViewModel? week)
     {
         var today = DateOnly.FromDateTime(DateTime.Today);
         TodayDate = today.ToString("dddd, dd MMMM yyyy");
+
+        var hour = DateTime.Now.Hour;
+        Greeting = hour switch
+        {
+            >= 5 and < 12 => Loc.Get("GreetingMorning"),
+            >= 12 and < 17 => Loc.Get("GreetingAfternoon"),
+            >= 17 and < 22 => Loc.Get("GreetingEvening"),
+            _ => Loc.Get("GreetingNight")
+        };
+        GreetingIcon = hour switch
+        {
+            >= 5 and < 12 => "\u2600\uFE0F",   // ☀️
+            >= 12 and < 17 => "\u26C5",          // ⛅
+            >= 17 and < 22 => "\uD83C\uDF19",   // 🌙
+            _ => "\uD83C\uDF1F"                  // 🌟
+        };
 
         YesterdayTasks = [];
         TodayTasks = [];
