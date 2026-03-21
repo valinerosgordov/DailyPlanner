@@ -19,7 +19,7 @@ public sealed class UpdateService
     {
         try
         {
-            return await _manager.CheckForUpdatesAsync();
+            return await _manager.CheckForUpdatesAsync().ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -30,7 +30,7 @@ public sealed class UpdateService
 
     public async Task DownloadAndApplyAsync(UpdateInfo update, Action<int>? progress = null, CancellationToken ct = default)
     {
-        await _manager.DownloadUpdatesAsync(update, progress);
+        await _manager.DownloadUpdatesAsync(update, progress).ConfigureAwait(false);
         _manager.ApplyUpdatesAndRestart(update);
     }
 }
