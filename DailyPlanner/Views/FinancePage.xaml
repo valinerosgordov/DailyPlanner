@@ -104,11 +104,9 @@
                 </StackPanel>
             </DockPanel>
 
-            <!-- Summary Cards (5 cards) -->
-            <Grid Margin="0,0,0,20">
+            <!-- Summary Cards — Row 1: Income, Expenses, Balance, Net Worth -->
+            <Grid Margin="0,0,0,10">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
@@ -142,38 +140,74 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Balance -->
+                <!-- Balance (Cash Flow) -->
                 <Border Grid.Column="4" Style="{StaticResource PlannerCard}" Padding="14">
                     <StackPanel>
                         <TextBlock Text="{Binding [BalanceLabel], Source={x:Static svc:Loc.Instance}}"
                                    Style="{StaticResource StatLabel}"/>
                         <TextBlock Text="{Binding Balance, StringFormat=N2}" FontSize="24" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"/>
+                        <TextBlock FontSize="10" Foreground="{DynamicResource MutedBrush}">
+                            <Run Text="{Binding [Savings], Source={x:Static svc:Loc.Instance}, Mode=OneWay}"/>
+                            <Run Text=" "/>
+                            <Run Text="{Binding SavingsRatePercent, StringFormat=N1, Mode=OneWay}"/>
+                            <Run Text="%" FontWeight="SemiBold"/>
+                            <Run Text=" "/><Run Text="{Binding SavingsTrendArrow, Mode=OneWay}" FontWeight="Bold"/>
+                        </TextBlock>
                     </StackPanel>
                 </Border>
 
-                <!-- Savings -->
+                <!-- Net Worth = Balance + OwedToMe - IOwn -->
                 <Border Grid.Column="6" Style="{StaticResource PlannerCard}" Padding="14">
                     <StackPanel>
-                        <TextBlock Style="{StaticResource StatLabel}">
-                            <Run Text="{Binding [Savings], Source={x:Static svc:Loc.Instance}, Mode=OneWay}"/>
-                            <Run Text="{Binding SavingsTrendArrow, Mode=OneWay}" FontWeight="Bold"/>
-                        </TextBlock>
-                        <TextBlock Text="{Binding Savings, StringFormat=N2}" FontSize="24" FontWeight="Bold"
+                        <TextBlock Text="{Binding [NetWorth], Source={x:Static svc:Loc.Instance}}"
+                                   Style="{StaticResource StatLabel}"/>
+                        <TextBlock Text="{Binding NetWorth, StringFormat=N2}" FontSize="24" FontWeight="Bold"
                                    Foreground="{DynamicResource InfoBrush}"/>
-                        <TextBlock FontSize="10" Foreground="{DynamicResource MutedBrush}">
-                            <Run Text="{Binding SavingsRatePercent, StringFormat=N1, Mode=OneWay}"/>
-                            <Run Text="%"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Summary Cards — Row 2: Owed to Me, I Owe, Obligatory -->
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Owed to Me -->
+                <Border Grid.Column="0" Style="{StaticResource PlannerCard}" Padding="14">
+                    <StackPanel>
+                        <TextBlock Text="{Binding [DebtLent], Source={x:Static svc:Loc.Instance}}"
+                                   Style="{StaticResource StatLabel}"/>
+                        <TextBlock FontSize="20" FontWeight="Bold"
+                                   Foreground="{DynamicResource SuccessBrush}">
+                            <Run Text="+"/><Run Text="{Binding DebtOwedToMe, StringFormat=N2, Mode=OneWay}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <!-- I Owe -->
+                <Border Grid.Column="2" Style="{StaticResource PlannerCard}" Padding="14">
+                    <StackPanel>
+                        <TextBlock Text="{Binding [DebtBorrowed], Source={x:Static svc:Loc.Instance}}"
+                                   Style="{StaticResource StatLabel}"/>
+                        <TextBlock FontSize="20" FontWeight="Bold"
+                                   Foreground="{DynamicResource DangerBrush}">
+                            <Run Text="-"/><Run Text="{Binding DebtIOwn, StringFormat=N2, Mode=OneWay}"/>
                         </TextBlock>
                     </StackPanel>
                 </Border>
 
                 <!-- Obligatory -->
-                <Border Grid.Column="8" Style="{StaticResource PlannerCard}" Padding="14">
+                <Border Grid.Column="4" Style="{StaticResource PlannerCard}" Padding="14">
                     <StackPanel>
                         <TextBlock Text="{Binding [MonthlyObligatory], Source={x:Static svc:Loc.Instance}}"
                                    Style="{StaticResource StatLabel}"/>
-                        <TextBlock Text="{Binding MonthlyObligatory, StringFormat=N2}" FontSize="24" FontWeight="Bold"
+                        <TextBlock Text="{Binding MonthlyObligatory, StringFormat=N2}" FontSize="20" FontWeight="Bold"
                                    Foreground="{DynamicResource WarningBrush}"/>
                     </StackPanel>
                 </Border>
@@ -340,6 +374,30 @@
                                    Command="{Binding AddIncomeEntryCommand}" Margin="0,10,0,0"/>
                     </StackPanel>
                 </Border>
+
+                <!-- Income Category Management -->
+                <Border Style="{StaticResource PlannerCard}" Padding="16" Margin="0,0,0,0">
+                    <StackPanel>
+                        <TextBlock Text="{Binding [FinCategories], Source={x:Static svc:Loc.Instance}}"
+                                   FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,8"/>
+                        <ItemsControl ItemsSource="{Binding IncomeCategories}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                        <TextBox Text="{Binding Icon, UpdateSourceTrigger=LostFocus}"
+                                                 FontSize="18" Width="36" TextAlignment="Center"
+                                                 Background="Transparent" BorderThickness="0"
+                                                 Padding="2" VerticalAlignment="Center"
+                                                 ToolTip="{Binding [ChangeIcon], Source={x:Static svc:Loc.Instance}}"/>
+                                        <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource FinanceInlineTextBox}" FontSize="12"
+                                                 MinWidth="100" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
             </StackPanel>
 
             <!-- ═══════════════ TAB 1: Expenses ═══════════════ -->
@@ -478,6 +536,30 @@
                         <ui:Button Content="{Binding [AddBudget], Source={x:Static svc:Loc.Instance}}"
                                    Icon="{ui:SymbolIcon Add24}" Appearance="Transparent"
                                    Command="{Binding AddBudgetCommand}" Margin="0,6,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Expense Category Management -->
+                <Border Style="{StaticResource PlannerCard}" Padding="16" Margin="0,0,0,0">
+                    <StackPanel>
+                        <TextBlock Text="{Binding [FinCategories], Source={x:Static svc:Loc.Instance}}"
+                                   FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,8"/>
+                        <ItemsControl ItemsSource="{Binding ExpenseCategories}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                        <TextBox Text="{Binding Icon, UpdateSourceTrigger=LostFocus}"
+                                                 FontSize="18" Width="36" TextAlignment="Center"
+                                                 Background="Transparent" BorderThickness="0"
+                                                 Padding="2" VerticalAlignment="Center"
+                                                 ToolTip="{Binding [ChangeIcon], Source={x:Static svc:Loc.Instance}}"/>
+                                        <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource FinanceInlineTextBox}" FontSize="12"
+                                                 MinWidth="100" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </StackPanel>
                 </Border>
             </StackPanel>

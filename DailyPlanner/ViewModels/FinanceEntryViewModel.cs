@@ -67,7 +67,14 @@ public sealed partial class FinanceEntryViewModel : ObservableObject
     partial void OnDescriptionChanged(string value) { _model.Description = value; Save(); }
     partial void OnDateChanged(DateOnly value) { _model.Date = value; OnPropertyChanged(nameof(DisplayDate)); Save(); }
     partial void OnTypeChanged(FinanceEntryType value) { _model.Type = value; OnPropertyChanged(nameof(DisplayAmount)); Save(); }
-    partial void OnCategoryIdChanged(int value) { _model.CategoryId = value; Save(); }
+    partial void OnCategoryIdChanged(int value)
+    {
+        _model.CategoryId = value;
+        OnPropertyChanged(nameof(CategoryIcon));
+        OnPropertyChanged(nameof(CategoryName));
+        OnPropertyChanged(nameof(CategoryColor));
+        Save();
+    }
     partial void OnIsPaidChanged(bool value) { _model.IsPaid = value; Save(); }
 
     private void Save()
