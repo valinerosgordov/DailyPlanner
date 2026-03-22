@@ -27,6 +27,7 @@ public sealed partial class FinanceViewModel : ObservableObject
     [ObservableProperty] private decimal _savings;
     [ObservableProperty] private string _savingsTrendArrow = string.Empty;
     [ObservableProperty] private double _savingsRatePercent;
+    [ObservableProperty] private decimal _netWorth;
 
     // Filter / Search
     [ObservableProperty] private string _searchText = string.Empty;
@@ -248,9 +249,10 @@ public sealed partial class FinanceViewModel : ObservableObject
         }
         MonthlyObligatory = Math.Round(obligatory, 2);
 
-        // Savings
+        // Savings & Net Worth
         Savings = income - expenses;
         SavingsRatePercent = income > 0 ? Math.Max(0, Math.Round((double)(Savings / income) * 100, 1)) : 0;
+        NetWorth = Balance + owedToMe - iOwe;
 
         // Analytics: category breakdown
         var breakdown = await _service.GetExpensesByCategoryAsync(firstDay, lastDay);
@@ -468,6 +470,7 @@ public sealed partial class FinanceViewModel : ObservableObject
     {
         DebtOwedToMe = LentDebts.Sum(d => d.RemainingAmount);
         DebtIOwn = BorrowedDebts.Sum(d => d.RemainingAmount);
+        NetWorth = Balance + DebtOwedToMe - DebtIOwn;
     }
 
     // ─── Recurring Payments ──────────────────────────────────────
