@@ -25,4 +25,4 @@ jobs:
         run: dotnet build --no-restore --configuration Release
 
       - name: Publish
-        run: dotnet publish DailyPlanner/DailyPlanner.csproj -c Release -r win-x64 --self-contained --no-restore -o ./publish
+        run: dotnet publish DailyPlanner/DailyPlanner.csproj -c Release -r win-x64 --self-contained -o ./publish
