@@ -35,6 +35,10 @@ public sealed partial class FinanceViewModel : ObservableObject
     [ObservableProperty] private DateOnly? _filterDateFrom;
     [ObservableProperty] private DateOnly? _filterDateTo;
 
+    // Income Sources
+    [ObservableProperty] private decimal _expectedIncome;
+    [ObservableProperty] private decimal _receivedIncome;
+
     // Forecast
     [ObservableProperty] private decimal _forecastBalance;
     [ObservableProperty] private decimal _projectedIncome;
@@ -55,6 +59,8 @@ public sealed partial class FinanceViewModel : ObservableObject
     public ObservableCollection<FinancialGoalViewModel> FinancialGoals { get; } = [];
     public ObservableCollection<AccountViewModel> Accounts { get; } = [];
     public ObservableCollection<AccountTransferViewModel> Transfers { get; } = [];
+    public ObservableCollection<IncomeSourceViewModel> IncomeSources { get; } = [];
+    public ObservableCollection<IncomeSourceStatus> IncomeSourceStatuses { get; } = [];
     public ObservableCollection<ForecastDay> ForecastDays { get; } = [];
     public ObservableCollection<CashflowDay> CashflowDays { get; } = [];
 
@@ -71,6 +77,8 @@ public sealed partial class FinanceViewModel : ObservableObject
     public bool HasFinancialGoals => FinancialGoals.Count > 0;
     public bool HasAccounts => Accounts.Count > 0;
     public bool HasTransfers => Transfers.Count > 0;
+    public bool HasIncomeSources => IncomeSources.Count > 0;
+    public bool HasIncomeSourceStatuses => IncomeSourceStatuses.Count > 0;
     public bool HasForecast => ForecastDays.Count > 0;
     public bool HasCashflow => CashflowDays.Count > 0;
     public bool HasFilteredIncome => FilteredIncomeEntries.Count > 0;
@@ -96,6 +104,8 @@ public sealed partial class FinanceViewModel : ObservableObject
         FinancialGoals.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasFinancialGoals));
         Accounts.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasAccounts));
         Transfers.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasTransfers));
+        IncomeSources.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasIncomeSources));
+        IncomeSourceStatuses.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasIncomeSourceStatuses));
         ForecastDays.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasForecast));
         CashflowDays.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasCashflow));
         FilteredIncomeEntries.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasFilteredIncome));
@@ -298,6 +308,24 @@ public sealed partial class FinanceViewModel : ObservableObject
         Transfers.Clear();
         foreach (var t in transfers)
             Transfers.Add(new AccountTransferViewModel(t, _service));
+
+        // Income Sources
+        var incomeSources = await _service.GetIncomeSourcesAsync();
+        IncomeSources.Clear();
+        foreach (var s in incomeSources)
+            IncomeSources.Add(new IncomeSourceViewModel(s, _service));
+
+        var statuses = await _service.GetIncomeSourceStatusAsync(SelectedYear, SelectedMonth);
+        IncomeSourceStatuses.Clear();
+        decimal expInc = 0, recvInc = 0;
+        foreach (var st in statuses)
+        {
+            IncomeSourceStatuses.Add(st);
+            expInc += st.Expected;
+            recvInc += st.Received;
+        }
+        ExpectedIncome = expInc;
+        ReceivedIncome = recvInc;
 
         // Forecast (30 days)
         var forecast = await _service.GetBalanceForecastAsync(30);
@@ -604,6 +632,27 @@ public sealed partial class FinanceViewModel : ObservableObject
         if (vm is null) return;
         await _service.RemoveAccountTransferAsync(vm.Model.Id);
         Transfers.Remove(vm);
+    }
+
+    // ─── Income Sources ─────────────────────────────────────────
+
+    [RelayCommand]
+    private async Task AddIncomeSourceAsync()
+    {
+        var source = new IncomeSource
+        {
+            Order = IncomeSources.Count + 1
+        };
+        await _service.SaveIncomeSourceAsync(source);
+        IncomeSources.Add(new IncomeSourceViewModel(source, _service));
+    }
+
+    [RelayCommand]
+    private async Task RemoveIncomeSourceAsync(IncomeSourceViewModel? vm)
+    {
+        if (vm is null) return;
+        await _service.RemoveIncomeSourceAsync(vm.Model.Id);
+        IncomeSources.Remove(vm);
     }
 
     // ─── Import ──────────────────────────────────────────────────

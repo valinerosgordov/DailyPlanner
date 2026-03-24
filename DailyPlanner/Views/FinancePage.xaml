@@ -168,7 +168,7 @@
                 </Border>
             </Grid>
 
-            <!-- Summary Cards — Row 2: Owed to Me, I Owe, Obligatory -->
+            <!-- Summary Cards — Row 2: Expected Income, Owed to Me, I Owe, Obligatory -->
             <Grid Margin="0,0,0,20">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -176,10 +176,26 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Owed to Me -->
+                <!-- Expected Income (from Income Sources) -->
                 <Border Grid.Column="0" Style="{StaticResource PlannerCard}" Padding="14">
+                    <StackPanel>
+                        <TextBlock Text="{Binding [ExpectedIncome], Source={x:Static svc:Loc.Instance}}"
+                                   Style="{StaticResource StatLabel}"/>
+                        <TextBlock FontSize="20" FontWeight="Bold"
+                                   Foreground="{DynamicResource AccentBrush}">
+                            <Run Text="{Binding ReceivedIncome, StringFormat=N2, Mode=OneWay}"/>
+                            <Run Text=" / " Foreground="{DynamicResource MutedBrush}"/>
+                            <Run Text="{Binding ExpectedIncome, StringFormat=N2, Mode=OneWay}" Foreground="{DynamicResource MutedBrush}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <!-- Owed to Me -->
+                <Border Grid.Column="2" Style="{StaticResource PlannerCard}" Padding="14">
                     <StackPanel>
                         <TextBlock Text="{Binding [DebtLent], Source={x:Static svc:Loc.Instance}}"
                                    Style="{StaticResource StatLabel}"/>
@@ -191,7 +207,7 @@
                 </Border>
 
                 <!-- I Owe -->
-                <Border Grid.Column="2" Style="{StaticResource PlannerCard}" Padding="14">
+                <Border Grid.Column="4" Style="{StaticResource PlannerCard}" Padding="14">
                     <StackPanel>
                         <TextBlock Text="{Binding [DebtBorrowed], Source={x:Static svc:Loc.Instance}}"
                                    Style="{StaticResource StatLabel}"/>
@@ -203,7 +219,7 @@
                 </Border>
 
                 <!-- Obligatory -->
-                <Border Grid.Column="4" Style="{StaticResource PlannerCard}" Padding="14">
+                <Border Grid.Column="6" Style="{StaticResource PlannerCard}" Padding="14">
                     <StackPanel>
                         <TextBlock Text="{Binding [MonthlyObligatory], Source={x:Static svc:Loc.Instance}}"
                                    Style="{StaticResource StatLabel}"/>
@@ -241,10 +257,14 @@
                                  Style="{StaticResource FinanceTabButton}"
                                  IsChecked="{Binding SelectedTabIndex, Converter={conv:IntEqualConverter}, ConverterParameter=5}"
                                  GroupName="FinanceTab" Checked="TabChanged" Tag="5"/>
-                    <RadioButton Content="{Binding [Analytics], Source={x:Static svc:Loc.Instance}}"
+                    <RadioButton Content="{Binding [IncomeSources], Source={x:Static svc:Loc.Instance}}"
                                  Style="{StaticResource FinanceTabButton}"
                                  IsChecked="{Binding SelectedTabIndex, Converter={conv:IntEqualConverter}, ConverterParameter=6}"
                                  GroupName="FinanceTab" Checked="TabChanged" Tag="6"/>
+                    <RadioButton Content="{Binding [Analytics], Source={x:Static svc:Loc.Instance}}"
+                                 Style="{StaticResource FinanceTabButton}"
+                                 IsChecked="{Binding SelectedTabIndex, Converter={conv:IntEqualConverter}, ConverterParameter=7}"
+                                 GroupName="FinanceTab" Checked="TabChanged" Tag="7"/>
                 </StackPanel>
                 </ScrollViewer>
             </Border>
@@ -1041,8 +1061,166 @@
                 </Border>
             </StackPanel>
 
-            <!-- ═══════════════ TAB 6: Analytics ═══════════════ -->
+            <!-- ═══════════════ TAB 6: Income Sources ═══════════════ -->
             <StackPanel Visibility="{Binding SelectedTabIndex, Converter={conv:IntToVisibilityConverter}, ConverterParameter=6}">
+
+                <!-- Add Source Button -->
+                <ui:Button Content="{Binding [AddSource], Source={x:Static svc:Loc.Instance}}"
+                           Icon="{ui:SymbolIcon Add24}" Appearance="Transparent"
+                           Command="{Binding AddIncomeSourceCommand}" Margin="0,0,0,12"/>
+
+                <!-- Empty state -->
+                <TextBlock Text="{Binding [NoEntries], Source={x:Static svc:Loc.Instance}}"
+                           Foreground="{DynamicResource MutedBrush}" FontSize="13"
+                           Visibility="{Binding HasIncomeSources, Converter={StaticResource InvVisConv}}"
+                           Margin="0,0,0,12"/>
+
+                <!-- Income Source cards -->
+                <ItemsControl ItemsSource="{Binding IncomeSources}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource PlannerCard}" Padding="16" Margin="0,0,0,12">
+                                <StackPanel>
+                                    <!-- Header: icon + name + client + total + remove -->
+                                    <DockPanel Margin="0,0,0,10">
+                                        <TextBlock Text="{Binding Icon}" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                        <ui:Button Icon="{ui:SymbolIcon Delete24}" Appearance="Transparent" Padding="4"
+                                                   Command="{Binding DataContext.RemoveIncomeSourceCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                   CommandParameter="{Binding}" DockPanel.Dock="Right" VerticalAlignment="Center"/>
+                                        <StackPanel>
+                                            <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource FinanceInlineTextBox}"
+                                                     ToolTip="{Binding [ProjectName], Source={x:Static svc:Loc.Instance}}"/>
+                                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                                <TextBox Text="{Binding ClientName, UpdateSourceTrigger=PropertyChanged}"
+                                                         Style="{StaticResource FinanceInlineTextBox}" MinWidth="120"
+                                                         ToolTip="{Binding [ClientName], Source={x:Static svc:Loc.Instance}}"/>
+                                                <TextBlock Text="{Binding [TotalMonthly], Source={x:Static svc:Loc.Instance}}"
+                                                           Foreground="{DynamicResource MutedBrush}" FontSize="11"
+                                                           VerticalAlignment="Center" Margin="12,0,4,0"/>
+                                                <TextBox Text="{Binding TotalMonthlyAmount, UpdateSourceTrigger=LostFocus}"
+                                                         Style="{StaticResource FinanceAmountTextBox}" MinWidth="100"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </DockPanel>
+
+                                    <!-- Payment schedule header -->
+                                    <DockPanel Margin="0,4,0,6">
+                                        <TextBlock Text="{Binding [PaymentSchedule], Source={x:Static svc:Loc.Instance}}"
+                                                   FontSize="12" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
+                                        <ui:Button Content="{Binding [AddPaymentDate], Source={x:Static svc:Loc.Instance}}"
+                                                   Icon="{ui:SymbolIcon Add24}" Appearance="Transparent" Padding="4,2"
+                                                   FontSize="11" Command="{Binding AddPaymentCommand}"
+                                                   HorizontalAlignment="Right"/>
+                                    </DockPanel>
+
+                                    <!-- Payment rows -->
+                                    <ItemsControl ItemsSource="{Binding Payments}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="{DynamicResource SubtleBgBrush}"
+                                                        CornerRadius="6" Padding="10,6" Margin="0,0,0,4">
+                                                    <DockPanel>
+                                                        <ui:Button Icon="{ui:SymbolIcon Dismiss24}" Appearance="Transparent" Padding="2"
+                                                                   Command="{Binding DataContext.RemovePaymentCommand, RelativeSource={RelativeSource AncestorType=ItemsControl, AncestorLevel=2}}"
+                                                                   CommandParameter="{Binding}" DockPanel.Dock="Right"
+                                                                   VerticalAlignment="Center"/>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="{Binding [PaymentDay], Source={x:Static svc:Loc.Instance}}"
+                                                                       FontSize="11" Foreground="{DynamicResource MutedBrush}"
+                                                                       VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                                            <TextBox Text="{Binding DayOfMonth, UpdateSourceTrigger=LostFocus}"
+                                                                     Style="{StaticResource FinanceInlineTextBox}" MinWidth="35" MaxWidth="40"/>
+                                                            <TextBox Text="{Binding Amount, UpdateSourceTrigger=LostFocus}"
+                                                                     Style="{StaticResource FinanceAmountTextBox}" MinWidth="90" Margin="10,0,0,0"/>
+                                                            <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
+                                                                     Style="{StaticResource FinanceInlineTextBox}" MinWidth="120" Margin="10,0,0,0"
+                                                                     ToolTip="..."/>
+                                                        </StackPanel>
+                                                    </DockPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+
+                                    <!-- Scheduled total -->
+                                    <StackPanel Orientation="Horizontal" Margin="0,6,0,0"
+                                                Visibility="{Binding HasPayments, Converter={StaticResource VisConv}}">
+                                        <TextBlock Text="{Binding [Scheduled], Source={x:Static svc:Loc.Instance}}"
+                                                   FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,0,6,0"/>
+                                        <TextBlock Text="{Binding ScheduledTotal, StringFormat=N2}"
+                                                   FontSize="11" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource AccentBrush}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Monthly status: Expected vs Received per source -->
+                <Border Style="{StaticResource PlannerCard}" Padding="16" Margin="0,0,0,12"
+                        Visibility="{Binding HasIncomeSourceStatuses, Converter={StaticResource VisConv}}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding [PaymentSchedule], Source={x:Static svc:Loc.Instance}}"
+                                   FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                        <ItemsControl ItemsSource="{Binding IncomeSourceStatuses}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="0,0,0,10">
+                                        <DockPanel>
+                                            <TextBlock Text="{Binding Icon}" FontSize="16" Margin="0,0,8,0"/>
+                                            <TextBlock FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center">
+                                                <Run Text="{Binding Name, Mode=OneWay}"/>
+                                                <Run Text=" — " Foreground="{DynamicResource MutedBrush}"/>
+                                                <Run Text="{Binding Received, StringFormat=N2, Mode=OneWay}" Foreground="{DynamicResource SuccessBrush}"/>
+                                                <Run Text=" / " Foreground="{DynamicResource MutedBrush}"/>
+                                                <Run Text="{Binding Expected, StringFormat=N2, Mode=OneWay}"/>
+                                            </TextBlock>
+                                        </DockPanel>
+                                        <!-- Progress bar -->
+                                        <ProgressBar Height="4" Margin="0,4,0,0" Minimum="0" Maximum="100"
+                                                     Value="{Binding ProgressPercent, Mode=OneWay}"
+                                                     Foreground="{DynamicResource SuccessBrush}"
+                                                     Background="{DynamicResource SubtleBgBrush}"/>
+                                        <!-- Individual payments -->
+                                        <ItemsControl ItemsSource="{Binding Payments}" Margin="0,4,0,0">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <WrapPanel/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border CornerRadius="4" Padding="6,2" Margin="0,0,6,4"
+                                                            Background="{DynamicResource SubtleBgBrush}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock FontSize="11">
+                                                                <Run Text="{Binding DisplayDate, Mode=OneWay}"/>
+                                                                <Run Text=" — "/>
+                                                                <Run Text="{Binding Amount, StringFormat=N0, Mode=OneWay}"/>
+                                                            </TextBlock>
+                                                            <TextBlock Text=" ✓" FontSize="11" FontWeight="Bold"
+                                                                       Foreground="{DynamicResource SuccessBrush}"
+                                                                       Visibility="{Binding IsPaid, Converter={StaticResource VisConv}}"/>
+                                                            <TextBlock Text=" ⏳" FontSize="11"
+                                                                       Visibility="{Binding IsPaid, Converter={StaticResource InvVisConv}}"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- ═══════════════ TAB 7: Analytics ═══════════════ -->
+            <StackPanel Visibility="{Binding SelectedTabIndex, Converter={conv:IntToVisibilityConverter}, ConverterParameter=7}">
 
                 <!-- Balance Forecast -->
                 <Border Style="{StaticResource PlannerCard}" Padding="20" Margin="0,0,0,16">

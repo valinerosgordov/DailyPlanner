@@ -25,6 +25,8 @@ public sealed class PlannerDbContext(DbContextOptions<PlannerDbContext> options)
     public DbSet<FinancialGoal> FinancialGoals => Set<FinancialGoal>();
     public DbSet<Account> Accounts => Set<Account>();
     public DbSet<AccountTransfer> AccountTransfers => Set<AccountTransfer>();
+    public DbSet<IncomeSource> IncomeSources => Set<IncomeSource>();
+    public DbSet<IncomeSourcePayment> IncomeSourcePayments => Set<IncomeSourcePayment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -206,6 +208,26 @@ public sealed class PlannerDbContext(DbContextOptions<PlannerDbContext> options)
             e.Property(t => t.Note).HasMaxLength(500);
             e.HasOne(t => t.FromAccount).WithMany(a => a.TransfersFrom).HasForeignKey(t => t.FromAccountId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne(t => t.ToAccount).WithMany(a => a.TransfersTo).HasForeignKey(t => t.ToAccountId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<IncomeSource>(e =>
+        {
+            e.HasKey(s => s.Id);
+            e.Property(s => s.Name).HasMaxLength(200);
+            e.Property(s => s.ClientName).HasMaxLength(200);
+            e.Property(s => s.Icon).HasMaxLength(50);
+            e.Property(s => s.Color).HasMaxLength(20);
+            e.Property(s => s.TotalMonthlyAmount).HasColumnType("decimal(18,2)");
+            e.Property(s => s.Note).HasMaxLength(1000);
+            e.HasMany(s => s.Payments).WithOne(p => p.IncomeSource).HasForeignKey(p => p.IncomeSourceId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<IncomeSourcePayment>(e =>
+        {
+            e.HasKey(p => p.Id);
+            e.HasIndex(p => p.IncomeSourceId);
+            e.Property(p => p.Amount).HasColumnType("decimal(18,2)");
+            e.Property(p => p.Description).HasMaxLength(500);
         });
     }
 }
