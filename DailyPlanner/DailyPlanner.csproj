@@ -9,7 +9,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>planner.ico</ApplicationIcon>
     <AssemblyName>DailyPlanner</AssemblyName>
-    <Version>3.4.3</Version>
+    <Version>3.5.0</Version>
     <Authors>DailyPlanner Team</Authors>
     <Description>Daily &amp; Financial Planner — weekly planner with finance tracker, habits, Pomodoro and analytics</Description>
   </PropertyGroup>
@@ -23,14 +23,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ClosedXML" Version="0.104.2" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3">
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.6">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.3" />
-    <PackageReference Include="Velopack" Version="0.0.1444-gc245055" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.6" />
+    <PackageReference Include="Velopack" Version="0.0.1589-ga2c5a97" />
     <PackageReference Include="WPF-UI" Version="4.2.0" />
   </ItemGroup>
 
