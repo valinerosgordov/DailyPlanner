@@ -73,7 +73,7 @@
                         <!-- Empty state -->
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
                                     Visibility="{Binding HasTasks, Converter={StaticResource VisConv}, ConverterParameter=Invert}">
-                            <ui:SymbolIcon Symbol="Inbox24" FontSize="40"
+                            <ui:SymbolIcon Symbol="MailInbox24" FontSize="40"
                                            Foreground="{DynamicResource TextTertiaryBrush}"
                                            HorizontalAlignment="Center" Margin="0,0,0,10"/>
                             <TextBlock Text="{Binding [InboxEmpty], Source={x:Static svc:Loc.Instance}}"
