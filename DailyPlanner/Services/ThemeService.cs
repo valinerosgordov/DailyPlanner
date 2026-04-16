@@ -54,16 +54,27 @@ public static class ThemeService
         catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[ThemeService] Save failed: {ex.Message}"); }
     }
 
+    private static Color Argb(byte a, string hex)
+    {
+        var c = Hex(hex);
+        return Color.FromArgb(a, c.R, c.G, c.B);
+    }
+
     public static readonly Dictionary<string, ThemePalette> Palettes = new()
     {
-        // Modern Dark Minimal — violet accent, deep cool neutrals
+        // Liquid Glass Dark — glassmorphism over Mica backdrop, violet accent
         ["Dark"] = new("Dark", true,
-            Accent: Hex("#7C3AED"), AccentLight: Hex("#A78BFA"), AccentDark: Hex("#6D28D9"),
-            PageBg: Hex("#0E0E12"), CardBg: Hex("#17171F"), CardBorder: Hex("#242432"),
-            SidebarBg: Hex("#0A0A0F"), InputBg: Hex("#1A1A24"), SubtleBg: Hex("#20202B"),
-            Text: Hex("#F5F5FA"), Muted: Hex("#7E7E99"), CheckBorder: Hex("#343444"),
-            HoverBg: Hex("#27273A"), ProgressTrack: Hex("#1A1A24"), KeyboardBg: Hex("#24242F"),
-            Success: Hex("#10B981"), Warning: Hex("#F59E0B"), Danger: Hex("#EF4444"), Info: Hex("#3B82F6")),
+            Accent: Hex("#8B5CF6"), AccentLight: Hex("#C4B5FD"), AccentDark: Hex("#6D28D9"),
+            PageBg: Argb(0x00, "#0E0E12"),           // transparent — Mica shows through
+            CardBg: Argb(0x14, "#FFFFFF"),           // 8% white frosted glass
+            CardBorder: Argb(0x26, "#FFFFFF"),       // 15% white highlight edge
+            SidebarBg: Argb(0x4D, "#0A0A0F"),        // 30% darker panel
+            InputBg: Argb(0x1F, "#FFFFFF"),          // 12% white input fill
+            SubtleBg: Argb(0x0A, "#FFFFFF"),         // 4% white subtle
+            Text: Hex("#F5F5FA"), Muted: Hex("#9CA0B8"), CheckBorder: Argb(0x40, "#FFFFFF"),
+            HoverBg: Argb(0x1F, "#FFFFFF"), ProgressTrack: Argb(0x1A, "#FFFFFF"),
+            KeyboardBg: Argb(0x1F, "#FFFFFF"),
+            Success: Hex("#34D399"), Warning: Hex("#FBBF24"), Danger: Hex("#F87171"), Info: Hex("#60A5FA")),
 
         // Modern Light Minimal — same violet accent
         ["Light"] = new("Light", false,
