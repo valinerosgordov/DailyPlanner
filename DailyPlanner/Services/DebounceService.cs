@@ -34,7 +34,7 @@ public static class DebounceService
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[DebounceService] Error in '{key}': {ex.Message}");
+            Log.Error("DebounceService", $"Error in '{key}': {ex.Message}");
         }
         finally
         {

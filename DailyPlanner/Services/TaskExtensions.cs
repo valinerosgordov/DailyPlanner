@@ -9,7 +9,7 @@ public static class TaskExtensions
         task.ContinueWith(t =>
         {
             if (t.Exception is not null)
-                Debug.WriteLine($"[FireAndForget] {context}: {t.Exception}");
+                Log.Error("FireAndForget", $"{context}: {t.Exception}");
         }, TaskContinuationOptions.OnlyOnFaulted);
     }
 }

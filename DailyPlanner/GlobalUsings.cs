@@ -18,3 +18,4 @@ global using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
 global using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 global using Grid = System.Windows.Controls.Grid;
 global using FlowDirection = System.Windows.FlowDirection;
+global using Log = DailyPlanner.Services.Log;

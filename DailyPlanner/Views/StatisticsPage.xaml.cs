@@ -18,7 +18,7 @@ public partial class StatisticsPage : Page
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[StatisticsPage] Failed to load data: {ex.Message}");
+                Log.Error("StatisticsPage", $"Failed to load data: {ex.Message}");
             }
         };
     }

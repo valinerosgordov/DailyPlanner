@@ -19,7 +19,7 @@ public partial class FinancePage : Page
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[FinancePage] Failed to load data: {ex.Message}");
+                Log.Error("FinancePage", $"Failed to load data: {ex.Message}");
             }
         };
     }
