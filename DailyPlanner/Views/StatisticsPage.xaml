@@ -12,7 +12,7 @@
     </Page.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="24,0,24,24" MaxWidth="900" HorizontalAlignment="Left">
+        <StackPanel Margin="32,0,32,32">
 
             <!-- Header with navigation -->
             <DockPanel Margin="0,0,0,20">

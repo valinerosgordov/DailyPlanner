@@ -62,28 +62,28 @@ public static class ThemeService
 
     public static readonly Dictionary<string, ThemePalette> Palettes = new()
     {
-        // Liquid Glass Dark — glassmorphism over Mica backdrop, violet accent
+        // Pure Monochrome Dark — pitch black + white accents, no colored tint
         ["Dark"] = new("Dark", true,
-            Accent: Hex("#8B5CF6"), AccentLight: Hex("#C4B5FD"), AccentDark: Hex("#6D28D9"),
-            PageBg: Argb(0x00, "#0E0E12"),           // transparent — Mica shows through
-            CardBg: Argb(0x14, "#FFFFFF"),           // 8% white frosted glass
-            CardBorder: Argb(0x26, "#FFFFFF"),       // 15% white highlight edge
-            SidebarBg: Argb(0x4D, "#0A0A0F"),        // 30% darker panel
-            InputBg: Argb(0x1F, "#FFFFFF"),          // 12% white input fill
-            SubtleBg: Argb(0x0A, "#FFFFFF"),         // 4% white subtle
-            Text: Hex("#F5F5FA"), Muted: Hex("#9CA0B8"), CheckBorder: Argb(0x40, "#FFFFFF"),
-            HoverBg: Argb(0x1F, "#FFFFFF"), ProgressTrack: Argb(0x1A, "#FFFFFF"),
-            KeyboardBg: Argb(0x1F, "#FFFFFF"),
-            Success: Hex("#34D399"), Warning: Hex("#FBBF24"), Danger: Hex("#F87171"), Info: Hex("#60A5FA")),
+            Accent: Hex("#FFFFFF"), AccentLight: Hex("#F5F5F5"), AccentDark: Hex("#D4D4D4"),
+            PageBg: Argb(0x00, "#000000"),           // transparent — Mica shows through
+            CardBg: Argb(0x0F, "#FFFFFF"),           // 6% white frosted glass
+            CardBorder: Argb(0x1A, "#FFFFFF"),       // 10% white edge
+            SidebarBg: Argb(0x66, "#000000"),        // 40% pure black panel
+            InputBg: Argb(0x14, "#FFFFFF"),          // 8% white input fill
+            SubtleBg: Argb(0x08, "#FFFFFF"),         // 3% white subtle
+            Text: Hex("#FFFFFF"), Muted: Hex("#8E8E96"), CheckBorder: Argb(0x33, "#FFFFFF"),
+            HoverBg: Argb(0x1A, "#FFFFFF"), ProgressTrack: Argb(0x14, "#FFFFFF"),
+            KeyboardBg: Argb(0x14, "#FFFFFF"),
+            Success: Hex("#FFFFFF"), Warning: Hex("#E5E5E5"), Danger: Hex("#FF9999"), Info: Hex("#B8B8B8")),
 
-        // Modern Light Minimal — same violet accent
+        // Pure Monochrome Light
         ["Light"] = new("Light", false,
-            Accent: Hex("#7C3AED"), AccentLight: Hex("#A78BFA"), AccentDark: Hex("#6D28D9"),
-            PageBg: Hex("#FAFAFC"), CardBg: Hex("#FFFFFF"), CardBorder: Hex("#E5E5EB"),
-            SidebarBg: Hex("#F5F5F8"), InputBg: Hex("#F5F5F8"), SubtleBg: Hex("#EEEEF2"),
-            Text: Hex("#0E0E12"), Muted: Hex("#6B6B85"), CheckBorder: Hex("#D0D0DA"),
-            HoverBg: Hex("#EAEAF0"), ProgressTrack: Hex("#E8E8EE"), KeyboardBg: Hex("#EEEEF2"),
-            Success: Hex("#10B981"), Warning: Hex("#D97706"), Danger: Hex("#DC2626"), Info: Hex("#2563EB")),
+            Accent: Hex("#000000"), AccentLight: Hex("#1A1A1A"), AccentDark: Hex("#333333"),
+            PageBg: Hex("#FFFFFF"), CardBg: Hex("#FAFAFA"), CardBorder: Hex("#E5E5E5"),
+            SidebarBg: Hex("#F5F5F5"), InputBg: Hex("#F5F5F5"), SubtleBg: Hex("#EFEFEF"),
+            Text: Hex("#000000"), Muted: Hex("#6B6B6B"), CheckBorder: Hex("#D4D4D4"),
+            HoverBg: Hex("#EBEBEB"), ProgressTrack: Hex("#E5E5E5"), KeyboardBg: Hex("#EFEFEF"),
+            Success: Hex("#000000"), Warning: Hex("#4A4A4A"), Danger: Hex("#991B1B"), Info: Hex("#525252")),
     };
 
     public static void ApplyPalette(string name)
