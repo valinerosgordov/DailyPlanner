@@ -51,10 +51,40 @@
     <Style x:Key="DraggingCard" TargetType="Border">
         <Setter Property="Effect">
             <Setter.Value>
-                <DropShadowEffect Color="#8B5CF6" BlurRadius="32" ShadowDepth="0" Opacity="0.5"/>
+                <DropShadowEffect Color="White" BlurRadius="32" ShadowDepth="0" Opacity="0.35"/>
             </Setter.Value>
         </Setter>
         <Setter Property="Opacity" Value="0.85"/>
+    </Style>
+
+    <!-- Implicit Page style: every Page fades in on load -->
+    <Style TargetType="Page">
+        <Style.Triggers>
+            <EventTrigger RoutedEvent="Page.Loaded">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                         From="0" To="1" Duration="0:0:0.22"
+                                         EasingFunction="{StaticResource EaseOut}"/>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Smooth border visibility transitions — mark Border with this style and it fades-in on load -->
+    <Style x:Key="FadeInBorder" TargetType="Border">
+        <Style.Triggers>
+            <EventTrigger RoutedEvent="Border.Loaded">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                         From="0" To="1" Duration="0:0:0.18"
+                                         EasingFunction="{StaticResource EaseOut}"/>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Style.Triggers>
     </Style>
 
 </ResourceDictionary>
