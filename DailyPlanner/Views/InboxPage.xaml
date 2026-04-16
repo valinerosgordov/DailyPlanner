@@ -9,6 +9,7 @@
 
     <Page.Resources>
         <conv:BoolToVisibilityConverter x:Key="VisConv"/>
+        <conv:InvertedBoolToVisibilityConverter x:Key="InvVisConv"/>
         <conv:NullableDateOnlyToDateTimeConverter x:Key="NullableDateOnlyConverter"/>
     </Page.Resources>
 
@@ -72,7 +73,7 @@
                     <Grid Grid.Row="1">
                         <!-- Empty state -->
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                                    Visibility="{Binding HasTasks, Converter={StaticResource VisConv}, ConverterParameter=Invert}">
+                                    Visibility="{Binding HasTasks, Converter={StaticResource InvVisConv}}">
                             <ui:SymbolIcon Symbol="MailInbox24" FontSize="40"
                                            Foreground="{DynamicResource TextTertiaryBrush}"
                                            HorizontalAlignment="Center" Margin="0,0,0,10"/>
@@ -151,9 +152,11 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="{x:Type vm:InboxDayViewModel}">
-                            <Border Margin="4,0" Padding="10"
-                                    Background="{DynamicResource CardBackgroundBrush}"
+                            <Border Margin="4,0" Padding="10" MinHeight="200"
+                                    Background="#22FFFFFF"
                                     CornerRadius="8"
+                                    BorderBrush="#40FFFFFF"
+                                    BorderThickness="1"
                                     AllowDrop="True"
                                     DragEnter="DayColumn_DragEnter"
                                     DragLeave="DayColumn_DragLeave"
@@ -164,26 +167,27 @@
                                     <Style TargetType="Border">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsDropTarget}" Value="True">
+                                                <Setter Property="Background" Value="#447C3AED"/>
                                                 <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                                 <Setter Property="BorderThickness" Value="2"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding IsToday}" Value="True">
                                                 <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                                                <Setter Property="BorderThickness" Value="1"/>
+                                                <Setter Property="BorderThickness" Value="2"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Border.Style>
                                 <StackPanel>
-                                    <TextBlock Text="{Binding DayName}" FontSize="12" FontWeight="SemiBold"
-                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                    <TextBlock Text="{Binding DayName}" FontSize="13" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"
                                                HorizontalAlignment="Center"/>
-                                    <TextBlock Text="{Binding DateLabel}" FontSize="11"
-                                               Foreground="{DynamicResource TextTertiaryBrush}"
-                                               HorizontalAlignment="Center" Margin="0,2,0,10"/>
-                                    <TextBlock Text="⇣" FontSize="18"
-                                               Foreground="{DynamicResource TextTertiaryBrush}"
-                                               HorizontalAlignment="Center" Opacity="0.4"/>
+                                    <TextBlock Text="{Binding DateLabel}" FontSize="12"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               HorizontalAlignment="Center" Margin="0,2,0,16"/>
+                                    <TextBlock Text="⇣" FontSize="22"
+                                               Foreground="{DynamicResource AccentBrush}"
+                                               HorizontalAlignment="Center" Opacity="0.6"/>
                                 </StackPanel>
                             </Border>
                         </DataTemplate>
