@@ -108,6 +108,54 @@
                 </StackPanel>
             </Border>
 
+            <!-- Trello Integration -->
+            <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,12" Padding="20">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <ui:SymbolIcon Symbol="BoardSplit24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <StackPanel>
+                            <TextBlock Text="{Binding [TrelloIntegration], Source={x:Static svc:Loc.Instance}}" FontSize="15" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding [TrelloDesc], Source={x:Static svc:Loc.Instance}}" FontSize="11"
+                                       Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <CheckBox Content="{Binding [Enabled], Source={x:Static svc:Loc.Instance}}"
+                              IsChecked="{Binding TrelloIsEnabled}" Margin="0,0,0,10"/>
+
+                    <TextBlock Text="{Binding [TrelloApiKey], Source={x:Static svc:Loc.Instance}}" FontSize="12"
+                               Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding TrelloApiKey, UpdateSourceTrigger=PropertyChanged}"
+                             Padding="8" Margin="0,0,0,10"/>
+
+                    <TextBlock Text="{Binding [TrelloToken], Source={x:Static svc:Loc.Instance}}" FontSize="12"
+                               Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding TrelloToken, UpdateSourceTrigger=PropertyChanged}"
+                             Padding="8" Margin="0,0,0,10"/>
+
+                    <TextBlock Text="{Binding [TrelloListName], Source={x:Static svc:Loc.Instance}}" FontSize="12"
+                               Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding TrelloListName, UpdateSourceTrigger=PropertyChanged}"
+                             Padding="8" Margin="0,0,0,12"/>
+
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Left" Text="{Binding TrelloStatus}" FontSize="11"
+                                   Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+                            <ui:Button Content="{Binding [TestConnection], Source={x:Static svc:Loc.Instance}}"
+                                       Appearance="Secondary" Margin="0,0,8,0"
+                                       Command="{Binding TestTrelloConnectionCommand}"/>
+                            <ui:Button Content="{Binding [Save], Source={x:Static svc:Loc.Instance}}"
+                                       Appearance="Primary"
+                                       Command="{Binding SaveTrelloSettingsCommand}"/>
+                        </StackPanel>
+                    </DockPanel>
+
+                    <TextBlock Text="{Binding [TrelloHelp], Source={x:Static svc:Loc.Instance}}" FontSize="10"
+                               Foreground="{DynamicResource MutedBrush}" Margin="0,12,0,0" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
             <!-- Backup / Restore -->
             <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,12" Padding="20">
                 <StackPanel>

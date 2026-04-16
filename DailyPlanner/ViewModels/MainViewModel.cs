@@ -23,12 +23,14 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty] private bool _isPomodoroOpen;
     [ObservableProperty] private bool _isStatisticsOpen;
     [ObservableProperty] private bool _isFinanceOpen;
+    [ObservableProperty] private bool _isInboxOpen;
 
-    public bool IsMainNavVisible => !IsSettingsOpen && !IsStatisticsOpen && !IsFinanceOpen;
+    public bool IsMainNavVisible => !IsSettingsOpen && !IsStatisticsOpen && !IsFinanceOpen && !IsInboxOpen;
 
     partial void OnIsSettingsOpenChanged(bool value) => OnPropertyChanged(nameof(IsMainNavVisible));
     partial void OnIsStatisticsOpenChanged(bool value) => OnPropertyChanged(nameof(IsMainNavVisible));
     partial void OnIsFinanceOpenChanged(bool value) => OnPropertyChanged(nameof(IsMainNavVisible));
+    partial void OnIsInboxOpenChanged(bool value) => OnPropertyChanged(nameof(IsMainNavVisible));
     [ObservableProperty] private bool _isAutoStartEnabled;
     [ObservableProperty] private TaskCategory _filterCategory = TaskCategory.None;
     [ObservableProperty] private bool _isLoading;
@@ -50,6 +52,15 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty] private string _updateStatus = string.Empty;
     [ObservableProperty] private bool _isUpdateAvailable;
     [ObservableProperty] private int _updateProgress;
+
+    private readonly TrelloService _trelloService = new();
+    [ObservableProperty] private bool _trelloIsEnabled;
+    [ObservableProperty] private string _trelloApiKey = string.Empty;
+    [ObservableProperty] private string _trelloToken = string.Empty;
+    [ObservableProperty] private string _trelloListName = "В работе";
+    [ObservableProperty] private string _trelloStatus = string.Empty;
+
+    public TrelloService TrelloService => _trelloService;
 
     private bool _isInitializing;
 
@@ -186,6 +197,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     [RelayCommand] private void ToggleSettings() => IsSettingsOpen = !IsSettingsOpen;
     [RelayCommand] private void ToggleFinance() => IsFinanceOpen = !IsFinanceOpen;
+    [RelayCommand] private void ToggleInbox() => IsInboxOpen = !IsInboxOpen;
 
     [RelayCommand]
     private void ToggleSearch()
@@ -577,6 +589,35 @@ public sealed partial class MainViewModel : ObservableObject
             UpdateProgress = p;
             UpdateStatus = string.Format(Loc.Get("UpdateProgress"), p);
         });
+    }
+
+    public async Task LoadTrelloSettingsAsync()
+    {
+        var s = await _service.GetTrelloSettingsAsync();
+        TrelloIsEnabled = s.IsEnabled;
+        TrelloApiKey = s.ApiKey;
+        TrelloToken = s.Token;
+        TrelloListName = string.IsNullOrWhiteSpace(s.ListName) ? "В работе" : s.ListName;
+    }
+
+    [RelayCommand]
+    private async Task SaveTrelloSettingsAsync()
+    {
+        var s = await _service.GetTrelloSettingsAsync();
+        s.IsEnabled = TrelloIsEnabled;
+        s.ApiKey = TrelloApiKey.Trim();
+        s.Token = TrelloToken.Trim();
+        s.ListName = string.IsNullOrWhiteSpace(TrelloListName) ? "В работе" : TrelloListName.Trim();
+        await _service.SaveTrelloSettingsAsync(s);
+        TrelloStatus = Loc.Get("TrelloSaved");
+    }
+
+    [RelayCommand]
+    private async Task TestTrelloConnectionAsync()
+    {
+        TrelloStatus = Loc.Get("TrelloTesting");
+        var ok = await _trelloService.TestConnectionAsync(TrelloApiKey.Trim(), TrelloToken.Trim());
+        TrelloStatus = ok ? Loc.Get("TrelloConnectionOk") : Loc.Get("TrelloConnectionFail");
     }
 
     private System.Windows.Threading.DispatcherTimer? _reminderTimer;

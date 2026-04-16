@@ -17,6 +17,7 @@ public partial class MainWindow : FluentWindow
     private readonly SettingsPage _settingsPage;
     private StatisticsPage? _statisticsPage;
     private FinancePage? _financePage;
+    private InboxPage? _inboxPage;
     private System.Windows.Forms.NotifyIcon? _trayIcon;
 
     public MainWindow()
@@ -94,7 +95,7 @@ public partial class MainWindow : FluentWindow
             _viewModel.SelectedWeek = week;
     }
 
-    private void Settings_Click(object sender, RoutedEventArgs e)
+    private async void Settings_Click(object sender, RoutedEventArgs e)
     {
         if (ContentFrame.Content is SettingsPage)
         {
@@ -106,6 +107,8 @@ public partial class MainWindow : FluentWindow
             _viewModel.IsSettingsOpen = true;
             _viewModel.IsStatisticsOpen = false;
             _viewModel.IsFinanceOpen = false;
+            _viewModel.IsInboxOpen = false;
+            try { await _viewModel.LoadTrelloSettingsAsync(); } catch { }
             NavigateWithAnimation(_settingsPage);
         }
     }
@@ -122,6 +125,7 @@ public partial class MainWindow : FluentWindow
             _viewModel.IsStatisticsOpen = true;
             _viewModel.IsSettingsOpen = false;
             _viewModel.IsFinanceOpen = false;
+            _viewModel.IsInboxOpen = false;
             _viewModel.Statistics.SelectedYear = _viewModel.SelectedYear;
             _viewModel.Statistics.SelectedMonth = _viewModel.SelectedMonth;
             _statisticsPage = new StatisticsPage(_viewModel.Statistics);
@@ -141,10 +145,30 @@ public partial class MainWindow : FluentWindow
             _viewModel.IsFinanceOpen = true;
             _viewModel.IsSettingsOpen = false;
             _viewModel.IsStatisticsOpen = false;
+            _viewModel.IsInboxOpen = false;
             _viewModel.Finance.SelectedYear = _viewModel.SelectedYear;
             _viewModel.Finance.SelectedMonth = _viewModel.SelectedMonth;
             _financePage = new FinancePage(_viewModel.Finance);
             NavigateWithAnimation(_financePage);
+        }
+    }
+
+    private void Inbox_Click(object sender, RoutedEventArgs e)
+    {
+        if (ContentFrame.Content is InboxPage)
+        {
+            _viewModel.IsInboxOpen = false;
+            NavigateWithAnimation(_weekPage);
+        }
+        else
+        {
+            _viewModel.IsInboxOpen = true;
+            _viewModel.IsSettingsOpen = false;
+            _viewModel.IsStatisticsOpen = false;
+            _viewModel.IsFinanceOpen = false;
+            var vm = new InboxViewModel(_viewModel.Service, _viewModel.TrelloService);
+            _inboxPage = new InboxPage(vm);
+            NavigateWithAnimation(_inboxPage);
         }
     }
 
