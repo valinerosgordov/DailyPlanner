@@ -242,27 +242,14 @@ public sealed partial class FinanceViewModel : ObservableObject
         // Load recurring payments
         var recurring = await _service.GetRecurringPaymentsAsync();
         RecurringPayments.Clear();
-        decimal obligatory = 0;
         foreach (var rp in recurring)
-        {
             RecurringPayments.Add(new RecurringPaymentViewModel(rp, _service));
-            if (rp.Type == FinanceEntryType.Expense)
-                obligatory += rp.Frequency switch
-                {
-                    PaymentFrequency.Monthly => rp.Amount,
-                    PaymentFrequency.Weekly => rp.Amount * 4.33m,
-                    PaymentFrequency.Biweekly => rp.Amount * 2.17m,
-                    PaymentFrequency.Quarterly => rp.Amount / 3,
-                    PaymentFrequency.Yearly => rp.Amount / 12,
-                    _ => 0
-                };
-        }
-        MonthlyObligatory = Math.Round(obligatory, 2);
+        MonthlyObligatory = FinanceCalculations.MonthlyObligatory(recurring);
 
         // Savings & Net Worth
         Savings = income - expenses;
-        SavingsRatePercent = income > 0 ? Math.Max(0, Math.Round((double)(Savings / income) * 100, 1)) : 0;
-        NetWorth = Balance + owedToMe - iOwe;
+        SavingsRatePercent = FinanceCalculations.SavingsRatePercent(Savings, income);
+        NetWorth = FinanceCalculations.NetWorth(Balance, owedToMe, iOwe);
 
         // Analytics: category breakdown
         var breakdown = await _service.GetExpensesByCategoryAsync(firstDay, lastDay);
@@ -498,7 +485,7 @@ public sealed partial class FinanceViewModel : ObservableObject
     {
         DebtOwedToMe = LentDebts.Sum(d => d.RemainingAmount);
         DebtIOwn = BorrowedDebts.Sum(d => d.RemainingAmount);
-        NetWorth = Balance + DebtOwedToMe - DebtIOwn;
+        NetWorth = FinanceCalculations.NetWorth(Balance, DebtOwedToMe, DebtIOwn);
     }
 
     // ─── Recurring Payments ──────────────────────────────────────
