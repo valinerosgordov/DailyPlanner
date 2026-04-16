@@ -1455,7 +1455,7 @@
     </ScrollViewer>
 
     <!-- Loading overlay -->
-    <Border Background="#80000000" CornerRadius="12"
+    <Border Background="#B3000000" CornerRadius="12"
             Visibility="{Binding IsLoading, Converter={StaticResource VisConv}}"
             HorizontalAlignment="Center" VerticalAlignment="Center"
             Padding="28,18">
