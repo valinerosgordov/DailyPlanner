@@ -118,29 +118,20 @@
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
 
-                                                <StackPanel Grid.Column="1" Margin="0,10,10,10">
+                                                <StackPanel Grid.Column="1" Margin="0,8,8,8">
                                                     <TextBox Text="{Binding Text, UpdateSourceTrigger=LostFocus}"
                                                              LostFocus="InboxText_LostFocus"
                                                              BorderThickness="0" Background="Transparent"
                                                              FontSize="13"
                                                              Foreground="{DynamicResource TextPrimaryBrush}"
                                                              TextWrapping="Wrap"/>
-                                                    <DockPanel Margin="0,6,0,0">
+                                                    <DockPanel Margin="0,4,0,0">
                                                         <TextBlock DockPanel.Dock="Left" Text="{Binding SourceLabel}" FontSize="10"
                                                                    Foreground="{DynamicResource TextTertiaryBrush}"
                                                                    TextTrimming="CharacterEllipsis"/>
                                                         <TextBlock DockPanel.Dock="Right" Text="{Binding DueDateDisplay}" FontSize="10"
                                                                    Foreground="{DynamicResource WarningBrush}" Margin="6,0,0,0"
                                                                    Visibility="{Binding HasDueDate, Converter={StaticResource VisConv}}"/>
-                                                    </DockPanel>
-                                                    <DockPanel Margin="0,8,0,0">
-                                                        <ui:Button DockPanel.Dock="Right"
-                                                                   Content="{Binding [MoveToDay], Source={x:Static svc:Loc.Instance}}"
-                                                                   FontSize="11" Padding="8,3" Appearance="Primary"
-                                                                   Click="MoveToDay_Click" Tag="{Binding}"/>
-                                                        <DatePicker SelectedDate="{Binding DueDate, Converter={StaticResource NullableDateOnlyConverter}, Mode=TwoWay}"
-                                                                    Margin="0,0,8,0" FontSize="11"
-                                                                    LostFocus="InboxText_LostFocus"/>
                                                     </DockPanel>
                                                 </StackPanel>
                                             </Grid>
