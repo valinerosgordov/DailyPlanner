@@ -51,7 +51,12 @@ public partial class InboxPage : Page
 
     private void InboxItem_MouseMove(object sender, MouseEventArgs e)
     {
-        if (e.LeftButton != MouseButtonState.Pressed || _draggedTask is null) return;
+        if (e.LeftButton != MouseButtonState.Pressed)
+        {
+            _draggedTask = null;
+            return;
+        }
+        if (_draggedTask is null) return;
 
         var current = e.GetPosition(null);
         var diff = _dragStart - current;
