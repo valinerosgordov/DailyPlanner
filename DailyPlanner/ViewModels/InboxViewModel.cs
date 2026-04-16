@@ -38,9 +38,10 @@ public sealed partial class InboxViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void ShiftWeek(int delta)
+    private void ShiftWeek(string? deltaStr)
     {
         if (Days.Count == 0) return;
+        if (!int.TryParse(deltaStr, out var delta)) return;
         var monday = Days[0].Date.AddDays(delta * 7);
         Days.Clear();
         for (var i = 0; i < 7; i++)
