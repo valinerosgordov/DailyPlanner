@@ -88,27 +88,6 @@
 
                 <!-- Bottom buttons -->
                 <StackPanel DockPanel.Dock="Bottom" Margin="12,0,12,16">
-                    <ui:Button Content="Pomodoro" Icon="{ui:SymbolIcon Timer24}"
-                               HorizontalAlignment="Stretch"
-                               Command="{Binding TogglePomodoroCommand}" Margin="0,0,0,4"
-                               ToolTip="Ctrl+P">
-                        <ui:Button.Style>
-                            <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
-                                <Setter Property="Appearance" Value="Transparent"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsPomodoroOpen}" Value="True">
-                                        <Setter Property="Background">
-                                            <Setter.Value>
-                                                <SolidColorBrush Color="{DynamicResource AccentColor}" Opacity="0.15"/>
-                                            </Setter.Value>
-                                        </Setter>
-                                        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                                        <Setter Property="BorderThickness" Value="0,0,2,0"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ui:Button.Style>
-                    </ui:Button>
                     <ui:Button Content="{Binding [Statistics], Source={x:Static svc:Loc.Instance}}" Icon="{ui:SymbolIcon DataBarVertical24}"
                                HorizontalAlignment="Stretch"
                                Click="Statistics_Click" Margin="0,0,0,4">
@@ -153,9 +132,6 @@
                     <ui:Button Content="{Binding [Export], Source={x:Static svc:Loc.Instance}}" Icon="{ui:SymbolIcon ArrowDownload24}"
                                Appearance="Transparent" HorizontalAlignment="Stretch"
                                Command="{Binding ExportToExcelCommand}" Margin="0,0,0,4"/>
-                    <ui:Button Content="{Binding [TodayBtn], Source={x:Static svc:Loc.Instance}}" Icon="{ui:SymbolIcon CalendarToday24}"
-                               Appearance="Transparent" HorizontalAlignment="Stretch"
-                               Command="{Binding GoToTodayCommand}" Margin="0,0,0,4"/>
                     <ui:Button Content="{Binding [Settings], Source={x:Static svc:Loc.Instance}}" Icon="{ui:SymbolIcon Settings24}"
                                HorizontalAlignment="Stretch"
                                Click="Settings_Click">

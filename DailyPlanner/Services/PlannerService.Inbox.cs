@@ -86,7 +86,17 @@ public sealed partial class PlannerService
             db.DailyTasks.Add(target);
         }
 
-        db.InboxTasks.Remove(inbox);
+        // Archive Trello-sourced inbox tasks instead of deleting so SyncTrelloAsync
+        // knows this card was already placed and won't re-add it on the next sync.
+        if (inbox.Source == InboxSource.Trello && !string.IsNullOrEmpty(inbox.ExternalId))
+        {
+            inbox.IsArchived = true;
+            db.InboxTasks.Update(inbox);
+        }
+        else
+        {
+            db.InboxTasks.Remove(inbox);
+        }
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
         return target;
     }
