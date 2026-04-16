@@ -22,6 +22,7 @@
         <conv:DeadlineToBrushConverter x:Key="DeadlineBrush"/>
         <conv:DeadlineToTextConverter x:Key="DeadlineText"/>
         <conv:NullableToVisibilityConverter x:Key="NullVis"/>
+        <conv:InvertedBoolToVisibilityConverter x:Key="InvVisConv"/>
     </Page.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -402,18 +403,101 @@
                 </StackPanel>
             </Border>
 
-            <!-- DAYS -->
+            <!-- DAYS + INBOX SIDEBAR -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                 <ui:SymbolIcon Symbol="CalendarLtr24" FontSize="15" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                 <TextBlock Text="{Binding [WeekTasks], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource SectionHeader}" Margin="0"/>
             </StackPanel>
 
-            <ItemsControl ItemsSource="{Binding Days}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <UniformGrid Rows="1"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="260"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Inbox sidebar: drag cards from here onto any day column -->
+                <Border Grid.Column="0" Style="{StaticResource PlannerCard}" Padding="12"
+                        Margin="0,0,12,0" VerticalAlignment="Stretch"
+                        DataContext="{Binding DataContext.Inbox, RelativeSource={RelativeSource AncestorType=Page}}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <DockPanel Grid.Row="0" Margin="0,0,0,8">
+                            <TextBlock Text="{Binding [InboxTitle], Source={x:Static svc:Loc.Instance}}"
+                                       FontSize="13" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       VerticalAlignment="Center"/>
+                        </DockPanel>
+
+                        <Grid Grid.Row="1" Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <ui:Button Grid.Column="0" Icon="{ui:SymbolIcon ArrowSync24}"
+                                       Content="{Binding [SyncTrello], Source={x:Static svc:Loc.Instance}}"
+                                       Command="{Binding SyncTrelloCommand}"
+                                       Appearance="Primary" HorizontalAlignment="Stretch"
+                                       FontSize="11" Padding="6,4"/>
+                            <ui:Button Grid.Column="1" Icon="{ui:SymbolIcon Add24}"
+                                       Command="{Binding AddManualCommand}"
+                                       Appearance="Secondary" Margin="6,0,0,0"
+                                       FontSize="11" Padding="6,4"/>
+                        </Grid>
+
+                        <TextBlock Grid.Row="2" Text="{Binding StatusMessage}" FontSize="10"
+                                   Foreground="{DynamicResource MutedBrush}"
+                                   Margin="0,0,0,6" TextWrapping="Wrap"
+                                   Visibility="{Binding StatusMessage, Converter={StaticResource VisConv}}"/>
+
+                        <Grid Grid.Row="3">
+                            <TextBlock Text="{Binding [InboxEmpty], Source={x:Static svc:Loc.Instance}}"
+                                       FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       TextAlignment="Center" TextWrapping="Wrap"
+                                       Visibility="{Binding HasTasks, Converter={StaticResource InvVisConv}}"/>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                          Visibility="{Binding HasTasks, Converter={StaticResource VisConv}}">
+                                <ItemsControl ItemsSource="{Binding Tasks}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type vm:InboxTaskViewModel}">
+                                            <Border Margin="0,0,0,6" Padding="8,6"
+                                                    Background="{DynamicResource CardBg}"
+                                                    BorderBrush="{DynamicResource GlassBorderBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="8"
+                                                    Cursor="Hand"
+                                                    PreviewMouseLeftButtonDown="InboxItem_MouseDown"
+                                                    MouseMove="InboxItem_MouseMove"
+                                                    Tag="{Binding}">
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Text}" FontSize="12"
+                                                               Foreground="{DynamicResource TextPrimaryBrush}"
+                                                               TextWrapping="Wrap"/>
+                                                    <TextBlock Text="{Binding SourceLabel}" FontSize="9"
+                                                               Foreground="{DynamicResource TextTertiaryBrush}"
+                                                               Margin="0,3,0,0" TextTrimming="CharacterEllipsis"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <ItemsControl Grid.Column="1" ItemsSource="{Binding Days}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Rows="1"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Border Margin="3,0" Padding="8,12">
@@ -704,7 +788,8 @@
                         </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                </ItemsControl>
+            </Grid>
 
             <!-- HABITS + STATE -->
             <Grid Margin="0,20,0,0">

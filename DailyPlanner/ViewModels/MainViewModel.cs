@@ -44,6 +44,7 @@ public sealed partial class MainViewModel : ObservableObject
     public PomodoroViewModel Pomodoro { get; } = new();
     public StatisticsViewModel Statistics { get; }
     public FinanceViewModel Finance { get; }
+    public InboxViewModel Inbox { get; }
     public PlannerService Service => _service;
     public string DailyQuote { get; private set; } = QuoteService.GetDailyQuote();
     public string AppVersion { get; } = typeof(MainViewModel).Assembly.GetName().Version?.ToString(3) ?? "?";
@@ -75,6 +76,7 @@ public sealed partial class MainViewModel : ObservableObject
         _updateService = updateService;
         Statistics = new StatisticsViewModel(_service);
         Finance = new FinanceViewModel(_service);
+        Inbox = new InboxViewModel(_service, _trelloService);
         Loc.LanguageChanged += OnLanguageChanged;
     }
 

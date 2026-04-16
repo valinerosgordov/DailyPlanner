@@ -17,6 +17,13 @@ public partial class WeekPage : Page
     public WeekPage()
     {
         InitializeComponent();
+        Loaded += async (_, _) =>
+        {
+            if (DataContext is MainViewModel vm)
+            {
+                try { await vm.Inbox.LoadAsync(); } catch { }
+            }
+        };
     }
 
     private void PriorityCycle_Click(object sender, MouseButtonEventArgs e)
@@ -292,31 +299,45 @@ public partial class WeekPage : Page
 
     private void Day_DragOver(object sender, DragEventArgs e)
     {
-        e.Effects = e.Data.GetDataPresent("TaskVM") ? DragDropEffects.Move : DragDropEffects.None;
+        var ok = e.Data.GetDataPresent("TaskVM") || e.Data.GetDataPresent(InboxDragFormat);
+        e.Effects = ok ? DragDropEffects.Move : DragDropEffects.None;
         e.Handled = true;
     }
 
     private async void Day_Drop(object sender, DragEventArgs e)
     {
-        if (!e.Data.GetDataPresent("TaskVM")) return;
-        if (e.Data.GetData("TaskVM") is not TaskViewModel sourceTask) return;
-
-        // Find target day from the ItemsControl's Tag
+        // Resolve target day from the ItemsControl's Tag
         var target = sender as FrameworkElement;
         var depth = 0;
         while (target is not null && target is not ItemsControl && depth++ < 20)
             target = System.Windows.Media.VisualTreeHelper.GetParent(target) as FrameworkElement;
-
         if (target is not ItemsControl { Tag: DayViewModel targetDay }) return;
 
-        // Find source day
         var mainVm = DataContext as MainViewModel;
         if (mainVm?.SelectedWeek is null) return;
+
+        // Inbox drop — move a Trello/manual inbox task to this day
+        if (e.Data.GetDataPresent(InboxDragFormat) &&
+            e.Data.GetData(InboxDragFormat) is InboxTaskViewModel inboxVm)
+        {
+            try
+            {
+                await mainVm.Inbox.MoveToDayAsync(inboxVm, targetDay.Date);
+                // Reload week so the new task appears in UI
+                await mainVm.LoadMonthCommand.ExecuteAsync(null);
+            }
+            catch (Exception ex) { Log.Error("WeekPage", $"Inbox drop failed: {ex.Message}"); }
+            e.Handled = true;
+            return;
+        }
+
+        // Task-to-task move between days (existing behavior)
+        if (!e.Data.GetDataPresent("TaskVM")) return;
+        if (e.Data.GetData("TaskVM") is not TaskViewModel sourceTask) return;
 
         var sourceDay = mainVm.SelectedWeek.Days.FirstOrDefault(d => d.Tasks.Contains(sourceTask));
         if (sourceDay is null || sourceDay == targetDay) return;
 
-        // Move: copy text to first empty slot in target, clear source
         var emptySlot = targetDay.Tasks.FirstOrDefault(t => string.IsNullOrWhiteSpace(t.Text));
         if (emptySlot is null)
         {
@@ -334,5 +355,40 @@ public partial class WeekPage : Page
         sourceTask.IsCompleted = false;
 
         e.Handled = true;
+    }
+
+    // ─── Inbox sidebar drag source ─────────────────────────────────
+
+    private const string InboxDragFormat = "DailyPlanner.InboxTask";
+    private InboxTaskViewModel? _draggedInbox;
+    private Point _inboxDragStart;
+
+    private void InboxItem_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        _inboxDragStart = e.GetPosition(null);
+        if (sender is FrameworkElement { Tag: InboxTaskViewModel vm })
+            _draggedInbox = vm;
+    }
+
+    private void InboxItem_MouseMove(object sender, MouseEventArgs e)
+    {
+        if (e.LeftButton != MouseButtonState.Pressed)
+        {
+            _draggedInbox = null;
+            return;
+        }
+        if (_draggedInbox is null) return;
+
+        var pos = e.GetPosition(null);
+        var diff = _inboxDragStart - pos;
+        if (Math.Abs(diff.X) < SystemParameters.MinimumHorizontalDragDistance &&
+            Math.Abs(diff.Y) < SystemParameters.MinimumVerticalDragDistance)
+            return;
+
+        if (sender is not FrameworkElement fe) return;
+
+        var data = new DataObject(InboxDragFormat, _draggedInbox);
+        try { DragDrop.DoDragDrop(fe, data, DragDropEffects.Move); }
+        finally { _draggedInbox = null; }
     }
 }
