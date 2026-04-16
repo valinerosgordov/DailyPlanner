@@ -27,6 +27,8 @@ public sealed class PlannerDbContext(DbContextOptions<PlannerDbContext> options)
     public DbSet<AccountTransfer> AccountTransfers => Set<AccountTransfer>();
     public DbSet<IncomeSource> IncomeSources => Set<IncomeSource>();
     public DbSet<IncomeSourcePayment> IncomeSourcePayments => Set<IncomeSourcePayment>();
+    public DbSet<InboxTask> InboxTasks => Set<InboxTask>();
+    public DbSet<TrelloSettings> TrelloSettings => Set<TrelloSettings>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -228,6 +230,26 @@ public sealed class PlannerDbContext(DbContextOptions<PlannerDbContext> options)
             e.HasIndex(p => p.IncomeSourceId);
             e.Property(p => p.Amount).HasColumnType("decimal(18,2)");
             e.Property(p => p.Description).HasMaxLength(500);
+        });
+
+        modelBuilder.Entity<InboxTask>(e =>
+        {
+            e.HasKey(t => t.Id);
+            e.HasIndex(t => t.ExternalId);
+            e.HasIndex(t => t.IsArchived);
+            e.Property(t => t.Text).HasMaxLength(500);
+            e.Property(t => t.ExternalId).HasMaxLength(100);
+            e.Property(t => t.BoardName).HasMaxLength(200);
+            e.Property(t => t.ListName).HasMaxLength(200);
+            e.Property(t => t.Url).HasMaxLength(500);
+        });
+
+        modelBuilder.Entity<TrelloSettings>(e =>
+        {
+            e.HasKey(s => s.Id);
+            e.Property(s => s.ApiKey).HasMaxLength(200);
+            e.Property(s => s.Token).HasMaxLength(200);
+            e.Property(s => s.ListName).HasMaxLength(200);
         });
     }
 }

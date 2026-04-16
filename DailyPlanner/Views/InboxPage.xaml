@@ -1,0 +1,195 @@
+<Page x:Class="DailyPlanner.Views.InboxPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:svc="clr-namespace:DailyPlanner.Services"
+      xmlns:vm="clr-namespace:DailyPlanner.ViewModels"
+      xmlns:conv="clr-namespace:DailyPlanner.Converters"
+      Foreground="{DynamicResource TextPrimaryBrush}">
+
+    <Page.Resources>
+        <conv:BoolToVisibilityConverter x:Key="VisConv"/>
+        <conv:NullableDateOnlyToDateTimeConverter x:Key="NullableDateOnlyConverter"/>
+    </Page.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,16">
+            <TextBlock Text="{Binding [InboxTitle], Source={x:Static svc:Loc.Instance}}"
+                       FontSize="26" FontWeight="SemiBold" DockPanel.Dock="Left"
+                       FontFamily="{StaticResource MainFont}"
+                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <ui:Button Icon="{ui:SymbolIcon Add24}"
+                           Content="{Binding [AddTask], Source={x:Static svc:Loc.Instance}}"
+                           Command="{Binding AddManualCommand}"
+                           Appearance="Secondary" Margin="0,0,8,0"/>
+                <ui:Button Icon="{ui:SymbolIcon ArrowSync24}"
+                           Content="{Binding [SyncTrello], Source={x:Static svc:Loc.Instance}}"
+                           Command="{Binding SyncTrelloCommand}"
+                           Appearance="Primary"/>
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Status bar -->
+        <Border Grid.Row="1" Margin="0,0,0,12" Padding="12,8"
+                Background="{DynamicResource CardBackgroundBrush}"
+                CornerRadius="6"
+                Visibility="{Binding StatusMessage, Converter={StaticResource VisConv}}">
+            <TextBlock Text="{Binding StatusMessage}"
+                       FontSize="13"
+                       Foreground="{DynamicResource TextSecondaryBrush}"/>
+        </Border>
+
+        <!-- Kanban: Inbox + 7 days -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Inbox column -->
+            <Border Grid.Column="0"
+                    Background="{DynamicResource CardBackgroundBrush}"
+                    CornerRadius="8" Padding="12"
+                    Margin="0,0,12,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="{Binding [InboxTitle], Source={x:Static svc:Loc.Instance}}"
+                               FontSize="14" FontWeight="SemiBold" Margin="4,0,0,10"
+                               Foreground="{DynamicResource TextPrimaryBrush}"/>
+
+                    <Grid Grid.Row="1">
+                        <!-- Empty state -->
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                    Visibility="{Binding HasTasks, Converter={StaticResource VisConv}, ConverterParameter=Invert}">
+                            <ui:SymbolIcon Symbol="Inbox24" FontSize="40"
+                                           Foreground="{DynamicResource TextTertiaryBrush}"
+                                           HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            <TextBlock Text="{Binding [InboxEmpty], Source={x:Static svc:Loc.Instance}}"
+                                       FontSize="13"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding [InboxEmptyHint], Source={x:Static svc:Loc.Instance}}"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource TextTertiaryBrush}"
+                                       HorizontalAlignment="Center" Margin="0,6,0,0"
+                                       TextWrapping="Wrap" TextAlignment="Center"/>
+                        </StackPanel>
+
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      Visibility="{Binding HasTasks, Converter={StaticResource VisConv}}">
+                            <ItemsControl ItemsSource="{Binding Tasks}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type vm:InboxTaskViewModel}">
+                                        <Border Margin="0,0,0,8" Padding="10"
+                                                Background="{DynamicResource BackgroundBrush}"
+                                                CornerRadius="6"
+                                                BorderBrush="{DynamicResource BorderBrush}"
+                                                BorderThickness="1"
+                                                Cursor="SizeAll"
+                                                PreviewMouseLeftButtonDown="InboxItem_MouseDown"
+                                                MouseMove="InboxItem_MouseMove"
+                                                Tag="{Binding}">
+                                            <StackPanel>
+                                                <TextBox Text="{Binding Text, UpdateSourceTrigger=LostFocus}"
+                                                         LostFocus="InboxText_LostFocus"
+                                                         BorderThickness="0" Background="Transparent"
+                                                         FontSize="13" IsHitTestVisible="False"
+                                                         Foreground="{DynamicResource TextPrimaryBrush}"
+                                                         TextWrapping="Wrap"/>
+                                                <DockPanel Margin="0,6,0,0">
+                                                    <TextBlock DockPanel.Dock="Left" Text="{Binding SourceLabel}" FontSize="10"
+                                                               Foreground="{DynamicResource TextTertiaryBrush}"
+                                                               TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock DockPanel.Dock="Right" Text="{Binding DueDateDisplay}" FontSize="10"
+                                                               Foreground="#FF9F40" Margin="6,0,0,0"
+                                                               Visibility="{Binding HasDueDate, Converter={StaticResource VisConv}}"/>
+                                                </DockPanel>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- Week days -->
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Week nav -->
+                <DockPanel Grid.Row="0" Margin="0,0,0,8">
+                    <ui:Button DockPanel.Dock="Left" Icon="{ui:SymbolIcon ChevronLeft24}"
+                               Appearance="Transparent" Command="{Binding ShiftWeekCommand}" CommandParameter="-1"/>
+                    <ui:Button DockPanel.Dock="Right" Icon="{ui:SymbolIcon ChevronRight24}"
+                               Appearance="Transparent" Command="{Binding ShiftWeekCommand}" CommandParameter="1"
+                               HorizontalAlignment="Right"/>
+                </DockPanel>
+
+                <!-- Day columns -->
+                <ItemsControl Grid.Row="1" ItemsSource="{Binding Days}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Rows="1"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type vm:InboxDayViewModel}">
+                            <Border Margin="4,0" Padding="10"
+                                    Background="{DynamicResource CardBackgroundBrush}"
+                                    CornerRadius="8"
+                                    AllowDrop="True"
+                                    DragEnter="DayColumn_DragEnter"
+                                    DragLeave="DayColumn_DragLeave"
+                                    DragOver="DayColumn_DragOver"
+                                    Drop="DayColumn_Drop"
+                                    Tag="{Binding}">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsDropTarget}" Value="True">
+                                                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                                <Setter Property="BorderThickness" Value="2"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsToday}" Value="True">
+                                                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                                <Setter Property="BorderThickness" Value="1"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding DayName}" FontSize="12" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding DateLabel}" FontSize="11"
+                                               Foreground="{DynamicResource TextTertiaryBrush}"
+                                               HorizontalAlignment="Center" Margin="0,2,0,10"/>
+                                    <TextBlock Text="⇣" FontSize="18"
+                                               Foreground="{DynamicResource TextTertiaryBrush}"
+                                               HorizontalAlignment="Center" Opacity="0.4"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+        </Grid>
+    </Grid>
+</Page>
