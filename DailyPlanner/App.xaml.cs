@@ -32,6 +32,9 @@ public partial class App : Application
         // Velopack: handle install/uninstall/update hooks (creates shortcuts, etc.)
         VelopackApp.Build().Run();
 
+        // DI container — initialize before anything that resolves services
+        ServiceHost.Configure();
+
         // Apply theme resources (must run AFTER WPF-UI loads but BEFORE window renders)
         ThemeService.Apply();
 
