@@ -112,7 +112,7 @@
             <Border Style="{StaticResource PlannerCard}" Margin="0,0,0,12" Padding="20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                        <ui:SymbolIcon Symbol="BoardSplit24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <ui:SymbolIcon Symbol="AppsList24" FontSize="18" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <StackPanel>
                             <TextBlock Text="{Binding [TrelloIntegration], Source={x:Static svc:Loc.Instance}}" FontSize="15" FontWeight="SemiBold"/>
                             <TextBlock Text="{Binding [TrelloDesc], Source={x:Static svc:Loc.Instance}}" FontSize="11"
