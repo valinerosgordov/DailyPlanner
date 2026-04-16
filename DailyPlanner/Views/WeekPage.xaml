@@ -294,7 +294,7 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border CornerRadius="10" Padding="12,10" Margin="0,0,10,8" Width="320"
+                                <Border CornerRadius="12" Padding="12,10" Margin="0,0,10,8" Width="320"
                                         Background="{DynamicResource ControlFillColorDefaultBrush}"
                                         BorderBrush="{DynamicResource ControlElevationBorderBrush}" BorderThickness="1">
                                     <StackPanel>
@@ -321,7 +321,7 @@
                                                         FontSize="11" VerticalAlignment="Center"/>
 
                                             <!-- Time picker: HH:MM -->
-                                            <Border Grid.Column="1" CornerRadius="6" Padding="6,4" Margin="6,0"
+                                            <Border Grid.Column="1" CornerRadius="8" Padding="6,4" Margin="6,0"
                                                     Background="{DynamicResource InputBgBrush}" VerticalAlignment="Center"
                                                     ToolTip="{Binding [MeetingTime], Source={x:Static svc:Loc.Instance}}">
                                                 <StackPanel Orientation="Horizontal">
@@ -342,7 +342,7 @@
                                             </Border>
 
                                             <!-- Duration -->
-                                            <Border Grid.Column="2" CornerRadius="6" Padding="6,4"
+                                            <Border Grid.Column="2" CornerRadius="8" Padding="6,4"
                                                     Background="{DynamicResource InputBgBrush}" VerticalAlignment="Center">
                                                 <StackPanel Orientation="Horizontal">
                                                     <TextBox Text="{Binding DurationMinutes, UpdateSourceTrigger=LostFocus}"
@@ -441,7 +441,7 @@
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="{Binding DayName}" Style="{StaticResource DayHeader}" FontSize="12"/>
                                         <!-- Today badge -->
-                                        <Border CornerRadius="4" Padding="6,1" Margin="6,0,0,0"
+                                        <Border CornerRadius="8" Padding="6,1" Margin="6,0,0,0"
                                                 Visibility="{Binding IsToday, Converter={StaticResource VisConv}}">
                                             <Border.Background>
                                                 <SolidColorBrush Color="{DynamicResource AccentColor}" Opacity="0.2"/>
@@ -481,7 +481,7 @@
                                                             ToolTip="{Binding Priority, Converter={StaticResource PriorityTip}}" Cursor="Hand"
                                                             MouseLeftButtonDown="PriorityCycle_Click"/>
                                                     <!-- Expand/collapse toggle -->
-                                                    <Border Grid.Column="1" Width="12" Height="12" Cursor="Hand"
+                                                    <Border Grid.Column="1" Width="22" Height="22" Cursor="Hand"
                                                             MouseLeftButtonDown="ToggleExpand_Click"
                                                             Background="Transparent" VerticalAlignment="Center"
                                                             Visibility="{Binding HasSubTasks, Converter={StaticResource VisConv}}">
@@ -646,7 +646,7 @@
                                                                          Opacity="{Binding IsCompleted, Converter={StaticResource OpacityConv}}"
                                                                          FontSize="10.5"/>
                                                                 <!-- Remove subtask -->
-                                                                <Border Grid.Column="3" Width="12" Height="12" Cursor="Hand"
+                                                                <Border Grid.Column="3" Width="22" Height="22" Cursor="Hand"
                                                                         MouseLeftButtonDown="RemoveSubTask_Click"
                                                                         Background="Transparent" VerticalAlignment="Center">
                                                                     <Border.Style>
@@ -816,7 +816,7 @@
                         <ItemsControl ItemsSource="{Binding Days}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border CornerRadius="6" Padding="4,3" Margin="0,1">
+                                    <Border CornerRadius="8" Padding="4,3" Margin="0,1">
                                         <Border.Style>
                                             <Style TargetType="Border">
                                                 <Setter Property="Background" Value="Transparent"/>
@@ -859,7 +859,7 @@
                         </ItemsControl>
 
                         <!-- Averages row -->
-                        <Border CornerRadius="6" Padding="4,5" Margin="0,8,0,0"
+                        <Border CornerRadius="8" Padding="4,5" Margin="0,8,0,0"
                                 Background="{DynamicResource InputBgBrush}">
                             <Grid>
                                 <Grid.ColumnDefinitions>

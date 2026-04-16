@@ -146,4 +146,49 @@ public class FinanceCalculationsTests
     {
         FinanceCalculations.MonthlyObligatory([]).Should().Be(0m);
     }
+
+    [Fact]
+    public void MonthlyObligatory_MixedFrequencies_RoundsTo2Decimals()
+    {
+        var payments = new List<RecurringPayment>
+        {
+            new() { Type = FinanceEntryType.Expense, IsActive = true, Frequency = PaymentFrequency.Weekly, Amount = 10m },
+            new() { Type = FinanceEntryType.Expense, IsActive = true, Frequency = PaymentFrequency.Biweekly, Amount = 20m },
+        };
+        // 10 * 4.33 + 20 * 2.17 = 43.30 + 43.40 = 86.70
+        FinanceCalculations.MonthlyObligatory(payments).Should().Be(86.70m);
+    }
+
+    // ─── Boundary cases ─────────────────────────────────────────────
+
+    [Fact]
+    public void NetWorth_AllZero_ReturnsZero()
+    {
+        FinanceCalculations.NetWorth(0m, 0m, 0m).Should().Be(0m);
+    }
+
+    [Fact]
+    public void SavingsRatePercent_NegativeIncome_ReturnsZero()
+    {
+        FinanceCalculations.SavingsRatePercent(savings: 100m, income: -500m)
+            .Should().Be(0);
+    }
+
+    [Fact]
+    public void DebtProgressPercent_NegativeAmount_ReturnsZero()
+    {
+        FinanceCalculations.DebtProgressPercent(-100m, 50m).Should().Be(0);
+    }
+
+    [Fact]
+    public void TotalPaid_MultiplePayments_SumsCorrectly()
+    {
+        FinanceCalculations.TotalPaid([10.50m, 20.25m, 5.75m]).Should().Be(36.50m);
+    }
+
+    [Fact]
+    public void TotalPaid_EmptyList_ReturnsZero()
+    {
+        FinanceCalculations.TotalPaid([]).Should().Be(0m);
+    }
 }

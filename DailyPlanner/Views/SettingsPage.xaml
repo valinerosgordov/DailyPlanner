@@ -126,17 +126,19 @@
                     <TextBlock Text="{Binding [TrelloApiKey], Source={x:Static svc:Loc.Instance}}" FontSize="12"
                                Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,4"/>
                     <TextBox Text="{Binding TrelloApiKey, UpdateSourceTrigger=PropertyChanged}"
-                             Padding="8" Margin="0,0,0,10"/>
+                             Padding="8" Margin="0,0,0,10" MaxLength="200"
+                             FontFamily="Cascadia Mono, Consolas" FontSize="12"/>
 
                     <TextBlock Text="{Binding [TrelloToken], Source={x:Static svc:Loc.Instance}}" FontSize="12"
                                Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,4"/>
                     <TextBox Text="{Binding TrelloToken, UpdateSourceTrigger=PropertyChanged}"
-                             Padding="8" Margin="0,0,0,10"/>
+                             Padding="8" Margin="0,0,0,10" MaxLength="200"
+                             FontFamily="Cascadia Mono, Consolas" FontSize="12"/>
 
                     <TextBlock Text="{Binding [TrelloListName], Source={x:Static svc:Loc.Instance}}" FontSize="12"
                                Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,4"/>
                     <TextBox Text="{Binding TrelloListName, UpdateSourceTrigger=PropertyChanged}"
-                             Padding="8" Margin="0,0,0,12"/>
+                             Padding="8" Margin="0,0,0,12" MaxLength="100"/>
 
                     <DockPanel>
                         <TextBlock DockPanel.Dock="Left" Text="{Binding TrelloStatus}" FontSize="11"
@@ -348,37 +350,37 @@
                         </Grid.RowDefinitions>
 
                         <Border Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
-                                Background="{DynamicResource KeyboardShortcutBg}" CornerRadius="4" Padding="8,3">
+                                Background="{DynamicResource KeyboardShortcutBg}" CornerRadius="8" Padding="8,3">
                             <TextBlock Text="Ctrl + Left / Right" FontFamily="Cascadia Code, Consolas" FontSize="11"/>
                         </Border>
                         <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding [SwitchMonth], Source={x:Static svc:Loc.Instance}}" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
 
                         <Border Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
-                                Background="{DynamicResource KeyboardShortcutBg}" CornerRadius="4" Padding="8,3">
+                                Background="{DynamicResource KeyboardShortcutBg}" CornerRadius="8" Padding="8,3">
                             <TextBlock Text="Ctrl + T" FontFamily="Cascadia Code, Consolas" FontSize="11"/>
                         </Border>
                         <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding [GoToToday], Source={x:Static svc:Loc.Instance}}" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
 
                         <Border Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
-                                Background="{DynamicResource KeyboardShortcutBg}" CornerRadius="4" Padding="8,3">
+                                Background="{DynamicResource KeyboardShortcutBg}" CornerRadius="8" Padding="8,3">
                             <TextBlock Text="Ctrl + F" FontFamily="Cascadia Code, Consolas" FontSize="11"/>
                         </Border>
                         <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding [SearchTasks], Source={x:Static svc:Loc.Instance}}" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
 
                         <Border Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
-                                Background="{DynamicResource KeyboardShortcutBg}" CornerRadius="4" Padding="8,3">
+                                Background="{DynamicResource KeyboardShortcutBg}" CornerRadius="8" Padding="8,3">
                             <TextBlock Text="Ctrl + P" FontFamily="Cascadia Code, Consolas" FontSize="11"/>
                         </Border>
                         <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding [PomodoroTimer], Source={x:Static svc:Loc.Instance}}" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
 
                         <Border Grid.Row="4" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
-                                Background="{DynamicResource KeyboardShortcutBg}" CornerRadius="4" Padding="8,3">
+                                Background="{DynamicResource KeyboardShortcutBg}" CornerRadius="8" Padding="8,3">
                             <TextBlock Text="Ctrl + E" FontFamily="Cascadia Code, Consolas" FontSize="11"/>
                         </Border>
                         <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding [ExportExcelShort], Source={x:Static svc:Loc.Instance}}" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
 
                         <Border Grid.Row="5" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
-                                Background="{DynamicResource KeyboardShortcutBg}" CornerRadius="4" Padding="8,3">
+                                Background="{DynamicResource KeyboardShortcutBg}" CornerRadius="8" Padding="8,3">
                             <TextBlock Text="Ctrl + ," FontFamily="Cascadia Code, Consolas" FontSize="11"/>
                         </Border>
                         <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding [OpenSettings], Source={x:Static svc:Loc.Instance}}" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
