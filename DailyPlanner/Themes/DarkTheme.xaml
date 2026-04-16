@@ -65,21 +65,16 @@
     <CornerRadius x:Key="RadiusMd">10</CornerRadius>
     <CornerRadius x:Key="RadiusLg">16</CornerRadius>
 
-    <!-- Liquid Glass card — frosted panel with soft accent glow on hover -->
+    <!-- Compact glass card — monochrome hover highlight -->
     <Style x:Key="PlannerCard" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource CardBg}"/>
-        <Setter Property="CornerRadius" Value="14"/>
+        <Setter Property="CornerRadius" Value="12"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="18"/>
+        <Setter Property="Padding" Value="14"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                <Setter Property="Effect">
-                    <Setter.Value>
-                        <DropShadowEffect Color="#8B5CF6" BlurRadius="24" ShadowDepth="0" Opacity="0.3"/>
-                    </Setter.Value>
-                </Setter>
             </Trigger>
         </Style.Triggers>
     </Style>
