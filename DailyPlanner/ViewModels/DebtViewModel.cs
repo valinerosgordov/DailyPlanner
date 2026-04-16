@@ -35,9 +35,9 @@ public sealed partial class DebtViewModel : ObservableObject
     [ObservableProperty] private DateOnly? _dueDate;
     [ObservableProperty] private bool _isSettled;
 
-    public decimal PaidAmount => _model.Payments.Sum(p => p.Amount);
-    public decimal RemainingAmount => Amount - PaidAmount;
-    public double ProgressPercent => Amount > 0 ? Math.Min((double)PaidAmount / (double)Amount * 100, 100) : 0;
+    public decimal PaidAmount => FinanceCalculations.TotalPaid(_model.Payments.Select(p => p.Amount));
+    public decimal RemainingAmount => FinanceCalculations.RemainingDebt(Amount, _model.Payments.Select(p => p.Amount));
+    public double ProgressPercent => FinanceCalculations.DebtProgressPercent(Amount, PaidAmount);
     public string DisplayCreatedDate => _model.CreatedDate.ToString("dd.MM.yyyy");
 
     public bool IsOverdue => !IsSettled && DueDate is not null

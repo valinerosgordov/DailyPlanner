@@ -18,11 +18,17 @@ jobs:
           dotnet-version: '10.0.x'
           dotnet-quality: 'preview'
 
-      - name: Restore
+      - name: Restore main
         run: dotnet restore DailyPlanner/DailyPlanner.csproj -r win-x64
+
+      - name: Restore tests
+        run: dotnet restore DailyPlanner.Tests/DailyPlanner.Tests.csproj
 
       - name: Build
         run: dotnet build DailyPlanner/DailyPlanner.csproj --no-restore -c Release -r win-x64
+
+      - name: Test
+        run: dotnet test DailyPlanner.Tests/DailyPlanner.Tests.csproj --no-restore -c Debug --verbosity normal
 
       - name: Publish
         run: dotnet publish DailyPlanner/DailyPlanner.csproj --no-build -c Release -r win-x64 --self-contained -o ./publish
