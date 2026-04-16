@@ -16,7 +16,7 @@
         </Style>
     </Window.Resources>
 
-    <Border CornerRadius="16" Padding="24,20"
+    <Border CornerRadius="12" Padding="24,20"
             Background="{DynamicResource CardBg}"
             BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1">
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
@@ -33,7 +33,7 @@
             </StackPanel>
 
             <!-- Yesterday's incomplete tasks -->
-            <Border CornerRadius="10" Padding="12,10" Margin="0,0,0,12"
+            <Border CornerRadius="12" Padding="12,10" Margin="0,0,0,12"
                     Visibility="{Binding HasYesterdayTasks, Converter={StaticResource VisConv}}">
                 <Border.Background>
                     <SolidColorBrush Color="{DynamicResource AccentColor}" Opacity="0.08"/>
@@ -59,7 +59,7 @@
             </Border>
 
             <!-- Today's tasks -->
-            <Border CornerRadius="10" Padding="12,10" Margin="0,0,0,12">
+            <Border CornerRadius="12" Padding="12,10" Margin="0,0,0,12">
                 <Border.Background>
                     <SolidColorBrush Color="{DynamicResource AccentColor}" Opacity="0.05"/>
                 </Border.Background>
@@ -87,7 +87,7 @@
             </Border>
 
             <!-- Overdue tasks with deadlines -->
-            <Border CornerRadius="10" Padding="12,10" Margin="0,0,0,12"
+            <Border CornerRadius="12" Padding="12,10" Margin="0,0,0,12"
                     Visibility="{Binding HasOverdueTasks, Converter={StaticResource VisConv}}">
                 <Border.Background>
                     <SolidColorBrush Color="{StaticResource DangerColor}" Opacity="0.12"/>
