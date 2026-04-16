@@ -9,7 +9,9 @@
         Width="1480" Height="920"
         MinWidth="1200" MinHeight="700"
         WindowStartupLocation="CenterScreen"
-        ExtendsContentIntoTitleBar="True">
+        ExtendsContentIntoTitleBar="True"
+        WindowBackdropType="Mica"
+        Background="Transparent">
 
     <ui:FluentWindow.Resources>
         <conv:BoolToVisibilityConverter x:Key="VisConv"/>
