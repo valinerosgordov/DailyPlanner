@@ -12,7 +12,7 @@ namespace DailyPlanner;
 
 public partial class MainWindow : FluentWindow
 {
-    private readonly MainViewModel _viewModel = new();
+    private readonly MainViewModel _viewModel = ServiceHost.Get<MainViewModel>();
     private readonly WeekPage _weekPage = new();
     private readonly SettingsPage _settingsPage;
     private StatisticsPage? _statisticsPage;

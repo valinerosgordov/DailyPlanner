@@ -11,7 +11,7 @@ namespace DailyPlanner.ViewModels;
 
 public sealed partial class MainViewModel : ObservableObject
 {
-    private readonly PlannerService _service = new();
+    private readonly PlannerService _service;
 
     [ObservableProperty] private int _selectedYear = DateTime.Today.Year;
     [ObservableProperty] private int _selectedMonth = DateTime.Today.Month;
@@ -48,12 +48,12 @@ public sealed partial class MainViewModel : ObservableObject
     public string DailyQuote { get; private set; } = QuoteService.GetDailyQuote();
     public string AppVersion { get; } = typeof(MainViewModel).Assembly.GetName().Version?.ToString(3) ?? "?";
 
-    private readonly UpdateService _updateService = new("https://github.com/valinerosgordov/DailyPlanner");
+    private readonly UpdateService _updateService;
     [ObservableProperty] private string _updateStatus = string.Empty;
     [ObservableProperty] private bool _isUpdateAvailable;
     [ObservableProperty] private int _updateProgress;
 
-    private readonly TrelloService _trelloService = new();
+    private readonly TrelloService _trelloService;
     [ObservableProperty] private bool _trelloIsEnabled;
     [ObservableProperty] private string _trelloApiKey = string.Empty;
     [ObservableProperty] private string _trelloToken = string.Empty;
@@ -64,8 +64,15 @@ public sealed partial class MainViewModel : ObservableObject
 
     private bool _isInitializing;
 
-    public MainViewModel()
+    public MainViewModel() : this(new PlannerService(), new TrelloService(),
+        new UpdateService("https://github.com/valinerosgordov/DailyPlanner"))
+    { }
+
+    public MainViewModel(PlannerService service, TrelloService trelloService, UpdateService updateService)
     {
+        _service = service;
+        _trelloService = trelloService;
+        _updateService = updateService;
         Statistics = new StatisticsViewModel(_service);
         Finance = new FinanceViewModel(_service);
         Loc.LanguageChanged += OnLanguageChanged;
