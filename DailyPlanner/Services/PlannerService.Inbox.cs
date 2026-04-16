@@ -55,20 +55,40 @@ public sealed partial class PlannerService
             await db.SaveChangesAsync(ct).ConfigureAwait(false);
         }
 
-        var maxOrder = await db.DailyTasks.Where(t => t.DailyPlanId == plan.Id).Select(t => (int?)t.Order).MaxAsync(ct).ConfigureAwait(false) ?? 0;
-        var newTask = new DailyTask
+        // Try to fill the first empty slot (Text = empty, no parent) — avoids stacking
+        // Trello tasks below pre-populated empty rows.
+        var emptySlot = await db.DailyTasks
+            .Where(t => t.DailyPlanId == plan.Id && t.ParentTaskId == null && (t.Text == null || t.Text == ""))
+            .OrderBy(t => t.Order)
+            .FirstOrDefaultAsync(ct).ConfigureAwait(false);
+
+        DailyTask target;
+        if (emptySlot is not null)
         {
-            DailyPlanId = plan.Id,
-            Order = maxOrder + 1,
-            Text = inbox.Text,
-            Priority = inbox.Priority,
-            Category = inbox.Category,
-            Deadline = inbox.DueDate
-        };
-        db.DailyTasks.Add(newTask);
+            emptySlot.Text = inbox.Text;
+            emptySlot.Priority = inbox.Priority;
+            emptySlot.Category = inbox.Category;
+            emptySlot.Deadline = inbox.DueDate;
+            target = emptySlot;
+        }
+        else
+        {
+            var maxOrder = await db.DailyTasks.Where(t => t.DailyPlanId == plan.Id).Select(t => (int?)t.Order).MaxAsync(ct).ConfigureAwait(false) ?? 0;
+            target = new DailyTask
+            {
+                DailyPlanId = plan.Id,
+                Order = maxOrder + 1,
+                Text = inbox.Text,
+                Priority = inbox.Priority,
+                Category = inbox.Category,
+                Deadline = inbox.DueDate
+            };
+            db.DailyTasks.Add(target);
+        }
+
         db.InboxTasks.Remove(inbox);
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
-        return newTask;
+        return target;
     }
     public async Task<TrelloSettings> GetTrelloSettingsAsync(CancellationToken ct = default)
     {
