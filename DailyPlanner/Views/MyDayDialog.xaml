@@ -17,8 +17,11 @@
     </Window.Resources>
 
     <Border CornerRadius="12" Padding="24,20"
-            Background="{DynamicResource CardBg}"
+            Background="#F0101014"
             BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="24" ShadowDepth="0" Opacity="0.5" Color="Black"/>
+        </Border.Effect>
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <StackPanel>
             <!-- Header -->
