@@ -27,7 +27,7 @@ public partial class InboxPage : Page
         Loaded += async (_, _) =>
         {
             try { await viewModel.LoadAsync(); }
-            catch (Exception ex) { Debug.WriteLine($"[InboxPage] Load failed: {ex.Message}"); }
+            catch (Exception ex) { Log.Error("InboxPage", $"Load failed: {ex.Message}"); }
         };
     }
 
@@ -36,7 +36,7 @@ public partial class InboxPage : Page
         if (sender is FrameworkElement fe && fe.DataContext is InboxTaskViewModel vm)
         {
             try { await _viewModel.SaveTaskCommand.ExecuteAsync(vm); }
-            catch (Exception ex) { Debug.WriteLine($"[InboxPage] Save failed: {ex.Message}"); }
+            catch (Exception ex) { Log.Error("InboxPage", $"Save failed: {ex.Message}"); }
         }
     }
 
@@ -118,7 +118,7 @@ public partial class InboxPage : Page
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[InboxPage] Drop failed: {ex.Message}");
+            Log.Error("InboxPage", $"Drop failed: {ex.Message}");
         }
     }
 
@@ -132,7 +132,7 @@ public partial class InboxPage : Page
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[InboxPage] MoveToDay failed: {ex.Message}");
+            Log.Error("InboxPage", $"MoveToDay failed: {ex.Message}");
         }
     }
 }

@@ -23,7 +23,7 @@ public sealed class UpdateService
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[UpdateService] Check failed: {ex.Message}");
+            Log.Error("UpdateService", $"Check failed: {ex.Message}");
             return null;
         }
     }

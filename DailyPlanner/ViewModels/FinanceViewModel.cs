@@ -336,7 +336,7 @@ public sealed partial class FinanceViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[FinanceVM] LoadData failed: {ex}");
+            Log.Error("FinanceVM", $"LoadData failed: {ex}");
         }
         finally
         {
@@ -545,7 +545,7 @@ public sealed partial class FinanceViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[FinanceVM] AddBudget failed: {ex}");
+            Log.Error("FinanceVM", $"AddBudget failed: {ex}");
         }
     }
 
@@ -665,7 +665,7 @@ public sealed partial class FinanceViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[FinanceVM] Import failed: {ex}");
+            Log.Error("FinanceVM", $"Import failed: {ex}");
             System.Windows.MessageBox.Show(Loc.Get("ImportError"), Loc.Get("ImportFile"));
         }
     }
