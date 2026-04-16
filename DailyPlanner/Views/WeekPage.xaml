@@ -492,15 +492,16 @@
                     </Grid>
                 </Border>
 
-                <ItemsControl Grid.Column="1" ItemsSource="{Binding Days}">
+                <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                <ItemsControl ItemsSource="{Binding Days}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <UniformGrid Rows="1"/>
+                            <StackPanel Orientation="Horizontal"/>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Margin="3,0" Padding="8,12">
+                        <Border Margin="3,0" Padding="8,12" Width="220">
                             <Border.Style>
                                 <Style TargetType="Border" BasedOn="{StaticResource PlannerCard}">
                                     <Style.Triggers>
@@ -789,6 +790,7 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
                 </ItemsControl>
+                </ScrollViewer>
             </Grid>
 
             <!-- HABITS + STATE -->
