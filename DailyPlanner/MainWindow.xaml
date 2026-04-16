@@ -440,19 +440,19 @@
                                Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,4"/>
                     <ui:NumberBox Grid.Row="1" Grid.Column="0" Value="{Binding WorkMinutes, Mode=TwoWay}"
                                   Minimum="1" Maximum="120" SpinButtonPlacementMode="Hidden"
-                                  Height="32" FontSize="14" HorizontalContentAlignment="Center"/>
+                                  Height="36" FontSize="14" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" ClearButtonEnabled="False"/>
                     <TextBlock Grid.Row="1" Grid.Column="1" Text="/" VerticalAlignment="Center"
                                HorizontalAlignment="Center"
                                Foreground="{DynamicResource MutedBrush}" FontSize="14"/>
                     <ui:NumberBox Grid.Row="1" Grid.Column="2" Value="{Binding BreakMinutes, Mode=TwoWay}"
                                   Minimum="1" Maximum="60" SpinButtonPlacementMode="Hidden"
-                                  Height="32" FontSize="14" HorizontalContentAlignment="Center"/>
+                                  Height="36" FontSize="14" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" ClearButtonEnabled="False"/>
                     <TextBlock Grid.Row="1" Grid.Column="3" Text="/" VerticalAlignment="Center"
                                HorizontalAlignment="Center"
                                Foreground="{DynamicResource MutedBrush}" FontSize="14"/>
                     <ui:NumberBox Grid.Row="1" Grid.Column="4" Value="{Binding FocusAlertMinutes, Mode=TwoWay}"
                                   Minimum="1" Maximum="180" SpinButtonPlacementMode="Hidden"
-                                  Height="32" FontSize="14" HorizontalContentAlignment="Center"/>
+                                  Height="36" FontSize="14" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" ClearButtonEnabled="False"/>
                 </Grid>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
