@@ -9,7 +9,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>planner.ico</ApplicationIcon>
     <AssemblyName>DailyPlanner</AssemblyName>
-    <Version>3.9.0</Version>
+    <Version>3.10.0</Version>
     <Authors>DailyPlanner Team</Authors>
     <Description>Daily &amp; Financial Planner — weekly planner with finance tracker, habits, Pomodoro and analytics</Description>
   </PropertyGroup>
@@ -30,6 +30,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.6" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.6" />
     <PackageReference Include="Velopack" Version="0.0.1589-ga2c5a97" />
     <PackageReference Include="WPF-UI" Version="4.2.0" />
   </ItemGroup>
