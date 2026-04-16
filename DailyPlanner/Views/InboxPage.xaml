@@ -94,40 +94,56 @@
                             <ItemsControl ItemsSource="{Binding Tasks}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="{x:Type vm:InboxTaskViewModel}">
-                                        <Border Margin="0,0,0,8" Padding="10"
-                                                Background="{DynamicResource BackgroundBrush}"
-                                                CornerRadius="6"
-                                                BorderBrush="{DynamicResource BorderBrush}"
+                                        <Border Margin="0,0,0,10" Padding="0"
+                                                Background="{DynamicResource CardBg}"
+                                                CornerRadius="10"
+                                                BorderBrush="{DynamicResource GlassBorderBrush}"
                                                 BorderThickness="1"
-                                                Cursor="SizeAll"
-                                                PreviewMouseLeftButtonDown="InboxItem_MouseDown"
-                                                MouseMove="InboxItem_MouseMove"
                                                 Tag="{Binding}">
-                                            <StackPanel>
-                                                <TextBox Text="{Binding Text, UpdateSourceTrigger=LostFocus}"
-                                                         LostFocus="InboxText_LostFocus"
-                                                         BorderThickness="0" Background="Transparent"
-                                                         FontSize="13" IsHitTestVisible="False"
-                                                         Foreground="{DynamicResource TextPrimaryBrush}"
-                                                         TextWrapping="Wrap"/>
-                                                <DockPanel Margin="0,6,0,0">
-                                                    <TextBlock DockPanel.Dock="Left" Text="{Binding SourceLabel}" FontSize="10"
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <!-- Drag handle -->
+                                                <Border Grid.Column="0" Width="22" Background="Transparent"
+                                                        Cursor="SizeAll"
+                                                        ToolTip="Drag to move to a day"
+                                                        PreviewMouseLeftButtonDown="InboxItem_MouseDown"
+                                                        MouseMove="InboxItem_MouseMove"
+                                                        Tag="{Binding}">
+                                                    <TextBlock Text="⋮⋮" FontSize="14" FontWeight="Bold"
                                                                Foreground="{DynamicResource TextTertiaryBrush}"
-                                                               TextTrimming="CharacterEllipsis"/>
-                                                    <TextBlock DockPanel.Dock="Right" Text="{Binding DueDateDisplay}" FontSize="10"
-                                                               Foreground="#FF9F40" Margin="6,0,0,0"
-                                                               Visibility="{Binding HasDueDate, Converter={StaticResource VisConv}}"/>
-                                                </DockPanel>
-                                                <DockPanel Margin="0,8,0,0">
-                                                    <ui:Button DockPanel.Dock="Right"
-                                                               Content="{Binding [MoveToDay], Source={x:Static svc:Loc.Instance}}"
-                                                               FontSize="11" Padding="8,3" Appearance="Primary"
-                                                               Click="MoveToDay_Click" Tag="{Binding}"/>
-                                                    <DatePicker SelectedDate="{Binding DueDate, Converter={StaticResource NullableDateOnlyConverter}, Mode=TwoWay}"
-                                                                Margin="0,0,8,0" FontSize="11"
-                                                                LostFocus="InboxText_LostFocus"/>
-                                                </DockPanel>
-                                            </StackPanel>
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+
+                                                <StackPanel Grid.Column="1" Margin="0,10,10,10">
+                                                    <TextBox Text="{Binding Text, UpdateSourceTrigger=LostFocus}"
+                                                             LostFocus="InboxText_LostFocus"
+                                                             BorderThickness="0" Background="Transparent"
+                                                             FontSize="13"
+                                                             Foreground="{DynamicResource TextPrimaryBrush}"
+                                                             TextWrapping="Wrap"/>
+                                                    <DockPanel Margin="0,6,0,0">
+                                                        <TextBlock DockPanel.Dock="Left" Text="{Binding SourceLabel}" FontSize="10"
+                                                                   Foreground="{DynamicResource TextTertiaryBrush}"
+                                                                   TextTrimming="CharacterEllipsis"/>
+                                                        <TextBlock DockPanel.Dock="Right" Text="{Binding DueDateDisplay}" FontSize="10"
+                                                                   Foreground="{DynamicResource WarningBrush}" Margin="6,0,0,0"
+                                                                   Visibility="{Binding HasDueDate, Converter={StaticResource VisConv}}"/>
+                                                    </DockPanel>
+                                                    <DockPanel Margin="0,8,0,0">
+                                                        <ui:Button DockPanel.Dock="Right"
+                                                                   Content="{Binding [MoveToDay], Source={x:Static svc:Loc.Instance}}"
+                                                                   FontSize="11" Padding="8,3" Appearance="Primary"
+                                                                   Click="MoveToDay_Click" Tag="{Binding}"/>
+                                                        <DatePicker SelectedDate="{Binding DueDate, Converter={StaticResource NullableDateOnlyConverter}, Mode=TwoWay}"
+                                                                    Margin="0,0,8,0" FontSize="11"
+                                                                    LostFocus="InboxText_LostFocus"/>
+                                                    </DockPanel>
+                                                </StackPanel>
+                                            </Grid>
                                         </Border>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
@@ -163,9 +179,9 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="{x:Type vm:InboxDayViewModel}">
                             <Border Margin="4,0" Padding="10" MinHeight="200"
-                                    Background="#22FFFFFF"
-                                    CornerRadius="8"
-                                    BorderBrush="#40FFFFFF"
+                                    Background="{DynamicResource CardBg}"
+                                    CornerRadius="14"
+                                    BorderBrush="{DynamicResource GlassBorderBrush}"
                                     BorderThickness="1"
                                     AllowDrop="True"
                                     DragEnter="DayColumn_DragEnter"
@@ -177,9 +193,14 @@
                                     <Style TargetType="Border">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsDropTarget}" Value="True">
-                                                <Setter Property="Background" Value="#447C3AED"/>
+                                                <Setter Property="Background" Value="{DynamicResource FocusBgBrush}"/>
                                                 <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                                 <Setter Property="BorderThickness" Value="2"/>
+                                                <Setter Property="Effect">
+                                                    <Setter.Value>
+                                                        <DropShadowEffect Color="#8B5CF6" BlurRadius="24" ShadowDepth="0" Opacity="0.45"/>
+                                                    </Setter.Value>
+                                                </Setter>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding IsToday}" Value="True">
                                                 <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
