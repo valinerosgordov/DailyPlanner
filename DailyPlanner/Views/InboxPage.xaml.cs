@@ -116,4 +116,18 @@ public partial class InboxPage : Page
             Debug.WriteLine($"[InboxPage] Drop failed: {ex.Message}");
         }
     }
+
+    private async void MoveToDay_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement fe || fe.Tag is not InboxTaskViewModel vm) return;
+        var date = vm.DueDate ?? DateOnly.FromDateTime(DateTime.Today);
+        try
+        {
+            await _viewModel.MoveToDayAsync(vm, date);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[InboxPage] MoveToDay failed: {ex.Message}");
+        }
+    }
 }

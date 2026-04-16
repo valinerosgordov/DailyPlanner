@@ -48,10 +48,11 @@
                        Foreground="{DynamicResource TextSecondaryBrush}"/>
         </Border>
 
-        <!-- Kanban: Inbox + 7 days -->
-        <Grid Grid.Row="2">
+        <!-- Kanban: Inbox + 7 days (scrolls horizontally on narrow windows) -->
+        <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+        <Grid MinWidth="900">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="260"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
@@ -116,6 +117,15 @@
                                                     <TextBlock DockPanel.Dock="Right" Text="{Binding DueDateDisplay}" FontSize="10"
                                                                Foreground="#FF9F40" Margin="6,0,0,0"
                                                                Visibility="{Binding HasDueDate, Converter={StaticResource VisConv}}"/>
+                                                </DockPanel>
+                                                <DockPanel Margin="0,8,0,0">
+                                                    <ui:Button DockPanel.Dock="Right"
+                                                               Content="{Binding [MoveToDay], Source={x:Static svc:Loc.Instance}}"
+                                                               FontSize="11" Padding="8,3" Appearance="Primary"
+                                                               Click="MoveToDay_Click" Tag="{Binding}"/>
+                                                    <DatePicker SelectedDate="{Binding DueDate, Converter={StaticResource NullableDateOnlyConverter}, Mode=TwoWay}"
+                                                                Margin="0,0,8,0" FontSize="11"
+                                                                LostFocus="InboxText_LostFocus"/>
                                                 </DockPanel>
                                             </StackPanel>
                                         </Border>
@@ -195,5 +205,6 @@
                 </ItemsControl>
             </Grid>
         </Grid>
+        </ScrollViewer>
     </Grid>
 </Page>
