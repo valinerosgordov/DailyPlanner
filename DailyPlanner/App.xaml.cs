@@ -13,7 +13,7 @@ public partial class App : Application
     {
         DispatcherUnhandledException += (_, e) =>
         {
-            System.Diagnostics.Debug.WriteLine($"[App] Unhandled: {e.Exception}");
+            Log.Error("App", $"Unhandled: {e.Exception}");
             try
             {
                 var logPath = System.IO.Path.Combine(PlannerDbContextFactory.AppDataFolder, "crash.log");
@@ -117,10 +117,10 @@ public partial class App : Application
                         .OrderByDescending(f => System.IO.File.GetCreationTimeUtc(f))
                         .Skip(5);
                     foreach (var f in old)
-                        try { System.IO.File.Delete(f); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[App] Backup cleanup: {ex.Message}"); }
+                        try { System.IO.File.Delete(f); } catch (Exception ex) { Log.Error("App", $"Backup cleanup: {ex.Message}"); }
                 }
             }
-            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[App] Backup failed: {ex.Message}"); }
+            catch (Exception ex) { Log.Error("App", $"Backup failed: {ex.Message}"); }
         });
 
         // Initialize DB

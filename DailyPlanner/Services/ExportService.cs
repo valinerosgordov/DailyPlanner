@@ -140,7 +140,7 @@ public static class ExportService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[ExportService] Export failed: {ex.Message}");
+            Log.Error("ExportService", $"Export failed: {ex.Message}");
             return false;
         }
     }
@@ -268,7 +268,7 @@ public static class ExportService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[ExportService] Finance export failed: {ex.Message}");
+            Log.Error("ExportService", $"Finance export failed: {ex.Message}");
             return false;
         }
     }

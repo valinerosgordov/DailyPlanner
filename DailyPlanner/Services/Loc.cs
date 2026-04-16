@@ -42,7 +42,7 @@ public sealed class Loc : INotifyPropertyChanged
         // Fallback to Russian
         if (Translations.TryGetValue("ru", out var ruDict) && ruDict.TryGetValue(key, out var ruVal))
             return ruVal;
-        System.Diagnostics.Debug.WriteLine($"[Loc] Missing key: {key}");
+        Log.Error("Loc", $"Missing key: {key}");
         return key;
     }
 
@@ -74,7 +74,7 @@ public sealed class Loc : INotifyPropertyChanged
                 if (SupportedLanguages.Contains(lang)) return lang;
             }
         }
-        catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[Loc] LoadSaved failed: {ex.Message}"); }
+        catch (Exception ex) { Log.Error("Loc", $"LoadSaved failed: {ex.Message}"); }
         return "ru";
     }
 
@@ -86,7 +86,7 @@ public sealed class Loc : INotifyPropertyChanged
             Directory.CreateDirectory(dir);
             File.WriteAllText(SettingsPath, Instance._lang);
         }
-        catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[Loc] Save failed: {ex.Message}"); }
+        catch (Exception ex) { Log.Error("Loc", $"Save failed: {ex.Message}"); }
     }
 
     // ─── All translations ────────────────────────────────────────────

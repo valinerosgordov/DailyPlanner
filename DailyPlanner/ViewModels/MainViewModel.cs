@@ -353,7 +353,7 @@ public sealed partial class MainViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[MainVM] Invalid backup: {ex.Message}");
+            Log.Error("MainVM", $"Invalid backup: {ex.Message}");
             NotificationService.ShowToast(Loc.Get("RestoreTitle"), Loc.Get("RestoreInvalidDb"));
             return;
         }
@@ -380,7 +380,7 @@ public sealed partial class MainViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[MainVM] Restore failed: {ex.Message}");
+            Log.Error("MainVM", $"Restore failed: {ex.Message}");
             // Restore from safety backup if copy failed
             if (File.Exists(backupPath))
                 File.Copy(backupPath, dbPath, true);

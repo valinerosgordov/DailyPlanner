@@ -39,7 +39,7 @@ public static class ThemeService
                 if (Palettes.ContainsKey(name)) return name;
             }
         }
-        catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[ThemeService] Load failed: {ex.Message}"); }
+        catch (Exception ex) { Log.Error("ThemeService", $"Load failed: {ex.Message}"); }
         return "Dark";
     }
 
@@ -51,7 +51,7 @@ public static class ThemeService
             Directory.CreateDirectory(dir);
             File.WriteAllText(SettingsPath, name);
         }
-        catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[ThemeService] Save failed: {ex.Message}"); }
+        catch (Exception ex) { Log.Error("ThemeService", $"Save failed: {ex.Message}"); }
     }
 
     private static Color Argb(byte a, string hex)

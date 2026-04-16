@@ -198,7 +198,7 @@ public partial class MainWindow : FluentWindow
                 if (saved == DateOnly.FromDateTime(DateTime.Today).ToString()) return;
             }
         }
-        catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[MainWindow] MyDay settings: {ex.Message}"); }
+        catch (Exception ex) { Log.Error("MainWindow", $"MyDay settings: {ex.Message}"); }
 
         if (_viewModel.SelectedWeek is null) return;
 
@@ -224,10 +224,10 @@ public partial class MainWindow : FluentWindow
                     System.IO.Directory.CreateDirectory(dir);
                     System.IO.File.WriteAllText(settingsPath, DateOnly.FromDateTime(DateTime.Today).ToString());
                 }
-                catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[MainWindow] MyDay save: {ex.Message}"); }
+                catch (Exception ex) { Log.Error("MainWindow", $"MyDay save: {ex.Message}"); }
             }
         }
-        catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[MainWindow] MyDay dialog: {ex.Message}"); }
+        catch (Exception ex) { Log.Error("MainWindow", $"MyDay dialog: {ex.Message}"); }
     }
 
     private void NavigateWithAnimation(Page page)
