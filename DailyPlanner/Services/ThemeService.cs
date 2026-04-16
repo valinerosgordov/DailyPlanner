@@ -74,7 +74,8 @@ public static class ThemeService
             Text: Hex("#FFFFFF"), Muted: Hex("#8E8E96"), CheckBorder: Argb(0x33, "#FFFFFF"),
             HoverBg: Argb(0x1A, "#FFFFFF"), ProgressTrack: Argb(0x14, "#FFFFFF"),
             KeyboardBg: Argb(0x14, "#FFFFFF"),
-            Success: Hex("#FFFFFF"), Warning: Hex("#E5E5E5"), Danger: Hex("#FF9999"), Info: Hex("#B8B8B8")),
+            // Semantic colors kept green/amber/red/blue so money and ratings stay readable
+            Success: Hex("#34D399"), Warning: Hex("#FBBF24"), Danger: Hex("#F87171"), Info: Hex("#60A5FA")),
 
         // Pure Monochrome Light
         ["Light"] = new("Light", false,
@@ -83,7 +84,7 @@ public static class ThemeService
             SidebarBg: Hex("#F5F5F5"), InputBg: Hex("#F5F5F5"), SubtleBg: Hex("#EFEFEF"),
             Text: Hex("#000000"), Muted: Hex("#6B6B6B"), CheckBorder: Hex("#D4D4D4"),
             HoverBg: Hex("#EBEBEB"), ProgressTrack: Hex("#E5E5E5"), KeyboardBg: Hex("#EFEFEF"),
-            Success: Hex("#000000"), Warning: Hex("#4A4A4A"), Danger: Hex("#991B1B"), Info: Hex("#525252")),
+            Success: Hex("#10B981"), Warning: Hex("#D97706"), Danger: Hex("#DC2626"), Info: Hex("#2563EB")),
     };
 
     public static void ApplyPalette(string name)
