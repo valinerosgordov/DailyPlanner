@@ -41,7 +41,7 @@
         <!-- Status bar -->
         <Border Grid.Row="1" Margin="0,0,0,12" Padding="12,8"
                 Background="{DynamicResource CardBackgroundBrush}"
-                CornerRadius="6"
+                CornerRadius="8"
                 Visibility="{Binding StatusMessage, Converter={StaticResource VisConv}}">
             <TextBlock Text="{Binding StatusMessage}"
                        FontSize="13"
@@ -96,7 +96,7 @@
                                     <DataTemplate DataType="{x:Type vm:InboxTaskViewModel}">
                                         <Border Margin="0,0,0,10" Padding="0"
                                                 Background="{DynamicResource CardBg}"
-                                                CornerRadius="10"
+                                                CornerRadius="12"
                                                 BorderBrush="{DynamicResource GlassBorderBrush}"
                                                 BorderThickness="1"
                                                 Tag="{Binding}">
@@ -180,7 +180,7 @@
                         <DataTemplate DataType="{x:Type vm:InboxDayViewModel}">
                             <Border Margin="4,0" Padding="10" MinHeight="200"
                                     Background="{DynamicResource CardBg}"
-                                    CornerRadius="14"
+                                    CornerRadius="12"
                                     BorderBrush="{DynamicResource GlassBorderBrush}"
                                     BorderThickness="1"
                                     AllowDrop="True"

@@ -168,9 +168,9 @@
                                                Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center">
                                         <Run Text="{Binding Completed, Mode=OneWay}"/>/<Run Text="{Binding Total, Mode=OneWay}"/>
                                     </TextBlock>
-                                    <Border Height="18" CornerRadius="4" Margin="8,0"
+                                    <Border Height="18" CornerRadius="8" Margin="8,0"
                                             Background="{DynamicResource ProgressTrackBrush}">
-                                        <Border CornerRadius="4" HorizontalAlignment="Left"
+                                        <Border CornerRadius="8" HorizontalAlignment="Left"
                                                 Width="{Binding CompletionPercent}"
                                                 MaxWidth="300">
                                             <Border.Background>
@@ -203,7 +203,7 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Width="22" Height="22" Margin="2" CornerRadius="4"
+                                <Border Width="22" Height="22" Margin="2" CornerRadius="8"
                                         Background="{Binding Intensity, Converter={StaticResource HeatConv}}"
                                         ToolTip="{Binding DateLabel}"/>
                             </DataTemplate>
