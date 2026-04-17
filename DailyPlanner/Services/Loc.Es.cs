@@ -404,6 +404,7 @@ internal static class LocEsStrings
 
             // Inbox / Trello
             ["InboxTitle"] = "Entrada",
+            ["InboxSearch"] = "Buscar…",
             ["InboxEmpty"] = "No hay tareas en entrada",
             ["InboxEmptyHint"] = "Añade manualmente o sincroniza con Trello",
             ["InboxMovedToDate"] = "Tarea movida al {0}",

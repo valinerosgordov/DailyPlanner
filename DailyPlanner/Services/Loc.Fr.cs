@@ -404,6 +404,7 @@ internal static class LocFrStrings
 
             // Inbox / Trello
             ["InboxTitle"] = "Boîte de réception",
+            ["InboxSearch"] = "Rechercher…",
             ["InboxEmpty"] = "Aucune tâche entrante",
             ["InboxEmptyHint"] = "Ajoutez manuellement ou synchronisez Trello",
             ["InboxMovedToDate"] = "Tâche déplacée au {0}",

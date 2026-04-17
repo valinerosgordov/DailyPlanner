@@ -424,6 +424,7 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
@@ -434,16 +435,35 @@
                                        VerticalAlignment="Center"/>
                         </DockPanel>
 
+                        <ui:TextBox Grid.Row="3" Margin="0,0,0,8" FontSize="11"
+                                    PlaceholderText="{Binding [InboxSearch], Source={x:Static svc:Loc.Instance}}"
+                                    Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                    Icon="{ui:SymbolIcon Search24}"/>
+
                         <Grid Grid.Row="1" Margin="0,0,0,8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <ui:Button Grid.Column="0" Icon="{ui:SymbolIcon ArrowSync24}"
-                                       Content="{Binding [SyncTrello], Source={x:Static svc:Loc.Instance}}"
                                        Command="{Binding SyncTrelloCommand}"
                                        Appearance="Primary" HorizontalAlignment="Stretch"
-                                       FontSize="11" Padding="6,4"/>
+                                       FontSize="11" Padding="6,4">
+                                <ui:Button.Content>
+                                    <TextBlock>
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="{Binding [SyncTrello], Source={x:Static svc:Loc.Instance}}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsSyncing}" Value="True">
+                                                        <Setter Property="Text" Value="{Binding [TrelloSyncing], Source={x:Static svc:Loc.Instance}}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </ui:Button.Content>
+                            </ui:Button>
                             <ui:Button Grid.Column="1" Icon="{ui:SymbolIcon Add24}"
                                        Command="{Binding AddManualCommand}"
                                        Appearance="Secondary" Margin="6,0,0,0"
@@ -455,7 +475,7 @@
                                    Margin="0,0,0,6" TextWrapping="Wrap"
                                    Visibility="{Binding StatusMessage, Converter={StaticResource VisConv}}"/>
 
-                        <Grid Grid.Row="3">
+                        <Grid Grid.Row="4">
                             <TextBlock Text="{Binding [InboxEmpty], Source={x:Static svc:Loc.Instance}}"
                                        FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"
                                        HorizontalAlignment="Center" VerticalAlignment="Center"

@@ -658,15 +658,13 @@ public sealed partial class FinanceViewModel : ObservableObject
         try
         {
             var count = await _service.ImportFinanceEntriesFromCsvAsync(dialog.FileName);
-            System.Windows.MessageBox.Show(
-                string.Format(Loc.Get("ImportSuccess"), count),
-                Loc.Get("ImportFile"));
+            NotificationService.ShowToast(Loc.Get("ImportFile"), string.Format(Loc.Get("ImportSuccess"), count));
             await LoadDataAsync();
         }
         catch (Exception ex)
         {
             Log.Error("FinanceVM", $"Import failed: {ex}");
-            System.Windows.MessageBox.Show(Loc.Get("ImportError"), Loc.Get("ImportFile"));
+            NotificationService.ShowToast(Loc.Get("ImportFile"), Loc.Get("ImportError"));
         }
     }
 
@@ -704,10 +702,8 @@ public sealed partial class FinanceViewModel : ObservableObject
                 PeriodLabel, IncomeEntries, ExpenseEntries, Budgets,
                 CategoryBreakdown, TotalIncome, TotalExpenses, Balance, dialog.FileName);
 
-            if (success)
-                System.Windows.MessageBox.Show(Loc.Get("ExportSuccess"), Loc.Get("ExportTitle"));
-            else
-                System.Windows.MessageBox.Show(Loc.Get("ExportError"), Loc.Get("ExportTitle"));
+            NotificationService.ShowToast(Loc.Get("ExportTitle"),
+                success ? Loc.Get("ExportSuccess") : Loc.Get("ExportError"));
         }
     }
 }

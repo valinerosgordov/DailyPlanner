@@ -15,10 +15,26 @@ public sealed partial class InboxViewModel : ObservableObject
     [ObservableProperty] private bool _isSyncing;
     [ObservableProperty] private string _statusMessage = string.Empty;
     [ObservableProperty] private DateOnly _targetDate = DateOnly.FromDateTime(DateTime.Today);
+    [ObservableProperty] private string _searchText = string.Empty;
 
+    private readonly List<InboxTaskViewModel> _all = new();
     public ObservableCollection<InboxTaskViewModel> Tasks { get; } = [];
     public ObservableCollection<InboxDayViewModel> Days { get; } = [];
     public bool HasTasks => Tasks.Count > 0;
+
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        Tasks.Clear();
+        var q = SearchText?.Trim() ?? string.Empty;
+        var filtered = string.IsNullOrEmpty(q)
+            ? _all
+            : _all.Where(t =>
+                t.Text.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                (t.BoardName ?? "").Contains(q, StringComparison.OrdinalIgnoreCase));
+        foreach (var t in filtered) Tasks.Add(t);
+    }
 
     public InboxViewModel(PlannerService planner, TrelloService trello)
     {
@@ -55,9 +71,10 @@ public sealed partial class InboxViewModel : ObservableObject
         try
         {
             var items = await _planner.GetInboxTasksAsync();
-            Tasks.Clear();
+            _all.Clear();
             foreach (var t in items)
-                Tasks.Add(new InboxTaskViewModel(t));
+                _all.Add(new InboxTaskViewModel(t));
+            ApplyFilter();
         }
         finally
         {
@@ -97,7 +114,9 @@ public sealed partial class InboxViewModel : ObservableObject
             CreatedDate = DateOnly.FromDateTime(DateTime.Today)
         };
         await _planner.SaveInboxTaskAsync(task);
-        Tasks.Insert(0, new InboxTaskViewModel(task));
+        var vm = new InboxTaskViewModel(task);
+        _all.Insert(0, vm);
+        ApplyFilter();
     }
 
     [RelayCommand]
@@ -114,12 +133,14 @@ public sealed partial class InboxViewModel : ObservableObject
     {
         if (vm is null) return;
         await _planner.RemoveInboxTaskAsync(vm.Id);
+        _all.Remove(vm);
         Tasks.Remove(vm);
     }
 
     public async Task MoveToDayAsync(InboxTaskViewModel vm, DateOnly date)
     {
         await _planner.MoveInboxToDayAsync(vm.Id, date);
+        _all.Remove(vm);
         Tasks.Remove(vm);
         StatusMessage = string.Format(Loc.Get("InboxMovedToDate"), date.ToString("dd.MM"));
     }

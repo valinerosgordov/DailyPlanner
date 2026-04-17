@@ -121,8 +121,15 @@ public sealed partial class PlannerService
             db.TrelloSettings.Update(settings);
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
+    private static readonly SemaphoreSlim _trelloSyncGate = new(1, 1);
+
     public async Task<int> SyncTrelloAsync(TrelloService trello, CancellationToken ct = default)
     {
+        // Prevent overlapping syncs (avoid 429s from Trello and duplicate writes)
+        if (!await _trelloSyncGate.WaitAsync(0, ct).ConfigureAwait(false))
+            return 0;
+        try
+        {
         var settings = await GetTrelloSettingsAsync(ct).ConfigureAwait(false);
         if (!settings.IsEnabled || string.IsNullOrWhiteSpace(settings.ApiKey) || string.IsNullOrWhiteSpace(settings.Token))
             return 0;
@@ -159,5 +166,7 @@ public sealed partial class PlannerService
         db.TrelloSettings.Update(settings);
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
         return added;
+        }
+        finally { _trelloSyncGate.Release(); }
     }
 }
