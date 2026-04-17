@@ -552,6 +552,21 @@
                                                 <Grid Margin="0,1"
                                                       PreviewMouseLeftButtonDown="Task_PreviewMouseLeftButtonDown"
                                                       PreviewMouseMove="Task_PreviewMouseMove">
+                                                    <Grid.ContextMenu>
+                                                        <ContextMenu>
+                                                            <MenuItem Header="{Binding [DeadlineToday], Source={x:Static svc:Loc.Instance}}"
+                                                                      Command="{Binding SetDeadlineTodayCommand}"/>
+                                                            <MenuItem Header="{Binding [DeadlineTomorrow], Source={x:Static svc:Loc.Instance}}"
+                                                                      Command="{Binding SetDeadlineTomorrowCommand}"/>
+                                                            <MenuItem Header="{Binding [DeadlineNextWeek], Source={x:Static svc:Loc.Instance}}"
+                                                                      Command="{Binding SetDeadlineNextWeekCommand}"/>
+                                                            <MenuItem Header="{Binding [ClearDate], Source={x:Static svc:Loc.Instance}}"
+                                                                      Command="{Binding ClearDeadlineCommand}"/>
+                                                            <Separator/>
+                                                            <MenuItem Header="{Binding [Delete], Source={x:Static svc:Loc.Instance}}"
+                                                                      Click="TaskClear_Click"/>
+                                                        </ContextMenu>
+                                                    </Grid.ContextMenu>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="Auto"/>
                                                         <ColumnDefinition Width="Auto"/>

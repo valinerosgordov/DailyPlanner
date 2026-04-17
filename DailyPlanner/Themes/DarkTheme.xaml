@@ -199,7 +199,7 @@
         </Setter>
     </Style>
 
-    <!-- Task textbox (thin, clean) -->
+    <!-- Task textbox (thin, clean) — overdue tasks get danger color -->
     <Style x:Key="TaskTextBox" TargetType="TextBox">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
@@ -233,6 +233,12 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsOverdue}" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+            </DataTrigger>
+        </Style.Triggers>
     </Style>
 
     <!-- Notes textbox (boxed) -->
