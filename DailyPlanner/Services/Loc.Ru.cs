@@ -456,6 +456,7 @@ internal static class LocRuStrings
 
             // Inbox / Trello
             ["InboxTitle"] = "Входящие",
+            ["InboxSearch"] = "Поиск…",
             ["InboxEmpty"] = "Нет входящих задач",
             ["InboxEmptyHint"] = "Добавьте вручную или синхронизируйте Trello",
             ["InboxMovedToDate"] = "Задача перемещена на {0}",
