@@ -413,6 +413,7 @@ internal static class LocEsStrings
             ["Delete"] = "Eliminar",
             ["NewTask"] = "Nueva tarea",
             ["TrelloIntegration"] = "Integración con Trello",
+            ["TrelloAutoSync"] = "Sincronizar al inicio",
             ["TrelloDesc"] = "Importa tarjetas de la lista indicada a la bandeja de entrada.",
             ["TrelloApiKey"] = "Clave API",
             ["TrelloToken"] = "Token",

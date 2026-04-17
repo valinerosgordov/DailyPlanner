@@ -413,6 +413,7 @@ internal static class LocEnStrings
             ["Delete"] = "Delete",
             ["NewTask"] = "New task",
             ["TrelloIntegration"] = "Trello Integration",
+            ["TrelloAutoSync"] = "Sync on startup",
             ["TrelloDesc"] = "Pulls cards from the specified list into the planner inbox.",
             ["TrelloApiKey"] = "API Key",
             ["TrelloToken"] = "Token",

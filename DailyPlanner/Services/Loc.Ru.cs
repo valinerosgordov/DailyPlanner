@@ -465,6 +465,7 @@ internal static class LocRuStrings
             ["Delete"] = "Удалить",
             ["NewTask"] = "Новая задача",
             ["TrelloIntegration"] = "Интеграция с Trello",
+            ["TrelloAutoSync"] = "Синхронизировать при запуске",
             ["TrelloDesc"] = "Подтягивает карточки из указанного списка во входящие планера.",
             ["TrelloApiKey"] = "API ключ",
             ["TrelloToken"] = "Токен",
