@@ -210,6 +210,17 @@ public sealed partial class MainViewModel : ObservableObject
     [RelayCommand] private void ToggleInbox() => IsInboxOpen = !IsInboxOpen;
 
     [RelayCommand]
+    private void ShowWeeklyReview()
+    {
+        if (SelectedWeek is null) return;
+        var dialog = new Views.WeeklyReviewDialog(SelectedWeek.Model)
+        {
+            Owner = System.Windows.Application.Current.MainWindow
+        };
+        dialog.ShowDialog();
+    }
+
+    [RelayCommand]
     private void ToggleSearch()
     {
         IsSearchOpen = !IsSearchOpen;

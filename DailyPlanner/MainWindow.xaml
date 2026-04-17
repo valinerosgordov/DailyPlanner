@@ -28,6 +28,7 @@
         <KeyBinding Key="E" Modifiers="Ctrl" Command="{Binding ExportToExcelCommand}"/>
         <KeyBinding Key="P" Modifiers="Ctrl" Command="{Binding TogglePomodoroCommand}"/>
         <KeyBinding Key="M" Modifiers="Ctrl" Command="{Binding ToggleFinanceCommand}"/>
+        <KeyBinding Key="W" Modifiers="Ctrl" Command="{Binding ShowWeeklyReviewCommand}"/>
     </ui:FluentWindow.InputBindings>
 
     <Grid>
