@@ -56,6 +56,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     private readonly TrelloService _trelloService;
     [ObservableProperty] private bool _trelloIsEnabled;
+    [ObservableProperty] private bool _trelloAutoSyncOnStartup;
     [ObservableProperty] private string _trelloApiKey = string.Empty;
     [ObservableProperty] private string _trelloToken = string.Empty;
     [ObservableProperty] private string _trelloListName = "В работе";
@@ -556,6 +557,20 @@ public sealed partial class MainViewModel : ObservableObject
 
         StartReminderCheck();
         CheckForUpdatesAsync().FireAndForget("UpdateCheck");
+        AutoSyncTrelloAsync().FireAndForget("TrelloAutoSync");
+    }
+
+    private async Task AutoSyncTrelloAsync()
+    {
+        try
+        {
+            var settings = await _service.GetTrelloSettingsAsync();
+            if (!settings.IsEnabled || !settings.AutoSyncOnStartup) return;
+            if (string.IsNullOrWhiteSpace(settings.ApiKey) || string.IsNullOrWhiteSpace(settings.Token)) return;
+            var added = await _service.SyncTrelloAsync(_trelloService);
+            if (added > 0) await Inbox.LoadAsync();
+        }
+        catch (Exception ex) { Log.Error("MainVM", $"AutoSync Trello failed: {ex.Message}"); }
     }
 
     [RelayCommand]
@@ -604,6 +619,7 @@ public sealed partial class MainViewModel : ObservableObject
     {
         var s = await _service.GetTrelloSettingsAsync();
         TrelloIsEnabled = s.IsEnabled;
+        TrelloAutoSyncOnStartup = s.AutoSyncOnStartup;
         TrelloApiKey = s.ApiKey;
         TrelloToken = s.Token;
         TrelloListName = string.IsNullOrWhiteSpace(s.ListName) ? "В работе" : s.ListName;
@@ -614,6 +630,7 @@ public sealed partial class MainViewModel : ObservableObject
     {
         var s = await _service.GetTrelloSettingsAsync();
         s.IsEnabled = TrelloIsEnabled;
+        s.AutoSyncOnStartup = TrelloAutoSyncOnStartup;
         s.ApiKey = TrelloApiKey.Trim();
         s.Token = TrelloToken.Trim();
         s.ListName = string.IsNullOrWhiteSpace(TrelloListName) ? "В работе" : TrelloListName.Trim();

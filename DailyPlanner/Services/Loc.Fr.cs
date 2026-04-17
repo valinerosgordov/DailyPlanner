@@ -413,6 +413,7 @@ internal static class LocFrStrings
             ["Delete"] = "Supprimer",
             ["NewTask"] = "Nouvelle tâche",
             ["TrelloIntegration"] = "Intégration Trello",
+            ["TrelloAutoSync"] = "Synchroniser au démarrage",
             ["TrelloDesc"] = "Importe les cartes de la liste indiquée dans la boîte de réception.",
             ["TrelloApiKey"] = "Clé API",
             ["TrelloToken"] = "Jeton",

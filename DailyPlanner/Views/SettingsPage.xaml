@@ -121,7 +121,10 @@
                     </StackPanel>
 
                     <CheckBox Content="{Binding [Enabled], Source={x:Static svc:Loc.Instance}}"
-                              IsChecked="{Binding TrelloIsEnabled}" Margin="0,0,0,10"/>
+                              IsChecked="{Binding TrelloIsEnabled}" Margin="0,0,0,4"/>
+                    <CheckBox Content="{Binding [TrelloAutoSync], Source={x:Static svc:Loc.Instance}}"
+                              IsChecked="{Binding TrelloAutoSyncOnStartup}" Margin="0,0,0,10"
+                              FontSize="12" Foreground="{DynamicResource MutedBrush}"/>
 
                     <TextBlock Text="{Binding [TrelloApiKey], Source={x:Static svc:Loc.Instance}}" FontSize="12"
                                Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,4"/>

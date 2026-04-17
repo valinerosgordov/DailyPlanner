@@ -72,10 +72,10 @@ public partial class App : Application
             HorizontalAlignment = HorizontalAlignment.Center,
             Margin = new Thickness(0, 0, 0, 12)
         };
-        title.Inlines.Add(new System.Windows.Documents.Run("Daily") { Foreground = new SolidColorBrush(Color.FromRgb(0x7C, 0x5C, 0xFC)) });
-        title.Inlines.Add(new System.Windows.Documents.Run(" & ") { Foreground = Brushes.White });
-        title.Inlines.Add(new System.Windows.Documents.Run("Financial") { Foreground = new SolidColorBrush(Color.FromRgb(0x7C, 0x5C, 0xFC)) });
-        title.Inlines.Add(new System.Windows.Documents.Run(" Planner") { Foreground = Brushes.White });
+        title.Inlines.Add(new System.Windows.Documents.Run("Daily") { Foreground = Brushes.White });
+        title.Inlines.Add(new System.Windows.Documents.Run(" & ") { Foreground = new SolidColorBrush(Color.FromRgb(0x8E, 0x8E, 0x96)) });
+        title.Inlines.Add(new System.Windows.Documents.Run("Financial") { Foreground = Brushes.White });
+        title.Inlines.Add(new System.Windows.Documents.Run(" Planner") { Foreground = new SolidColorBrush(Color.FromRgb(0x8E, 0x8E, 0x96)) });
 
         var subtitle = new System.Windows.Controls.TextBlock
         {
@@ -90,8 +90,8 @@ public partial class App : Application
             IsIndeterminate = true,
             Height = 3,
             Margin = new Thickness(20, 16, 20, 0),
-            Foreground = new SolidColorBrush(Color.FromRgb(0x7C, 0x5C, 0xFC)),
-            Background = new SolidColorBrush(Color.FromRgb(0x1E, 0x1E, 0x2E)),
+            Foreground = Brushes.White,
+            Background = new SolidColorBrush(Color.FromRgb(0x1F, 0x1F, 0x24)),
             BorderThickness = new Thickness(0)
         };
 

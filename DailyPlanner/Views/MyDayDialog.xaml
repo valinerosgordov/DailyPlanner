@@ -126,7 +126,7 @@
                         Padding="20,8" FontWeight="SemiBold" FontSize="13" Cursor="Hand"
                         Click="Start_Click"
                         Background="{DynamicResource AccentBrush}"
-                        Foreground="White" BorderThickness="0">
+                        Foreground="#0E0E12" BorderThickness="0">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border CornerRadius="8" Padding="{TemplateBinding Padding}"
