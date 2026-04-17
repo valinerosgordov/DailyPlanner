@@ -404,6 +404,7 @@ internal static class LocEnStrings
 
             // Inbox / Trello
             ["InboxTitle"] = "Inbox",
+            ["InboxSearch"] = "Search…",
             ["InboxEmpty"] = "No inbox tasks",
             ["InboxEmptyHint"] = "Add manually or sync with Trello",
             ["InboxMovedToDate"] = "Task moved to {0}",
