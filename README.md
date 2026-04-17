@@ -1,158 +1,126 @@
 <h1 align="center">
-  <img src="DailyPlanner/planner.ico" width="48" alt="icon"/>
+  <img src="DailyPlanner/planner.ico" width="56" alt="DailyPlanner icon"/>
   <br/>
-  Daily Planner
+  Daily &amp; Financial Planner
 </h1>
 
 <p align="center">
-  <b>Beautiful weekly planner for Windows</b><br/>
-  Tasks, habits, Pomodoro, meetings, statistics — fully offline, auto-updates
+  Monochrome weekly planner for Windows with finance tracker, Trello inbox, habits and Pomodoro — fully offline.
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/.NET-10-512BD4?style=flat-square&logo=dotnet" alt=".NET 10"/>
-  <img src="https://img.shields.io/badge/WPF-Desktop-7C5CFC?style=flat-square" alt="WPF"/>
-  <img src="https://img.shields.io/badge/SQLite-EF_Core_10-003B57?style=flat-square&logo=sqlite" alt="SQLite"/>
-  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="MIT"/>
-  <img src="https://img.shields.io/github/v/release/valinerosgordov/DailyPlanner?style=flat-square&color=7C5CFC" alt="Release"/>
-  <img src="https://img.shields.io/github/downloads/valinerosgordov/DailyPlanner/total?style=flat-square&color=green" alt="Downloads"/>
-</p>
-
-<p align="center">
-  <a href="../../releases/latest"><b>Download</b></a> · <a href="#build-from-source">Build from source</a> · <a href="#features">Features</a>
+  <a href="https://github.com/valinerosgordov/DailyPlanner/releases/latest"><img src="https://img.shields.io/github/v/release/valinerosgordov/DailyPlanner?style=flat-square&label=latest"/></a>
+  <a href="https://github.com/valinerosgordov/DailyPlanner/releases/latest/download/DailyPlanner-win-Setup.exe"><img src="https://img.shields.io/github/downloads/valinerosgordov/DailyPlanner/total?style=flat-square&label=downloads"/></a>
+  <img src="https://img.shields.io/badge/platform-Windows%2010%2F11-blue?style=flat-square"/>
+  <img src="https://img.shields.io/badge/.NET-10-512BD4?style=flat-square&logo=.net"/>
 </p>
 
 ---
 
-<!-- Replace with actual screenshots. Recommended: 1280×800, PNG, dark theme -->
-<p align="center">
-  <img src="assets/screenshot-week.png" width="720" alt="Weekly view"/>
-</p>
+## Install
 
-<details>
-<summary><b>More screenshots</b></summary>
-<br/>
-<p align="center">
-  <img src="assets/screenshot-habits.png" width="720" alt="Habit tracker"/>
-  <br/><br/>
-  <img src="assets/screenshot-statistics.png" width="720" alt="Statistics"/>
-  <br/><br/>
-  <img src="assets/screenshot-pomodoro.png" width="720" alt="Pomodoro timer"/>
-  <br/><br/>
-  <img src="assets/screenshot-themes.png" width="720" alt="Theme showcase"/>
-  <br/><br/>
-  <img src="assets/screenshot-myday.png" width="720" alt="My Day review"/>
-</p>
-</details>
+**Installer (auto-updating):**
+[DailyPlanner-win-Setup.exe](https://github.com/valinerosgordov/DailyPlanner/releases/latest/download/DailyPlanner-win-Setup.exe)
+
+**Portable:**
+[DailyPlanner-win-Portable.zip](https://github.com/valinerosgordov/DailyPlanner/releases/latest/download/DailyPlanner-win-Portable.zip)
+
+Windows 10/11 x64. .NET 10 runtime is bundled in the self-contained build.
 
 ---
 
 ## Features
 
-**Planning**
-- 7-day weekly view with drag & drop — reorder tasks, move between days
-- Subtasks with progress counter (2/5)
-- Deadlines — overdue tasks highlighted in red
-- Priorities (low / medium / high) and categories (work, study, personal, health)
-- Recurring templates — auto-create tasks every week
-- Carry-over — incomplete tasks move to next week automatically
-- Weekly goals (up to 4) and free-form notes
+### Planning
+- Weekly board with 7 day columns, 10 task slots per day
+- Subtasks, priorities (None/Low/Med/High), categories, deadlines
+- Carry-over incomplete tasks to the next day
+- Drag &amp; drop tasks between days
+- Weekly goals, notes, reminders, meetings
+- Daily state tracking (sleep / energy / mood, 1–5 stars)
+- Habit heatmap for the last 30 days
 
-**Productivity**
-- Pomodoro timer — 45/5 min work/break cycles, focus mode, sound alerts
-- My Day — morning dialog to review yesterday and plan today
-- Daily quotes — motivational quote in sidebar
+### Trello integration (Inbox)
+- Inbox sidebar built into the week view
+- Pull cards from a named list (default: “В работе”) across all your boards
+- Drag Trello cards directly onto any day — fills the first empty slot
+- Already-placed cards aren’t re-added on re-sync
+- Optional auto-sync on startup
 
-**Tracking**
-- Habit tracker with weekly streaks
-- State monitoring — sleep, energy, mood (1–5 scale) per day
-- Statistics — productivity charts, weekly comparison, trends
-- Excel export — any week to `.xlsx`
+### Finance module
+- Income &amp; expenses with categories, budgets, and monthly analytics
+- Debts (I owe / owed to me) factored into Net Worth
+- Recurring payments (weekly / biweekly / monthly / quarterly / yearly) normalised to monthly obligatory
+- Multiple accounts with transfers
+- 30-day cashflow forecast
+- Income sources with per-project payment schedule
+- Excel export
 
-**Meetings & Reminders**
-- Meeting scheduler — title, attendees, description, date/time/duration
-- Reminders — 1 day, 2 hours, and 30 min before meeting
-- Task reminders — time-based notifications
+### Pomodoro
+- Work / break / focus with configurable durations
+- Session counter per day
 
-**Customization**
-- 9 color themes — Catppuccin (Mocha, Frappe, Macchiato), Nord, Everforest, Coffee, Graphite, Obsidian, Light
-- 4 languages — English, Russian, Spanish, French
+### Statistics
+- Monthly task completion, productivity trends
+- Best / hardest day, goals reached
+- Habit streak tracking
 
-**Quality of life**
-- Undo delete — restore tasks with one click
-- Search — `Ctrl+F` across all tasks and goals
-- Auto-backup on startup, backup & restore
-- Auto-updates via Velopack (~100 KB delta)
-- System tray — minimize to tray
+### System
+- Multi-language UI: 🇷🇺 🇺🇸 🇪🇸 🇫🇷
+- 2 themes: Pure Monochrome Dark (default, Mica backdrop) / Pure Monochrome Light
+- Auto-backup on startup (rolling 5)
+- Auto-updates via Velopack
+
+---
+
+## Stack
+
+| Layer | Tech |
+|---|---|
+| UI | WPF + WPF-UI (FluentWindow, Mica) |
+| MVVM | CommunityToolkit.Mvvm source generators |
+| DI | Microsoft.Extensions.DependencyInjection |
+| DB | EF Core 10 + SQLite (`%LOCALAPPDATA%\DailyPlanner\planner.db`) |
+| Excel | ClosedXML |
+| Auto-update | Velopack + GitHub Releases |
+| Logging | File logger with rotation (`app.log`) |
+| Tests | xUnit + FluentAssertions |
+
+---
 
 ## Keyboard shortcuts
 
-| Shortcut | Action |
-|----------|--------|
+| Key | Action |
+|---|---|
 | `Ctrl+T` | Jump to today |
-| `Ctrl+F` | Search tasks and goals |
-| `Ctrl+P` | Open Pomodoro timer |
+| `Ctrl+P` | Toggle Pomodoro |
+| `Ctrl+F` | Search |
 
-## Installation
-
-### Installer (recommended)
-1. Download `DailyPlanner-win-Setup.exe` from [Releases](../../releases/latest)
-2. Run the installer — desktop shortcut will be created
-3. Updates install automatically on launch
-
-### Portable
-1. Download `DailyPlanner-win-Portable.zip` from [Releases](../../releases/latest)
-2. Extract to any folder
-3. Run `DailyPlanner.exe`
-
-> **Requirements:** Windows 10 or later
+---
 
 ## Build from source
 
-```bash
-# Requirements: .NET 10 SDK, Windows 10+
-git clone https://github.com/valinerosgordov/DailyPlanner.git
-cd DailyPlanner
-dotnet build --verbosity minimal
+```powershell
+# Requires .NET 10 SDK (preview)
+dotnet restore DailyPlanner/DailyPlanner.csproj -r win-x64
+dotnet build   DailyPlanner/DailyPlanner.csproj --no-restore -c Release -r win-x64
 dotnet run --project DailyPlanner
 ```
 
-### Publishing
+Run tests:
 
-```bash
-# Self-contained single-file executable
-dotnet publish DailyPlanner -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o ./publish
-
-# Velopack package for auto-updates
-vpk pack -u DailyPlanner -v 2.13.3 -p publish -o releases
+```powershell
+dotnet test DailyPlanner.Tests/DailyPlanner.Tests.csproj
 ```
 
-## Tech stack
+Publish a release build:
 
-| Layer | Technology |
-|-------|-----------|
-| UI | WPF + [WPF-UI](https://github.com/lepoco/wpfui) (Fluent design) |
-| Architecture | MVVM — [CommunityToolkit.Mvvm](https://github.com/CommunityToolkit/dotnet) with source generators |
-| Database | Entity Framework Core 10 + SQLite (code-first, 10 migrations) |
-| Export | [ClosedXML](https://github.com/ClosedXML/ClosedXML) |
-| Updates | [Velopack](https://github.com/velopack/velopack) — delta packages |
-| Runtime | .NET 10, C# 14 |
-
-## Architecture
-
-```
-DailyPlanner/
-├── Models/          # EF Core entities (11 models)
-├── Data/            # DbContext + migrations
-├── ViewModels/      # 12 ViewModels (MVVM)
-├── Views/           # XAML pages + custom controls
-├── Services/        # Business logic, themes, localization, export
-├── Converters/      # WPF value converters
-└── Themes/          # Color palette resources
+```powershell
+dotnet publish DailyPlanner/DailyPlanner.csproj -c Release -r win-x64 --self-contained -o ./publish
 ```
 
-All data stored locally: `%LOCALAPPDATA%\DailyPlanner\planner.db`
+---
 
 ## License
 
-[MIT](LICENSE)
+MIT
