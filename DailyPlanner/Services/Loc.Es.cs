@@ -403,6 +403,10 @@ internal static class LocEsStrings
             ["PickDate"] = "Elegir fecha",
 
             // Inbox / Trello
+            ["WeeklyReview"] = "Resumen semanal",
+            ["StateSelfReport"] = "Autovaloración (media)",
+            ["Close"] = "Cerrar",
+            ["Habits"] = "Hábitos",
             ["InboxTitle"] = "Entrada",
             ["InboxSearch"] = "Buscar…",
             ["InboxEmpty"] = "No hay tareas en entrada",
