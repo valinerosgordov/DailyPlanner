@@ -357,6 +357,20 @@ public partial class WeekPage : Page
         e.Handled = true;
     }
 
+    // ─── Context menu actions ──────────────────────────────────────
+
+    private void TaskClear_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: TaskViewModel task })
+        {
+            task.Text = string.Empty;
+            task.IsCompleted = false;
+            task.Priority = Models.TaskPriority.None;
+            task.Category = Models.TaskCategory.None;
+            task.Deadline = null;
+        }
+    }
+
     // ─── Inbox sidebar drag source ─────────────────────────────────
 
     private const string InboxDragFormat = "DailyPlanner.InboxTask";
