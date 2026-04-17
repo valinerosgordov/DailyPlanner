@@ -455,6 +455,10 @@ internal static class LocRuStrings
             ["PickDate"] = "Выбрать дату",
 
             // Inbox / Trello
+            ["WeeklyReview"] = "Отчёт за неделю",
+            ["StateSelfReport"] = "Самочувствие (среднее)",
+            ["Close"] = "Закрыть",
+            ["Habits"] = "Привычки",
             ["InboxTitle"] = "Входящие",
             ["InboxSearch"] = "Поиск…",
             ["InboxEmpty"] = "Нет входящих задач",
