@@ -4,6 +4,7 @@
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:conv="clr-namespace:DailyPlanner.Converters"
       xmlns:svc="clr-namespace:DailyPlanner.Services"
+      xmlns:views="clr-namespace:DailyPlanner.Views"
       Foreground="{DynamicResource TextPrimaryBrush}">
 
     <Page.Resources>
@@ -134,9 +135,9 @@
 
                     <TextBlock Text="{Binding [TrelloToken], Source={x:Static svc:Loc.Instance}}" FontSize="12"
                                Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,4"/>
-                    <TextBox Text="{Binding TrelloToken, UpdateSourceTrigger=PropertyChanged}"
-                             Padding="8" Margin="0,0,0,10" MaxLength="200"
-                             FontFamily="Cascadia Mono, Consolas" FontSize="12"/>
+                    <PasswordBox views:PasswordBoxHelper.BoundPassword="{Binding TrelloToken, Mode=TwoWay}"
+                                 Padding="8" Margin="0,0,0,10" MaxLength="200"
+                                 FontFamily="Cascadia Mono, Consolas" FontSize="12"/>
 
                     <TextBlock Text="{Binding [TrelloListName], Source={x:Static svc:Loc.Instance}}" FontSize="12"
                                Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,4"/>
