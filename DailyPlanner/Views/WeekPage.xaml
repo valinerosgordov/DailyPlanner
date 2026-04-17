@@ -26,7 +26,7 @@
     </Page.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="8,0,8,24" DataContext="{Binding SelectedWeek}">
+        <StackPanel Margin="24,0,24,24" DataContext="{Binding SelectedWeek}">
 
             <!-- STAT CARDS with tooltips -->
             <Grid Margin="0,0,0,20">
