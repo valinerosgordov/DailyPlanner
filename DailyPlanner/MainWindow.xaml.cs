@@ -186,7 +186,6 @@ public partial class MainWindow : FluentWindow
 
     private void ShowMyDayDialog()
     {
-        // Check if user disabled it
         var settingsPath = System.IO.Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "DailyPlanner", "myday.txt");
@@ -207,7 +206,6 @@ public partial class MainWindow : FluentWindow
             var vm = new ViewModels.MyDayViewModel(_viewModel.SelectedWeek);
             var dialog = new MyDayDialog { DataContext = vm, Owner = this };
 
-            // Apply theme resources safely
             if (Application.Current?.Resources?.MergedDictionaries is { Count: > 0 } merged)
             {
                 foreach (var dict in merged)
