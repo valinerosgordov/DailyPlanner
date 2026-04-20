@@ -11,6 +11,13 @@ public partial class App : Application
 {
     protected override async void OnStartup(StartupEventArgs e)
     {
+        if (!SingleInstanceGuard.TryAcquire(out _))
+        {
+            SingleInstanceGuard.SignalExistingInstance();
+            Shutdown();
+            return;
+        }
+
         DispatcherUnhandledException += (_, e) =>
         {
             Log.Error("App", $"Unhandled: {e.Exception}");
@@ -27,18 +34,19 @@ public partial class App : Application
             e.Handled = true;
         };
 
+        Exit += (_, _) => SingleInstanceGuard.Release();
+
         base.OnStartup(e);
 
-        // Velopack: handle install/uninstall/update hooks (creates shortcuts, etc.)
         VelopackApp.Build().Run();
 
-        // DI container — initialize before anything that resolves services
         ServiceHost.Configure();
 
-        // Apply theme resources (must run AFTER WPF-UI loads but BEFORE window renders)
+        // Must run AFTER WPF-UI loads but BEFORE window renders
         ThemeService.Apply();
 
-        // Show splash
+        SingleInstanceGuard.StartActivationListener(ActivateMainWindow);
+
         var splash = new Window
         {
             Width = 380,
@@ -115,7 +123,6 @@ public partial class App : Application
                     var backupName = $"planner_{DateTime.Now:yyyyMMdd_HHmmss}.db";
                     System.IO.File.Copy(dbPath, System.IO.Path.Combine(backupDir, backupName), true);
 
-                    // Rotate: keep only last 5 backups
                     var old = System.IO.Directory.GetFiles(backupDir, "planner_*.db")
                         .OrderByDescending(f => System.IO.File.GetCreationTimeUtc(f))
                         .Skip(5);
@@ -126,7 +133,6 @@ public partial class App : Application
             catch (Exception ex) { Log.Error("App", $"Backup failed: {ex.Message}"); }
         });
 
-        // Initialize DB
         try
         {
             await Task.Run(() =>
@@ -148,5 +154,18 @@ public partial class App : Application
         }
 
         splash.Close();
+    }
+
+    private void ActivateMainWindow()
+    {
+        if (MainWindow is null) return;
+
+        if (!MainWindow.IsVisible) MainWindow.Show();
+        if (MainWindow.WindowState == WindowState.Minimized) MainWindow.WindowState = WindowState.Normal;
+
+        MainWindow.Activate();
+        MainWindow.Topmost = true;
+        MainWindow.Topmost = false;
+        MainWindow.Focus();
     }
 }
