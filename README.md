@@ -92,9 +92,13 @@ Windows 10/11 x64. .NET 10 runtime is bundled in the self-contained build.
 
 | Key | Action |
 |---|---|
+| `Ctrl+←` / `Ctrl+→` | Previous / next month |
 | `Ctrl+T` | Jump to today |
-| `Ctrl+P` | Toggle Pomodoro |
 | `Ctrl+F` | Search |
+| `Ctrl+E` | Export to Excel |
+| `Ctrl+P` | Toggle Pomodoro |
+| `Ctrl+M` | Toggle Finance module |
+| `Ctrl+W` | Weekly review |
 
 ---
 

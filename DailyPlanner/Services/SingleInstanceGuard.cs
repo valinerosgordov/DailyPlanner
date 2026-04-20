@@ -1,0 +1,94 @@
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Windows;
+
+namespace DailyPlanner.Services;
+
+public static class SingleInstanceGuard
+{
+    private const string MutexName = @"Global\DailyPlanner_Mutex_c3f4a2e1";
+    private const string EventName = @"Global\DailyPlanner_Activate_c3f4a2e1";
+    private const int SW_RESTORE = 9;
+
+    private static Mutex? _mutex;
+    private static EventWaitHandle? _activationEvent;
+
+    public static bool TryAcquire(out bool alreadyRunning)
+    {
+        _mutex = new Mutex(true, MutexName, out var createdNew);
+        if (createdNew)
+        {
+            _activationEvent = new EventWaitHandle(false, EventResetMode.AutoReset, EventName);
+            alreadyRunning = false;
+            return true;
+        }
+
+        _mutex.Dispose();
+        _mutex = null;
+        alreadyRunning = true;
+        return false;
+    }
+
+    public static void SignalExistingInstance()
+    {
+        try
+        {
+            using var signal = EventWaitHandle.OpenExisting(EventName);
+            signal.Set();
+        }
+        catch
+        {
+            ActivateByWindowHandle();
+        }
+    }
+
+    public static void StartActivationListener(Action onActivate)
+    {
+        if (_activationEvent is null) return;
+
+        var thread = new Thread(() =>
+        {
+            while (_activationEvent.WaitOne())
+                Application.Current?.Dispatcher.BeginInvoke(onActivate);
+        })
+        {
+            IsBackground = true,
+            Name = "DailyPlanner.ActivationListener"
+        };
+        thread.Start();
+    }
+
+    public static void Release()
+    {
+        _activationEvent?.Dispose();
+        _mutex?.ReleaseMutex();
+        _mutex?.Dispose();
+    }
+
+    private static void ActivateByWindowHandle()
+    {
+        var current = Process.GetCurrentProcess();
+        foreach (var p in Process.GetProcessesByName(current.ProcessName))
+        {
+            if (p.Id == current.Id) continue;
+            var handle = p.MainWindowHandle;
+            if (handle == nint.Zero) continue;
+            if (IsIconic(handle)) ShowWindow(handle, SW_RESTORE);
+            SetForegroundWindow(handle);
+            return;
+        }
+    }
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool SetForegroundWindow(nint hWnd);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool ShowWindow(nint hWnd, int nCmdShow);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool IsIconic(nint hWnd);
+}
