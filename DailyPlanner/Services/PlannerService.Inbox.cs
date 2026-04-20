@@ -62,6 +62,7 @@ public sealed partial class PlannerService
             .OrderBy(t => t.Order)
             .FirstOrDefaultAsync(ct).ConfigureAwait(false);
 
+        var externalId = inbox.Source == InboxSource.Trello ? inbox.ExternalId : null;
         DailyTask target;
         if (emptySlot is not null)
         {
@@ -69,6 +70,7 @@ public sealed partial class PlannerService
             emptySlot.Priority = inbox.Priority;
             emptySlot.Category = inbox.Category;
             emptySlot.Deadline = inbox.DueDate;
+            emptySlot.ExternalId = externalId;
             target = emptySlot;
         }
         else
@@ -81,7 +83,8 @@ public sealed partial class PlannerService
                 Text = inbox.Text,
                 Priority = inbox.Priority,
                 Category = inbox.Category,
-                Deadline = inbox.DueDate
+                Deadline = inbox.DueDate,
+                ExternalId = externalId
             };
             db.DailyTasks.Add(target);
         }
@@ -137,11 +140,15 @@ public sealed partial class PlannerService
         var cards = await trello.GetCardsInListByNameAsync(settings.ListName, settings.ApiKey, settings.Token, ct).ConfigureAwait(false);
 
         await using var db = PlannerDbContextFactory.Create();
-        var existingExternalIds = await db.InboxTasks
+        var inInbox = await db.InboxTasks
             .Where(t => t.Source == InboxSource.Trello && t.ExternalId != null)
             .Select(t => t.ExternalId!)
             .ToListAsync(ct).ConfigureAwait(false);
-        var existingSet = existingExternalIds.ToHashSet();
+        var placedInDays = await db.DailyTasks
+            .Where(t => t.ExternalId != null)
+            .Select(t => t.ExternalId!)
+            .ToListAsync(ct).ConfigureAwait(false);
+        var existingSet = inInbox.Concat(placedInDays).ToHashSet();
 
         var today = DateOnly.FromDateTime(DateTime.Today);
         var added = 0;
