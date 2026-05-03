@@ -10,7 +10,11 @@ public sealed partial class PlannerService
     {
         await using var db = PlannerDbContextFactory.Create();
 
+        // Split query: 5 nested Includes produce a Cartesian explosion in
+        // single-query mode (~thousands of rows for one week). AsSplitQuery
+        // emits one query per collection, much smaller transferred payload.
         var week = await db.Weeks
+            .AsSplitQuery()
             .Include(w => w.Goals.OrderBy(g => g.Order))
             .Include(w => w.Days.OrderBy(d => d.Date))
                 .ThenInclude(d => d.Tasks.OrderBy(t => t.Order))
@@ -99,6 +103,48 @@ public sealed partial class PlannerService
     {
         await using var db = PlannerDbContextFactory.Create();
         db.DailyTasks.Add(subTask);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
+    }
+
+    // Undo for delete: tries to fill an empty slot in the original day so the
+    // restored task doesn't collide with whatever the user added after the delete.
+    public async Task RestoreTaskAsync(DailyTask snapshot, CancellationToken ct = default)
+    {
+        await using var db = PlannerDbContextFactory.Create();
+        var emptySlot = await db.DailyTasks
+            .Where(t => t.DailyPlanId == snapshot.DailyPlanId && t.ParentTaskId == null && (t.Text == null || t.Text == ""))
+            .OrderBy(t => t.Order)
+            .FirstOrDefaultAsync(ct).ConfigureAwait(false);
+
+        if (emptySlot is not null)
+        {
+            emptySlot.Text = snapshot.Text;
+            emptySlot.IsCompleted = snapshot.IsCompleted;
+            emptySlot.Priority = snapshot.Priority;
+            emptySlot.Category = snapshot.Category;
+            emptySlot.Deadline = snapshot.Deadline;
+            emptySlot.ReminderTime = snapshot.ReminderTime;
+            emptySlot.ExternalId = snapshot.ExternalId;
+        }
+        else
+        {
+            var maxOrder = await db.DailyTasks
+                .Where(t => t.DailyPlanId == snapshot.DailyPlanId)
+                .Select(t => (int?)t.Order)
+                .MaxAsync(ct).ConfigureAwait(false) ?? 0;
+            db.DailyTasks.Add(new DailyTask
+            {
+                DailyPlanId = snapshot.DailyPlanId,
+                Order = maxOrder + 1,
+                Text = snapshot.Text,
+                IsCompleted = snapshot.IsCompleted,
+                Priority = snapshot.Priority,
+                Category = snapshot.Category,
+                Deadline = snapshot.Deadline,
+                ReminderTime = snapshot.ReminderTime,
+                ExternalId = snapshot.ExternalId
+            });
+        }
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
@@ -368,7 +414,7 @@ public sealed partial class PlannerService
     public async Task<List<Reminder>> GetRemindersAsync(CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        return await db.Reminders.OrderBy(r => r.Time).ToListAsync(ct).ConfigureAwait(false);
+        return await db.Reminders.AsNoTracking().OrderBy(r => r.Time).ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task SaveMeetingAsync(Meeting meeting, CancellationToken ct = default)
@@ -391,7 +437,7 @@ public sealed partial class PlannerService
     public async Task<List<Meeting>> GetMeetingsAsync(CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        return await db.Meetings.OrderBy(m => m.DateTime).ToListAsync(ct).ConfigureAwait(false);
+        return await db.Meetings.AsNoTracking().OrderBy(m => m.DateTime).ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task CopyWeekStructureAsync(int sourceWeekId, int targetWeekId, CancellationToken ct = default)

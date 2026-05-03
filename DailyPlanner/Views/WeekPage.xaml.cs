@@ -169,7 +169,7 @@ public partial class WeekPage : Page
 
     private async void RestoreTask(MainViewModel mainVm, DayViewModel day, Models.DailyTask snapshot)
     {
-        await mainVm.Service.AddSubTaskAsync(snapshot);
+        await mainVm.Service.RestoreTaskAsync(snapshot);
         await mainVm.LoadMonthCommand.ExecuteAsync(null);
     }
 
