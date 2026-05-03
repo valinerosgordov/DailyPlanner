@@ -113,16 +113,16 @@ public sealed partial class PlannerService
             db.TrelloSettings.Add(settings);
             await db.SaveChangesAsync(ct).ConfigureAwait(false);
         }
+        settings.Token = ProtectedTokenStore.Unprotect(settings.Token);
         return settings;
     }
     public async Task SaveTrelloSettingsAsync(TrelloSettings settings, CancellationToken ct = default)
     {
+        settings.Token = ProtectedTokenStore.Protect(settings.Token);
         await using var db = PlannerDbContextFactory.Create();
-        if (settings.Id == 0)
-            db.TrelloSettings.Add(settings);
-        else
-            db.TrelloSettings.Update(settings);
+        db.TrelloSettings.Update(settings);
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
+        settings.Token = ProtectedTokenStore.Unprotect(settings.Token);
     }
     private static readonly SemaphoreSlim _trelloSyncGate = new(1, 1);
 

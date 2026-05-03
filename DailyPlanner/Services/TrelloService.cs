@@ -1,13 +1,32 @@
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Reflection;
 using System.Text.Json.Serialization;
 
 namespace DailyPlanner.Services;
 
 public sealed class TrelloService
 {
-    private static readonly HttpClient Client = new();
+    private static readonly HttpClient Client = CreateClient();
     private const string ApiBase = "https://api.trello.com/1";
+
+    private static HttpClient CreateClient()
+    {
+        var handler = new SocketsHttpHandler
+        {
+            PooledConnectionLifetime = TimeSpan.FromMinutes(15),
+            PooledConnectionIdleTimeout = TimeSpan.FromMinutes(5),
+            AutomaticDecompression = System.Net.DecompressionMethods.All
+        };
+        var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "0.0.0";
+        var client = new HttpClient(handler, disposeHandler: true)
+        {
+            Timeout = TimeSpan.FromSeconds(30)
+        };
+        client.DefaultRequestHeaders.UserAgent.ParseAdd($"DailyPlanner/{version}");
+        client.DefaultRequestHeaders.AcceptEncoding.ParseAdd("gzip, deflate, br");
+        return client;
+    }
 
     public sealed record TrelloBoard(
         [property: JsonPropertyName("id")] string Id,
