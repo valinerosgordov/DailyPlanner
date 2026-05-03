@@ -17,9 +17,11 @@ public record ThemePalette(
 
 public static class ThemeService
 {
-    private static string _currentPalette = LoadSavedPalette();
+    // Lazy: Palettes static field is declared below this point and initializes
+    // after _currentPalette would, so eager init would NRE on Palettes.ContainsKey.
+    private static string? _currentPalette;
 
-    public static string CurrentPalette => _currentPalette;
+    public static string CurrentPalette => _currentPalette ??= LoadSavedPalette();
 
     private static Color Hex(string hex) => (Color)ColorConverter.ConvertFromString(hex);
 
@@ -148,5 +150,5 @@ public static class ThemeService
         res["KeyboardShortcutBg"] = new SolidColorBrush(p.KeyboardBg);
     }
 
-    public static void Apply() => ApplyPalette(_currentPalette);
+    public static void Apply() => ApplyPalette(CurrentPalette);
 }
