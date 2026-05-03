@@ -43,9 +43,12 @@ public static class NotificationService
         // Notification check delegated to MainViewModel
     }
 
-    public static void ShowToast(string title, string message)
+    public static void ShowToast(string title, string message, string category = "toast")
     {
-        var key = $"{title}:{message}";
+        // Namespacing the dedup key prevents legitimate same-text notifications
+        // from different sources (reminders / meetings / Trello / Pomodoro)
+        // suppressing each other within the same day.
+        var key = $"{category}:{title}:{message}";
         lock (_lock) { if (!_notifiedToday.Add(key)) return; }
         NotificationTriggered?.Invoke(title, message);
 

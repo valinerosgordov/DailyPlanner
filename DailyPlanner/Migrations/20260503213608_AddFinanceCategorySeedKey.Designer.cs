@@ -3,6 +3,7 @@ using System;
 using DailyPlanner.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DailyPlanner.Migrations
 {
     [DbContext(typeof(PlannerDbContext))]
-    partial class PlannerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260503213608_AddFinanceCategorySeedKey")]
+    partial class AddFinanceCategorySeedKey
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.7");
@@ -299,15 +302,12 @@ namespace DailyPlanner.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("SeedKey")
-                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Type")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("SeedKey");
 
                     b.ToTable("FinanceCategories");
                 });

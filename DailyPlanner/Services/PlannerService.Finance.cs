@@ -9,7 +9,7 @@ public sealed partial class PlannerService
     public async Task<List<FinanceCategory>> GetFinanceCategoriesAsync(FinanceEntryType? type = null, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        var query = db.FinanceCategories.Where(c => !c.IsArchived);
+        var query = db.FinanceCategories.AsNoTracking().Where(c => !c.IsArchived);
         if (type is not null) query = query.Where(c => c.Type == type);
         return await query.OrderBy(c => c.Order).ToListAsync(ct).ConfigureAwait(false);
     }
@@ -52,55 +52,82 @@ public sealed partial class PlannerService
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
         return true;
     }
-    private static readonly Dictionary<string, string> SeedCategoryKeys = new()
-    {
-        ["Salary"] = "CatSalary", ["Freelance"] = "CatFreelance", ["Gifts"] = "CatGifts",
-        ["Investments"] = "CatInvestments", ["Other Income"] = "CatOtherIncome",
-        ["Food"] = "CatFood", ["Transport"] = "CatTransport", ["Housing"] = "CatHousing",
-        ["Entertainment"] = "CatEntertainment", ["Health"] = "CatHealth",
-        ["Clothing"] = "CatClothing", ["Subscriptions"] = "CatSubscriptions",
-        ["Education"] = "CatEducation", ["Other Expense"] = "CatOtherExpense",
-    };
+    private static readonly (string SeedKey, string Icon, string Color, FinanceEntryType Type, int Order)[] SeedDefinitions =
+    [
+        ("CatSalary",        "\uD83D\uDCBC", "#34D399", FinanceEntryType.Income,  1),
+        ("CatFreelance",     "\uD83D\uDCBB", "#38BDF8", FinanceEntryType.Income,  2),
+        ("CatGifts",         "\uD83C\uDF81", "#A78BFA", FinanceEntryType.Income,  3),
+        ("CatInvestments",   "\uD83D\uDCC8", "#FBBF24", FinanceEntryType.Income,  4),
+        ("CatOtherIncome",   "\u2795",       "#6EE7B7", FinanceEntryType.Income,  5),
+        ("CatFood",          "\uD83C\uDF54", "#FB923C", FinanceEntryType.Expense, 1),
+        ("CatTransport",     "\uD83D\uDE97", "#38BDF8", FinanceEntryType.Expense, 2),
+        ("CatHousing",       "\uD83C\uDFE0", "#A78BFA", FinanceEntryType.Expense, 3),
+        ("CatEntertainment", "\uD83C\uDFAE", "#F472B6", FinanceEntryType.Expense, 4),
+        ("CatHealth",        "\uD83D\uDC8A", "#34D399", FinanceEntryType.Expense, 5),
+        ("CatClothing",      "\uD83D\uDC55", "#FBBF24", FinanceEntryType.Expense, 6),
+        ("CatSubscriptions", "\uD83D\uDCF1", "#FB7185", FinanceEntryType.Expense, 7),
+        ("CatEducation",     "\uD83D\uDCDA", "#818CF8", FinanceEntryType.Expense, 8),
+        ("CatOtherExpense",  "\u2796",       "#585878", FinanceEntryType.Expense, 9),
+    ];
+
+    // Maps legacy seeded names (any language) back to their stable SeedKey, so
+    // pre-3.25.0 databases without the new column can be migrated on first launch.
+    private static readonly string[] LegacySeedNameKeys = ["en", "ru", "es", "fr"];
+
     public async Task SeedFinanceCategoriesAsync(CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
 
-                if (!await db.FinanceCategories.AnyAsync(ct).ConfigureAwait(false))
+        var existing = await db.FinanceCategories.ToListAsync(ct).ConfigureAwait(false);
+        if (existing.Count == 0)
         {
-            var categories = new List<FinanceCategory>
+            foreach (var def in SeedDefinitions)
             {
-                new() { Name = Loc.Get("CatSalary"), Icon = "\uD83D\uDCBC", Color = "#34D399", Type = FinanceEntryType.Income, Order = 1 },
-                new() { Name = Loc.Get("CatFreelance"), Icon = "\uD83D\uDCBB", Color = "#38BDF8", Type = FinanceEntryType.Income, Order = 2 },
-                new() { Name = Loc.Get("CatGifts"), Icon = "\uD83C\uDF81", Color = "#A78BFA", Type = FinanceEntryType.Income, Order = 3 },
-                new() { Name = Loc.Get("CatInvestments"), Icon = "\uD83D\uDCC8", Color = "#FBBF24", Type = FinanceEntryType.Income, Order = 4 },
-                new() { Name = Loc.Get("CatOtherIncome"), Icon = "\u2795", Color = "#6EE7B7", Type = FinanceEntryType.Income, Order = 5 },
-                new() { Name = Loc.Get("CatFood"), Icon = "\uD83C\uDF54", Color = "#FB923C", Type = FinanceEntryType.Expense, Order = 1 },
-                new() { Name = Loc.Get("CatTransport"), Icon = "\uD83D\uDE97", Color = "#38BDF8", Type = FinanceEntryType.Expense, Order = 2 },
-                new() { Name = Loc.Get("CatHousing"), Icon = "\uD83C\uDFE0", Color = "#A78BFA", Type = FinanceEntryType.Expense, Order = 3 },
-                new() { Name = Loc.Get("CatEntertainment"), Icon = "\uD83C\uDFAE", Color = "#F472B6", Type = FinanceEntryType.Expense, Order = 4 },
-                new() { Name = Loc.Get("CatHealth"), Icon = "\uD83D\uDC8A", Color = "#34D399", Type = FinanceEntryType.Expense, Order = 5 },
-                new() { Name = Loc.Get("CatClothing"), Icon = "\uD83D\uDC55", Color = "#FBBF24", Type = FinanceEntryType.Expense, Order = 6 },
-                new() { Name = Loc.Get("CatSubscriptions"), Icon = "\uD83D\uDCF1", Color = "#FB7185", Type = FinanceEntryType.Expense, Order = 7 },
-                new() { Name = Loc.Get("CatEducation"), Icon = "\uD83D\uDCDA", Color = "#818CF8", Type = FinanceEntryType.Expense, Order = 8 },
-                new() { Name = Loc.Get("CatOtherExpense"), Icon = "\u2796", Color = "#585878", Type = FinanceEntryType.Expense, Order = 9 },
-            };
-
-            db.FinanceCategories.AddRange(categories);
+                db.FinanceCategories.Add(new FinanceCategory
+                {
+                    SeedKey = def.SeedKey,
+                    Name = Loc.Get(def.SeedKey),
+                    Icon = def.Icon,
+                    Color = def.Color,
+                    Type = def.Type,
+                    Order = def.Order,
+                });
+            }
             await db.SaveChangesAsync(ct).ConfigureAwait(false);
             return;
         }
 
-        // Update existing seed category names to current language
-        var allCats = await db.FinanceCategories.ToListAsync(ct).ConfigureAwait(false);
         var changed = false;
-        foreach (var cat in allCats)
+        foreach (var cat in existing)
         {
-            // Check if name matches any known English seed name
-            var key = SeedCategoryKeys.GetValueOrDefault(cat.Name);
-            if (key is not null)
+            // Backfill SeedKey for rows seeded before 3.25.0 by matching the
+            // current Name against the same key in any supported language.
+            if (string.IsNullOrEmpty(cat.SeedKey))
             {
-                cat.Name = Loc.Get(key);
-                changed = true;
+                foreach (var def in SeedDefinitions)
+                {
+                    foreach (var lang in LegacySeedNameKeys)
+                    {
+                        if (Loc.GetIn(lang, def.SeedKey) == cat.Name)
+                        {
+                            cat.SeedKey = def.SeedKey;
+                            changed = true;
+                            break;
+                        }
+                    }
+                    if (cat.SeedKey is not null) break;
+                }
+            }
+
+            // For seeded rows, keep Name in sync with the active language.
+            if (!string.IsNullOrEmpty(cat.SeedKey))
+            {
+                var localized = Loc.Get(cat.SeedKey);
+                if (!string.Equals(cat.Name, localized, StringComparison.Ordinal))
+                {
+                    cat.Name = localized;
+                    changed = true;
+                }
             }
         }
         if (changed) await db.SaveChangesAsync(ct).ConfigureAwait(false);
@@ -108,7 +135,7 @@ public sealed partial class PlannerService
     public async Task<List<FinanceEntry>> GetFinanceEntriesAsync(DateOnly from, DateOnly to, FinanceEntryType? type = null, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        var query = db.FinanceEntries.Include(e => e.Category).Where(e => e.Date >= from && e.Date <= to);
+        var query = db.FinanceEntries.AsNoTracking().Include(e => e.Category).Where(e => e.Date >= from && e.Date <= to);
         if (type is not null) query = query.Where(e => e.Type == type);
         return await query.OrderBy(e => e.Date).ThenBy(e => e.Id).ToListAsync(ct).ConfigureAwait(false);
     }
@@ -146,7 +173,7 @@ public sealed partial class PlannerService
     public async Task<List<FinanceBudget>> GetBudgetsAsync(string monthYear, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        return await db.FinanceBudgets.Include(b => b.Category).Where(b => b.MonthYear == monthYear).ToListAsync(ct).ConfigureAwait(false);
+        return await db.FinanceBudgets.AsNoTracking().Include(b => b.Category).Where(b => b.MonthYear == monthYear).ToListAsync(ct).ConfigureAwait(false);
     }
     public async Task SaveBudgetAsync(FinanceBudget budget, CancellationToken ct = default)
     {
@@ -171,7 +198,7 @@ public sealed partial class PlannerService
     public async Task<List<RecurringPayment>> GetRecurringPaymentsAsync(bool activeOnly = true, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        var query = db.RecurringPayments.Include(rp => rp.Category).AsQueryable();
+        var query = db.RecurringPayments.AsNoTracking().Include(rp => rp.Category).AsQueryable();
         if (activeOnly) query = query.Where(rp => rp.IsActive);
         return await query.OrderBy(rp => rp.Type).ThenBy(rp => rp.Name).ToListAsync(ct).ConfigureAwait(false);
     }

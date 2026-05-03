@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.ComponentModel;
 using System.IO;
 
@@ -46,14 +47,20 @@ public sealed class Loc : INotifyPropertyChanged
         return key;
     }
 
-    public static readonly string[] SupportedLanguages = ["ru", "en", "es", "fr"];
-    public static readonly Dictionary<string, string> LanguageNames = new()
-    {
-        ["ru"] = "Русский",
-        ["en"] = "English",
-        ["es"] = "Español",
-        ["fr"] = "Français"
-    };
+    // Bypass active language — used when migrating data seeded under any language.
+    public static string GetIn(string lang, string key) =>
+        Translations.TryGetValue(lang, out var dict) && dict.TryGetValue(key, out var val) ? val : key;
+
+    public static readonly FrozenSet<string> SupportedLanguages =
+        new[] { "ru", "en", "es", "fr" }.ToFrozenSet(StringComparer.Ordinal);
+    public static readonly FrozenDictionary<string, string> LanguageNames =
+        new Dictionary<string, string>
+        {
+            ["ru"] = "Русский",
+            ["en"] = "English",
+            ["es"] = "Español",
+            ["fr"] = "Français"
+        }.ToFrozenDictionary(StringComparer.Ordinal);
 
     private static string SettingsPath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -90,13 +97,15 @@ public sealed class Loc : INotifyPropertyChanged
     }
 
     // ─── All translations ────────────────────────────────────────────
-    private static readonly Dictionary<string, Dictionary<string, string>> Translations = new()
-    {
-        ["ru"] = LocRuStrings.Build(),
-        ["en"] = LocEnStrings.Build(),
-        ["es"] = LocEsStrings.Build(),
-        ["fr"] = LocFrStrings.Build(),
-    };
+    // Frozen at startup — read-mostly lookup (every XAML binding hits this).
+    private static readonly FrozenDictionary<string, FrozenDictionary<string, string>> Translations =
+        new Dictionary<string, FrozenDictionary<string, string>>
+        {
+            ["ru"] = LocRuStrings.Build().ToFrozenDictionary(StringComparer.Ordinal),
+            ["en"] = LocEnStrings.Build().ToFrozenDictionary(StringComparer.Ordinal),
+            ["es"] = LocEsStrings.Build().ToFrozenDictionary(StringComparer.Ordinal),
+            ["fr"] = LocFrStrings.Build().ToFrozenDictionary(StringComparer.Ordinal),
+        }.ToFrozenDictionary(StringComparer.Ordinal);
 
     // Helper: get month name for current language
     public static string GetMonthName(int month) => Get($"Month{month}");

@@ -107,7 +107,7 @@ public sealed partial class PomodoroViewModel : ObservableObject
     {
         SessionsCompleted = _pomodoro.SessionsCompleted;
         var msg = wasWork ? Loc.Get("PomBreakTime") : Loc.Get("PomWorkTime");
-        NotificationService.ShowToast("Pomodoro", msg);
+        NotificationService.ShowToast("Pomodoro", msg, "pomodoro");
         System.Media.SystemSounds.Exclamation.Play();
     }
 
@@ -116,7 +116,8 @@ public sealed partial class PomodoroViewModel : ObservableObject
         var elapsed = _pomodoro.Elapsed;
         var mins = (int)elapsed.TotalMinutes;
         NotificationService.ShowToast(Loc.Get("PomFocusTimer"),
-            string.Format(Loc.Get("PomFocusAlert"), mins));
+            string.Format(Loc.Get("PomFocusAlert"), mins),
+            "pomodoro");
         System.Media.SystemSounds.Exclamation.Play();
     }
 

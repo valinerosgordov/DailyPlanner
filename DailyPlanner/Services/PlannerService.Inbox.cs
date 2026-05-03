@@ -10,6 +10,7 @@ public sealed partial class PlannerService
     {
         await using var db = PlannerDbContextFactory.Create();
         return await db.InboxTasks
+            .AsNoTracking()
             .Where(t => !t.IsArchived)
             .OrderByDescending(t => t.CreatedDate)
             .ThenByDescending(t => t.Id)

@@ -66,15 +66,19 @@ public sealed partial class MainViewModel : ObservableObject
 
     private bool _isInitializing;
 
+    private readonly TimeProvider _time;
+
     public MainViewModel() : this(new PlannerService(), new TrelloService(),
-        new UpdateService("https://github.com/valinerosgordov/DailyPlanner"))
+        new UpdateService("https://github.com/valinerosgordov/DailyPlanner"),
+        TimeProvider.System)
     { }
 
-    public MainViewModel(PlannerService service, TrelloService trelloService, UpdateService updateService)
+    public MainViewModel(PlannerService service, TrelloService trelloService, UpdateService updateService, TimeProvider time)
     {
         _service = service;
         _trelloService = trelloService;
         _updateService = updateService;
+        _time = time;
         Statistics = new StatisticsViewModel(_service);
         Finance = new FinanceViewModel(_service);
         Inbox = new InboxViewModel(_service, _trelloService);
@@ -674,9 +678,10 @@ public sealed partial class MainViewModel : ObservableObject
 
     private void CheckReminders()
     {
-        var now = TimeOnly.FromDateTime(DateTime.Now);
-        var today = DateTime.Today.DayOfWeek;
-        var currentDate = DateOnly.FromDateTime(DateTime.Today);
+        var localNow = _time.GetLocalNow();
+        var now = TimeOnly.FromDateTime(localNow.LocalDateTime);
+        var today = localNow.LocalDateTime.DayOfWeek;
+        var currentDate = DateOnly.FromDateTime(localNow.LocalDateTime);
 
         if (currentDate != _lastReminderDate)
         {
@@ -698,7 +703,7 @@ public sealed partial class MainViewModel : ObservableObject
             var key = $"{dateKey}:{r.Id}";
             if (!_firedReminders.Add(key)) continue;
 
-            NotificationService.ShowToast(r.Title, r.Message);
+            NotificationService.ShowToast(r.Title, r.Message, "reminder");
         }
 
         CheckMeetingReminders();
@@ -706,7 +711,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     private void CheckMeetingReminders()
     {
-        var now = DateTime.Now;
+        var now = _time.GetLocalNow().LocalDateTime;
 
         foreach (var vm in Meetings)
         {
@@ -724,7 +729,8 @@ public sealed partial class MainViewModel : ObservableObject
                     {
                         NotificationService.ShowToast(
                             Loc.Get("MeetingTomorrow"),
-                            $"{m.Title} — {meetingTime:HH:mm}\n{m.Attendees}");
+                            $"{m.Title} — {meetingTime:HH:mm}\n{m.Attendees}",
+                            "meeting");
                     }
                 }
             }
@@ -740,7 +746,8 @@ public sealed partial class MainViewModel : ObservableObject
                     {
                         NotificationService.ShowToast(
                             Loc.Get("MeetingSoon"),
-                            $"{m.Title} — {Loc.Get("MeetingIn2Hours")}\n{m.Attendees}");
+                            $"{m.Title} — {Loc.Get("MeetingIn2Hours")}\n{m.Attendees}",
+                            "meeting");
                     }
                 }
             }
@@ -756,7 +763,8 @@ public sealed partial class MainViewModel : ObservableObject
                     {
                         NotificationService.ShowToast(
                             Loc.Get("MeetingSoon"),
-                            $"{m.Title} — {Loc.Get("MeetingIn30Min")}\n{m.Attendees}");
+                            $"{m.Title} — {Loc.Get("MeetingIn30Min")}\n{m.Attendees}",
+                            "meeting");
                     }
                 }
             }
