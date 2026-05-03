@@ -113,15 +113,18 @@ public sealed partial class PlannerService
             db.TrelloSettings.Add(settings);
             await db.SaveChangesAsync(ct).ConfigureAwait(false);
         }
+        settings.ApiKey = ProtectedTokenStore.Unprotect(settings.ApiKey);
         settings.Token = ProtectedTokenStore.Unprotect(settings.Token);
         return settings;
     }
     public async Task SaveTrelloSettingsAsync(TrelloSettings settings, CancellationToken ct = default)
     {
+        settings.ApiKey = ProtectedTokenStore.Protect(settings.ApiKey);
         settings.Token = ProtectedTokenStore.Protect(settings.Token);
         await using var db = PlannerDbContextFactory.Create();
         db.TrelloSettings.Update(settings);
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
+        settings.ApiKey = ProtectedTokenStore.Unprotect(settings.ApiKey);
         settings.Token = ProtectedTokenStore.Unprotect(settings.Token);
     }
     private static readonly SemaphoreSlim _trelloSyncGate = new(1, 1);
@@ -169,9 +172,15 @@ public sealed partial class PlannerService
             added++;
         }
 
-        settings.LastSyncUtc = DateTime.UtcNow;
-        db.TrelloSettings.Update(settings);
-        await db.SaveChangesAsync(ct).ConfigureAwait(false);
+        // Only touch LastSyncUtc — settings.Token/ApiKey are decrypted in memory
+        // here, so a full Update(settings) would persist them as plaintext and
+        // undo the at-rest encryption from SaveTrelloSettingsAsync.
+        var tracked = await db.TrelloSettings.FirstOrDefaultAsync(s => s.Id == settings.Id, ct).ConfigureAwait(false);
+        if (tracked is not null)
+        {
+            tracked.LastSyncUtc = DateTime.UtcNow;
+            await db.SaveChangesAsync(ct).ConfigureAwait(false);
+        }
         return added;
         }
         finally { _trelloSyncGate.Release(); }

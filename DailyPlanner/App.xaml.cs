@@ -38,6 +38,10 @@ public partial class App : Application
 
         base.OnStartup(e);
 
+        Window? splash = null;
+        try
+        {
+
         VelopackApp.Build().Run();
 
         ServiceHost.Configure();
@@ -47,7 +51,7 @@ public partial class App : Application
 
         SingleInstanceGuard.StartActivationListener(ActivateMainWindow);
 
-        var splash = new Window
+        splash = new Window
         {
             Width = 380,
             Height = 220,
@@ -154,6 +158,17 @@ public partial class App : Application
         }
 
         splash.Close();
+        }
+        catch (Exception ex)
+        {
+            Log.Error("App", $"Startup failed: {ex}");
+            try { splash?.Close(); } catch { }
+            System.Windows.MessageBox.Show(
+                $"Startup failed:\n{ex.Message}",
+                "Daily & Financial Planner",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+            Shutdown(1);
+        }
     }
 
     private void ActivateMainWindow()

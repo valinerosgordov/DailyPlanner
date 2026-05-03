@@ -1,5 +1,5 @@
 using System.Collections.Concurrent;
-using System.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 
 namespace DailyPlanner.Services;
 
@@ -28,10 +28,11 @@ public static class DebounceService
             await Task.Delay(delayMs, ct);
             await action();
         }
-        catch (TaskCanceledException)
-        {
-            // Debounced — expected
-        }
+        catch (TaskCanceledException) { }
+        catch (OperationCanceledException) { }
+        // Row was deleted or moved between debounce schedule and save —
+        // expected when user spam-edits then deletes a task.
+        catch (DbUpdateConcurrencyException) { }
         catch (Exception ex)
         {
             Log.Error("DebounceService", $"Error in '{key}': {ex.Message}");

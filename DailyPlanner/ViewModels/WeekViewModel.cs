@@ -215,6 +215,7 @@ public sealed partial class WeekViewModel : ObservableObject
     private void RefreshAnalytics()
     {
         _analyticsDebounce?.Cancel();
+        _analyticsDebounce?.Dispose();
         _analyticsDebounce = new CancellationTokenSource();
         var token = _analyticsDebounce.Token;
 
