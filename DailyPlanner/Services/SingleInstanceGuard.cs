@@ -13,6 +13,8 @@ public static class SingleInstanceGuard
 
     private static Mutex? _mutex;
     private static EventWaitHandle? _activationEvent;
+    private static EventWaitHandle? _shutdownEvent;
+    private static Thread? _listenerThread;
 
     public static bool TryAcquire(out bool alreadyRunning)
     {
@@ -20,6 +22,7 @@ public static class SingleInstanceGuard
         if (createdNew)
         {
             _activationEvent = new EventWaitHandle(false, EventResetMode.AutoReset, EventName);
+            _shutdownEvent = new EventWaitHandle(false, EventResetMode.ManualReset);
             alreadyRunning = false;
             return true;
         }
@@ -45,24 +48,37 @@ public static class SingleInstanceGuard
 
     public static void StartActivationListener(Action onActivate)
     {
-        if (_activationEvent is null) return;
+        if (_activationEvent is null || _shutdownEvent is null) return;
 
-        var thread = new Thread(() =>
+        var activation = _activationEvent;
+        var shutdown = _shutdownEvent;
+        var handles = new WaitHandle[] { activation, shutdown };
+
+        _listenerThread = new Thread(() =>
         {
-            while (_activationEvent.WaitOne())
+            while (true)
+            {
+                int idx;
+                try { idx = WaitHandle.WaitAny(handles); }
+                catch (ObjectDisposedException) { return; }
+                if (idx != 0) return;
                 Application.Current?.Dispatcher.BeginInvoke(onActivate);
+            }
         })
         {
             IsBackground = true,
             Name = "DailyPlanner.ActivationListener"
         };
-        thread.Start();
+        _listenerThread.Start();
     }
 
     public static void Release()
     {
+        _shutdownEvent?.Set();
+        _listenerThread?.Join(TimeSpan.FromSeconds(1));
         _activationEvent?.Dispose();
-        _mutex?.ReleaseMutex();
+        _shutdownEvent?.Dispose();
+        try { _mutex?.ReleaseMutex(); } catch { }
         _mutex?.Dispose();
     }
 

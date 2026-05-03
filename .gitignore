@@ -8,9 +8,19 @@ installer_output/
 ## IDE
 .vs/
 .vscode/
+.idea/
 *.user
+*.userprefs
 *.suo
 *.cache
+*.iml
+
+## Test results
+[Tt]est[Rr]esult*/
+*.coverage
+*.coveragexml
+*.received.*
+*.received/
 
 ## Build artifacts
 *.zip

@@ -146,6 +146,9 @@ public sealed partial class PlannerService
             emptySlot.Priority = task.Priority;
             emptySlot.Category = task.Category;
             emptySlot.IsCompleted = task.IsCompleted;
+            emptySlot.Deadline = task.Deadline;
+            emptySlot.ReminderTime = task.ReminderTime;
+            emptySlot.ExternalId = task.ExternalId;
             targetTask = emptySlot;
         }
         else
@@ -158,13 +161,15 @@ public sealed partial class PlannerService
                 Text = task.Text,
                 Priority = task.Priority,
                 Category = task.Category,
-                IsCompleted = task.IsCompleted
+                IsCompleted = task.IsCompleted,
+                Deadline = task.Deadline,
+                ReminderTime = task.ReminderTime,
+                ExternalId = task.ExternalId
             };
             db.DailyTasks.Add(targetTask);
         }
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
 
-        // Move subtasks (preserve all properties)
         foreach (var sub in task.SubTasks.OrderBy(s => s.Order))
         {
             db.DailyTasks.Add(new DailyTask
@@ -175,7 +180,9 @@ public sealed partial class PlannerService
                 Text = sub.Text,
                 Priority = sub.Priority,
                 Category = sub.Category,
-                IsCompleted = sub.IsCompleted
+                IsCompleted = sub.IsCompleted,
+                Deadline = sub.Deadline,
+                ReminderTime = sub.ReminderTime
             });
         }
 
