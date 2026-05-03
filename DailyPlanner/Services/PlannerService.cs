@@ -53,7 +53,6 @@ public sealed partial class PlannerService
             week.Days.Add(day);
         }
 
-        // Copy habit names from previous week, or create empty ones
         var prevWeek = await db.Weeks
             .Include(w => w.Habits)
             .Where(w => w.StartDate < startDate)
@@ -65,7 +64,10 @@ public sealed partial class PlannerService
             .OrderBy(h => h.Order)
             .ToList() ?? [];
 
-        var habitCount = Math.Max(prevHabits.Count, 5);
+        // Brand-new install seeds 5 empty slots; any subsequent week mirrors
+        // exactly what the user keeps from the previous week — deleted habits
+        // must stay deleted.
+        var habitCount = prevWeek is null ? 5 : prevHabits.Count;
         for (var i = 1; i <= habitCount; i++)
         {
             var habit = new HabitDefinition

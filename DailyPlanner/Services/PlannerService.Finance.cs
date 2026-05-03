@@ -116,30 +116,26 @@ public sealed partial class PlannerService
     {
         await using var db = PlannerDbContextFactory.Create();
 
-        // Prevent entries on archived categories
         if (entry.CategoryId > 0)
         {
-            var cat = await db.FinanceCategories.FindAsync([entry.CategoryId], ct).ConfigureAwait(false);
-            if (cat is { IsArchived: true }) return;
+            var isArchived = await db.FinanceCategories
+                .AsNoTracking()
+                .Where(c => c.Id == entry.CategoryId)
+                .Select(c => (bool?)c.IsArchived)
+                .FirstOrDefaultAsync(ct).ConfigureAwait(false);
+            if (isArchived == true) return;
         }
 
-        // Detach navigation properties to avoid tracking conflicts
-        var savedCategory = entry.Category;
-        var savedWeek = entry.Week;
-        var savedRecurring = entry.RecurringPayment;
-        entry.Category = null;
-        entry.Week = null;
-        entry.RecurringPayment = null;
-
         if (entry.Id == 0)
+        {
             db.FinanceEntries.Add(entry);
+        }
         else
-            db.FinanceEntries.Update(entry);
+        {
+            db.FinanceEntries.Attach(entry);
+            db.Entry(entry).State = EntityState.Modified;
+        }
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
-
-        entry.Category = savedCategory;
-        entry.Week = savedWeek;
-        entry.RecurringPayment = savedRecurring;
     }
     public async Task RemoveFinanceEntryAsync(int entryId, CancellationToken ct = default)
     {
@@ -155,16 +151,16 @@ public sealed partial class PlannerService
     public async Task SaveBudgetAsync(FinanceBudget budget, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        var savedCategory = budget.Category;
-        budget.Category = null;
-
         if (budget.Id == 0)
+        {
             db.FinanceBudgets.Add(budget);
+        }
         else
-            db.FinanceBudgets.Update(budget);
+        {
+            db.FinanceBudgets.Attach(budget);
+            db.Entry(budget).State = EntityState.Modified;
+        }
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
-
-        budget.Category = savedCategory;
     }
     public async Task RemoveBudgetAsync(int budgetId, CancellationToken ct = default)
     {
@@ -182,19 +178,16 @@ public sealed partial class PlannerService
     public async Task SaveRecurringPaymentAsync(RecurringPayment payment, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        var savedCategory = payment.Category;
-        var savedEntries = payment.GeneratedEntries;
-        payment.Category = null;
-        payment.GeneratedEntries = [];
-
         if (payment.Id == 0)
+        {
             db.RecurringPayments.Add(payment);
+        }
         else
-            db.RecurringPayments.Update(payment);
+        {
+            db.RecurringPayments.Attach(payment);
+            db.Entry(payment).State = EntityState.Modified;
+        }
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
-
-        payment.Category = savedCategory;
-        payment.GeneratedEntries = savedEntries;
     }
     public async Task RemoveRecurringPaymentAsync(int paymentId, CancellationToken ct = default)
     {

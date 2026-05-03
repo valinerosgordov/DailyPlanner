@@ -16,16 +16,16 @@ public sealed partial class PlannerService
     public async Task SaveDebtAsync(Debt debt, CancellationToken ct = default)
     {
         await using var db = PlannerDbContextFactory.Create();
-        var savedPayments = debt.Payments;
-        debt.Payments = [];
-
         if (debt.Id == 0)
+        {
             db.Debts.Add(debt);
+        }
         else
-            db.Debts.Update(debt);
+        {
+            db.Debts.Attach(debt);
+            db.Entry(debt).State = EntityState.Modified;
+        }
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
-
-        debt.Payments = savedPayments;
     }
     public async Task RemoveDebtAsync(int debtId, CancellationToken ct = default)
     {
