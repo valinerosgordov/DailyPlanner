@@ -19,6 +19,7 @@ public static class ServiceHost
         var sc = new ServiceCollection();
 
         // Core services — singletons (stateless or process-wide)
+        sc.AddSingleton(TimeProvider.System);
         sc.AddSingleton<PlannerService>();
         sc.AddSingleton<TrelloService>();
         sc.AddSingleton(_ => new UpdateService("https://github.com/valinerosgordov/DailyPlanner"));
