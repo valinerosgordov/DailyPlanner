@@ -91,11 +91,17 @@ public class PlannerServiceTests : PlannerServiceTestFixture
 
         await Service.SaveFinanceEntryAsync(new FinanceEntry
         {
-            Date = today, Type = FinanceEntryType.Income, Amount = 1000m, CategoryId = incomeCat.Id
+            Date = today,
+            Type = FinanceEntryType.Income,
+            Amount = 1000m,
+            CategoryId = incomeCat.Id
         });
         await Service.SaveFinanceEntryAsync(new FinanceEntry
         {
-            Date = today, Type = FinanceEntryType.Expense, Amount = 300m, CategoryId = expenseCat.Id
+            Date = today,
+            Type = FinanceEntryType.Expense,
+            Amount = 300m,
+            CategoryId = expenseCat.Id
         });
 
         var entries = await Service.GetFinanceEntriesAsync(today, today);

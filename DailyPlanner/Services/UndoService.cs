@@ -53,7 +53,9 @@ public static class UndoService
                 Effect = new System.Windows.Media.Effects.DropShadowEffect
                 {
                     Color = Application.Current.Resources["AccentColor"] is Color ac ? ac : Color.FromRgb(0x7C, 0x5C, 0xFC),
-                    BlurRadius = 20, ShadowDepth = 0, Opacity = 0.3
+                    BlurRadius = 20,
+                    ShadowDepth = 0,
+                    Opacity = 0.3
                 }
             };
 

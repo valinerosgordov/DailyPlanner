@@ -54,8 +54,10 @@ public class FinanceIntegrationTests : PlannerServiceTestFixture
         var cat = await SeededExpense();
         await Service.SaveFinanceEntryAsync(new FinanceEntry
         {
-            CategoryId = cat.Id, Type = FinanceEntryType.Expense,
-            Amount = 10m, Date = DateOnly.FromDateTime(DateTime.Today)
+            CategoryId = cat.Id,
+            Type = FinanceEntryType.Expense,
+            Amount = 10m,
+            Date = DateOnly.FromDateTime(DateTime.Today)
         });
 
         (await Service.CanDeleteFinanceCategoryAsync(cat.Id)).Should().BeFalse();
@@ -127,9 +129,15 @@ public class FinanceIntegrationTests : PlannerServiceTestFixture
         var cat = await SeededExpense();
         await Service.SaveRecurringPaymentAsync(new RecurringPayment
         {
-            Name = "Rent", CategoryId = cat.Id, Type = FinanceEntryType.Expense,
-            Frequency = PaymentFrequency.Monthly, Amount = 3000m, DayOfMonth = 10,
-            StartDate = new DateOnly(2026, 1, 1), IsActive = true, AutoCreate = true
+            Name = "Rent",
+            CategoryId = cat.Id,
+            Type = FinanceEntryType.Expense,
+            Frequency = PaymentFrequency.Monthly,
+            Amount = 3000m,
+            DayOfMonth = 10,
+            StartDate = new DateOnly(2026, 1, 1),
+            IsActive = true,
+            AutoCreate = true
         });
 
         await Service.GenerateRecurringEntriesAsync(new DateOnly(2026, 4, 1), new DateOnly(2026, 4, 30));
@@ -146,9 +154,15 @@ public class FinanceIntegrationTests : PlannerServiceTestFixture
         var cat = await SeededExpense();
         await Service.SaveRecurringPaymentAsync(new RecurringPayment
         {
-            Name = "Rent", CategoryId = cat.Id, Type = FinanceEntryType.Expense,
-            Frequency = PaymentFrequency.Monthly, Amount = 3000m, DayOfMonth = 10,
-            StartDate = new DateOnly(2026, 1, 1), IsActive = true, AutoCreate = true
+            Name = "Rent",
+            CategoryId = cat.Id,
+            Type = FinanceEntryType.Expense,
+            Frequency = PaymentFrequency.Monthly,
+            Amount = 3000m,
+            DayOfMonth = 10,
+            StartDate = new DateOnly(2026, 1, 1),
+            IsActive = true,
+            AutoCreate = true
         });
 
         await Service.GenerateRecurringEntriesAsync(new DateOnly(2026, 4, 1), new DateOnly(2026, 4, 30));
@@ -164,9 +178,15 @@ public class FinanceIntegrationTests : PlannerServiceTestFixture
         var cat = await SeededExpense();
         await Service.SaveRecurringPaymentAsync(new RecurringPayment
         {
-            Name = "Old", CategoryId = cat.Id, Type = FinanceEntryType.Expense,
-            Frequency = PaymentFrequency.Monthly, Amount = 1m, DayOfMonth = 10,
-            StartDate = new DateOnly(2026, 1, 1), IsActive = false, AutoCreate = true
+            Name = "Old",
+            CategoryId = cat.Id,
+            Type = FinanceEntryType.Expense,
+            Frequency = PaymentFrequency.Monthly,
+            Amount = 1m,
+            DayOfMonth = 10,
+            StartDate = new DateOnly(2026, 1, 1),
+            IsActive = false,
+            AutoCreate = true
         });
 
         await Service.GenerateRecurringEntriesAsync(new DateOnly(2026, 4, 1), new DateOnly(2026, 4, 30));
@@ -186,15 +206,19 @@ public class FinanceIntegrationTests : PlannerServiceTestFixture
 
         await Service.SaveFinanceEntryAsync(new FinanceEntry
         {
-            AccountId = account.Id, CategoryId = incomeCat.Id,
-            Type = FinanceEntryType.Income, Amount = 500m,
+            AccountId = account.Id,
+            CategoryId = incomeCat.Id,
+            Type = FinanceEntryType.Income,
+            Amount = 500m,
             Date = DateOnly.FromDateTime(DateTime.Today)
         });
         var expenseCat = (await Service.GetFinanceCategoriesAsync()).First(c => c.Type == FinanceEntryType.Expense);
         await Service.SaveFinanceEntryAsync(new FinanceEntry
         {
-            AccountId = account.Id, CategoryId = expenseCat.Id,
-            Type = FinanceEntryType.Expense, Amount = 200m,
+            AccountId = account.Id,
+            CategoryId = expenseCat.Id,
+            Type = FinanceEntryType.Expense,
+            Amount = 200m,
             Date = DateOnly.FromDateTime(DateTime.Today)
         });
 
@@ -212,7 +236,9 @@ public class FinanceIntegrationTests : PlannerServiceTestFixture
 
         await Service.SaveAccountTransferAsync(new AccountTransfer
         {
-            FromAccountId = from.Id, ToAccountId = to.Id, Amount = 300m,
+            FromAccountId = from.Id,
+            ToAccountId = to.Id,
+            Amount = 300m,
             Date = DateOnly.FromDateTime(DateTime.Today)
         });
 
@@ -263,20 +289,31 @@ public class FinanceIntegrationTests : PlannerServiceTestFixture
 
         var parent = new FinanceEntry
         {
-            CategoryId = exp.Id, Type = FinanceEntryType.Expense, Amount = 1000m, Date = today,
+            CategoryId = exp.Id,
+            Type = FinanceEntryType.Expense,
+            Amount = 1000m,
+            Date = today,
             Description = "Grocery trip"
         };
         await Service.SaveFinanceEntryAsync(parent);
 
         await Service.SaveFinanceEntryAsync(new FinanceEntry
         {
-            CategoryId = exp.Id, Type = FinanceEntryType.Expense, Amount = 600m, Date = today,
-            ParentEntryId = parent.Id, Description = "Milk"
+            CategoryId = exp.Id,
+            Type = FinanceEntryType.Expense,
+            Amount = 600m,
+            Date = today,
+            ParentEntryId = parent.Id,
+            Description = "Milk"
         });
         await Service.SaveFinanceEntryAsync(new FinanceEntry
         {
-            CategoryId = exp.Id, Type = FinanceEntryType.Expense, Amount = 400m, Date = today,
-            ParentEntryId = parent.Id, Description = "Bread"
+            CategoryId = exp.Id,
+            Type = FinanceEntryType.Expense,
+            Amount = 400m,
+            Date = today,
+            ParentEntryId = parent.Id,
+            Description = "Bread"
         });
 
         var splits = await Service.GetSplitEntriesAsync(parent.Id);
@@ -291,7 +328,9 @@ public class FinanceIntegrationTests : PlannerServiceTestFixture
     {
         await Service.SaveFinancialGoalAsync(new FinancialGoal
         {
-            Name = "New laptop", TargetAmount = 100000m, SavedAmount = 20000m,
+            Name = "New laptop",
+            TargetAmount = 100000m,
+            SavedAmount = 20000m,
             CreatedDate = DateOnly.FromDateTime(DateTime.Today)
         });
 

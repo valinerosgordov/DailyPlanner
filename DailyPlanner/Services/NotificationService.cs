@@ -77,21 +77,27 @@ public static class NotificationService
                 Effect = new System.Windows.Media.Effects.DropShadowEffect
                 {
                     Color = Application.Current.Resources["AccentColor"] is Color ac ? ac : Color.FromRgb(0x7C, 0x5C, 0xFC),
-                    BlurRadius = 20, ShadowDepth = 0, Opacity = 0.3
+                    BlurRadius = 20,
+                    ShadowDepth = 0,
+                    Opacity = 0.3
                 }
             };
 
             var stack = new StackPanel();
             stack.Children.Add(new TextBlock
             {
-                Text = title, FontWeight = FontWeights.SemiBold, FontSize = 14,
+                Text = title,
+                FontWeight = FontWeights.SemiBold,
+                FontSize = 14,
                 Foreground = Application.Current.Resources["AccentBrush"] as System.Windows.Media.Brush
                              ?? new SolidColorBrush(Color.FromRgb(0x7C, 0x5C, 0xFC)),
                 Margin = new Thickness(0, 0, 0, 4)
             });
             stack.Children.Add(new TextBlock
             {
-                Text = message, FontSize = 12, TextWrapping = TextWrapping.Wrap,
+                Text = message,
+                FontSize = 12,
+                TextWrapping = TextWrapping.Wrap,
                 Foreground = Application.Current.Resources["TextPrimaryBrush"] as System.Windows.Media.Brush
                              ?? new SolidColorBrush(Color.FromRgb(0xE0, 0xE0, 0xF0))
             });

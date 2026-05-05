@@ -498,8 +498,10 @@ public sealed partial class PlannerService
             {
                 target = new DailyTask
                 {
-                    Order = nextOrder++, Text = task.Text,
-                    Priority = task.Priority, Category = task.Category
+                    Order = nextOrder++,
+                    Text = task.Text,
+                    Priority = task.Priority,
+                    Category = task.Category
                 };
                 toDay.Tasks.Add(target);
             }
