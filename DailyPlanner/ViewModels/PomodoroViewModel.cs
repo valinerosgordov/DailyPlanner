@@ -44,14 +44,14 @@ public sealed partial class PomodoroViewModel : ObservableObject
         {
             if (!File.Exists(SettingsPath)) return;
             var lines = File.ReadAllLines(SettingsPath);
-            #pragma warning disable MVVMTK0034
+#pragma warning disable MVVMTK0034
             if (lines.Length >= 3)
             {
                 if (double.TryParse(lines[0], out var w) && w >= 1) _workMinutes = w;
                 if (double.TryParse(lines[1], out var b) && b >= 1) _breakMinutes = b;
                 if (double.TryParse(lines[2], out var f) && f >= 1) _focusAlertMinutes = f;
             }
-            #pragma warning restore MVVMTK0034
+#pragma warning restore MVVMTK0034
         }
         catch { /* fallback to defaults */ }
     }

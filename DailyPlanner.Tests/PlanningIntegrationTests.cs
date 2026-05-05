@@ -150,8 +150,11 @@ public class PlanningIntegrationTests : PlannerServiceTestFixture
     {
         var src = new IncomeSource
         {
-            Name = "ProjectA", ClientName = "Client X", TotalMonthlyAmount = 5000m,
-            Icon = "💰", Color = "#4ADE80"
+            Name = "ProjectA",
+            ClientName = "Client X",
+            TotalMonthlyAmount = 5000m,
+            Icon = "💰",
+            Color = "#4ADE80"
         };
         await Service.SaveIncomeSourceAsync(src);
 
