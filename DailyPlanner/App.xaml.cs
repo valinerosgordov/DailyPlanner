@@ -42,122 +42,122 @@ public partial class App : Application
         try
         {
 
-        VelopackApp.Build().Run();
+            VelopackApp.Build().Run();
 
-        ServiceHost.Configure();
+            ServiceHost.Configure();
 
-        // Must run AFTER WPF-UI loads but BEFORE window renders
-        ThemeService.Apply();
+            // Must run AFTER WPF-UI loads but BEFORE window renders
+            ThemeService.Apply();
 
-        SingleInstanceGuard.StartActivationListener(ActivateMainWindow);
+            SingleInstanceGuard.StartActivationListener(ActivateMainWindow);
 
-        splash = new Window
-        {
-            Width = 380,
-            Height = 220,
-            WindowStyle = WindowStyle.None,
-            ResizeMode = ResizeMode.NoResize,
-            WindowStartupLocation = WindowStartupLocation.CenterScreen,
-            AllowsTransparency = true,
-            Background = Brushes.Transparent
-        };
-
-        var border = new System.Windows.Controls.Border
-        {
-            CornerRadius = new CornerRadius(16),
-            Background = new SolidColorBrush(Color.FromRgb(0x10, 0x10, 0x1A)),
-            BorderBrush = new SolidColorBrush(Color.FromRgb(0x25, 0x25, 0x40)),
-            BorderThickness = new Thickness(1),
-            Padding = new Thickness(32)
-        };
-
-        var stack = new System.Windows.Controls.StackPanel
-        {
-            VerticalAlignment = VerticalAlignment.Center,
-            HorizontalAlignment = HorizontalAlignment.Center
-        };
-
-        var title = new System.Windows.Controls.TextBlock
-        {
-            FontSize = 24,
-            FontWeight = FontWeights.Bold,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            Margin = new Thickness(0, 0, 0, 12)
-        };
-        title.Inlines.Add(new System.Windows.Documents.Run("Daily") { Foreground = Brushes.White });
-        title.Inlines.Add(new System.Windows.Documents.Run(" & ") { Foreground = new SolidColorBrush(Color.FromRgb(0x8E, 0x8E, 0x96)) });
-        title.Inlines.Add(new System.Windows.Documents.Run("Financial") { Foreground = Brushes.White });
-        title.Inlines.Add(new System.Windows.Documents.Run(" Planner") { Foreground = new SolidColorBrush(Color.FromRgb(0x8E, 0x8E, 0x96)) });
-
-        var subtitle = new System.Windows.Controls.TextBlock
-        {
-            Text = Loc.Get("Loading"),
-            Foreground = new SolidColorBrush(Color.FromRgb(0x58, 0x58, 0x78)),
-            FontSize = 13,
-            HorizontalAlignment = HorizontalAlignment.Center
-        };
-
-        var progress = new System.Windows.Controls.ProgressBar
-        {
-            IsIndeterminate = true,
-            Height = 3,
-            Margin = new Thickness(20, 16, 20, 0),
-            Foreground = Brushes.White,
-            Background = new SolidColorBrush(Color.FromRgb(0x1F, 0x1F, 0x24)),
-            BorderThickness = new Thickness(0)
-        };
-
-        stack.Children.Add(title);
-        stack.Children.Add(subtitle);
-        stack.Children.Add(progress);
-        border.Child = stack;
-        splash.Content = border;
-        splash.Show();
-
-        // Auto-backup before migration (keep last 5)
-        await Task.Run(() =>
-        {
-            try
+            splash = new Window
             {
-                var dbPath = PlannerDbContextFactory.DbPath;
-                if (System.IO.File.Exists(dbPath))
-                {
-                    var backupDir = System.IO.Path.Combine(PlannerDbContextFactory.AppDataFolder, "backups");
-                    System.IO.Directory.CreateDirectory(backupDir);
-                    var backupName = $"planner_{DateTime.Now:yyyyMMdd_HHmmss}.db";
-                    System.IO.File.Copy(dbPath, System.IO.Path.Combine(backupDir, backupName), true);
+                Width = 380,
+                Height = 220,
+                WindowStyle = WindowStyle.None,
+                ResizeMode = ResizeMode.NoResize,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                AllowsTransparency = true,
+                Background = Brushes.Transparent
+            };
 
-                    var old = System.IO.Directory.GetFiles(backupDir, "planner_*.db")
-                        .OrderByDescending(f => System.IO.File.GetCreationTimeUtc(f))
-                        .Skip(5);
-                    foreach (var f in old)
-                        try { System.IO.File.Delete(f); } catch (Exception ex) { Log.Error("App", $"Backup cleanup: {ex.Message}"); }
-                }
-            }
-            catch (Exception ex) { Log.Error("App", $"Backup failed: {ex.Message}"); }
-        });
+            var border = new System.Windows.Controls.Border
+            {
+                CornerRadius = new CornerRadius(16),
+                Background = new SolidColorBrush(Color.FromRgb(0x10, 0x10, 0x1A)),
+                BorderBrush = new SolidColorBrush(Color.FromRgb(0x25, 0x25, 0x40)),
+                BorderThickness = new Thickness(1),
+                Padding = new Thickness(32)
+            };
 
-        try
-        {
+            var stack = new System.Windows.Controls.StackPanel
+            {
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+
+            var title = new System.Windows.Controls.TextBlock
+            {
+                FontSize = 24,
+                FontWeight = FontWeights.Bold,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Thickness(0, 0, 0, 12)
+            };
+            title.Inlines.Add(new System.Windows.Documents.Run("Daily") { Foreground = Brushes.White });
+            title.Inlines.Add(new System.Windows.Documents.Run(" & ") { Foreground = new SolidColorBrush(Color.FromRgb(0x8E, 0x8E, 0x96)) });
+            title.Inlines.Add(new System.Windows.Documents.Run("Financial") { Foreground = Brushes.White });
+            title.Inlines.Add(new System.Windows.Documents.Run(" Planner") { Foreground = new SolidColorBrush(Color.FromRgb(0x8E, 0x8E, 0x96)) });
+
+            var subtitle = new System.Windows.Controls.TextBlock
+            {
+                Text = Loc.Get("Loading"),
+                Foreground = new SolidColorBrush(Color.FromRgb(0x58, 0x58, 0x78)),
+                FontSize = 13,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+
+            var progress = new System.Windows.Controls.ProgressBar
+            {
+                IsIndeterminate = true,
+                Height = 3,
+                Margin = new Thickness(20, 16, 20, 0),
+                Foreground = Brushes.White,
+                Background = new SolidColorBrush(Color.FromRgb(0x1F, 0x1F, 0x24)),
+                BorderThickness = new Thickness(0)
+            };
+
+            stack.Children.Add(title);
+            stack.Children.Add(subtitle);
+            stack.Children.Add(progress);
+            border.Child = stack;
+            splash.Content = border;
+            splash.Show();
+
+            // Auto-backup before migration (keep last 5)
             await Task.Run(() =>
             {
-                using var db = PlannerDbContextFactory.Create();
-                db.Database.Migrate();
-            });
-        }
-        catch (Exception ex)
-        {
-            splash.Close();
-            System.Windows.MessageBox.Show(
-                string.Format(Loc.Get("DbError"), ex.Message),
-                "Daily & Financial Planner",
-                MessageBoxButton.OK,
-                MessageBoxImage.Error);
-            Shutdown(1);
-            return;
-        }
+                try
+                {
+                    var dbPath = PlannerDbContextFactory.DbPath;
+                    if (System.IO.File.Exists(dbPath))
+                    {
+                        var backupDir = System.IO.Path.Combine(PlannerDbContextFactory.AppDataFolder, "backups");
+                        System.IO.Directory.CreateDirectory(backupDir);
+                        var backupName = $"planner_{DateTime.Now:yyyyMMdd_HHmmss}.db";
+                        System.IO.File.Copy(dbPath, System.IO.Path.Combine(backupDir, backupName), true);
 
-        splash.Close();
+                        var old = System.IO.Directory.GetFiles(backupDir, "planner_*.db")
+                            .OrderByDescending(f => System.IO.File.GetCreationTimeUtc(f))
+                            .Skip(5);
+                        foreach (var f in old)
+                            try { System.IO.File.Delete(f); } catch (Exception ex) { Log.Error("App", $"Backup cleanup: {ex.Message}"); }
+                    }
+                }
+                catch (Exception ex) { Log.Error("App", $"Backup failed: {ex.Message}"); }
+            });
+
+            try
+            {
+                await Task.Run(() =>
+                {
+                    using var db = PlannerDbContextFactory.Create();
+                    db.Database.Migrate();
+                });
+            }
+            catch (Exception ex)
+            {
+                splash.Close();
+                System.Windows.MessageBox.Show(
+                    string.Format(Loc.Get("DbError"), ex.Message),
+                    "Daily & Financial Planner",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                Shutdown(1);
+                return;
+            }
+
+            splash.Close();
         }
         catch (Exception ex)
         {

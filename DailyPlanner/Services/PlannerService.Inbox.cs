@@ -137,52 +137,52 @@ public sealed partial class PlannerService
             return 0;
         try
         {
-        var settings = await GetTrelloSettingsAsync(ct).ConfigureAwait(false);
-        if (!settings.IsEnabled || string.IsNullOrWhiteSpace(settings.ApiKey) || string.IsNullOrWhiteSpace(settings.Token))
-            return 0;
+            var settings = await GetTrelloSettingsAsync(ct).ConfigureAwait(false);
+            if (!settings.IsEnabled || string.IsNullOrWhiteSpace(settings.ApiKey) || string.IsNullOrWhiteSpace(settings.Token))
+                return 0;
 
-        var cards = await trello.GetCardsInListByNameAsync(settings.ListName, settings.ApiKey, settings.Token, ct).ConfigureAwait(false);
+            var cards = await trello.GetCardsInListByNameAsync(settings.ListName, settings.ApiKey, settings.Token, ct).ConfigureAwait(false);
 
-        await using var db = PlannerDbContextFactory.Create();
-        var inInbox = await db.InboxTasks
-            .Where(t => t.Source == InboxSource.Trello && t.ExternalId != null)
-            .Select(t => t.ExternalId!)
-            .ToListAsync(ct).ConfigureAwait(false);
-        var placedInDays = await db.DailyTasks
-            .Where(t => t.ExternalId != null)
-            .Select(t => t.ExternalId!)
-            .ToListAsync(ct).ConfigureAwait(false);
-        var existingSet = inInbox.Concat(placedInDays).ToHashSet();
+            await using var db = PlannerDbContextFactory.Create();
+            var inInbox = await db.InboxTasks
+                .Where(t => t.Source == InboxSource.Trello && t.ExternalId != null)
+                .Select(t => t.ExternalId!)
+                .ToListAsync(ct).ConfigureAwait(false);
+            var placedInDays = await db.DailyTasks
+                .Where(t => t.ExternalId != null)
+                .Select(t => t.ExternalId!)
+                .ToListAsync(ct).ConfigureAwait(false);
+            var existingSet = inInbox.Concat(placedInDays).ToHashSet();
 
-        var today = DateOnly.FromDateTime(DateTime.Today);
-        var added = 0;
-        foreach (var (card, boardName, listName) in cards)
-        {
-            if (existingSet.Contains(card.Id)) continue;
-            db.InboxTasks.Add(new InboxTask
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            var added = 0;
+            foreach (var (card, boardName, listName) in cards)
             {
-                Text = card.Name,
-                Source = InboxSource.Trello,
-                ExternalId = card.Id,
-                BoardName = boardName,
-                ListName = listName,
-                Url = card.ShortUrl,
-                CreatedDate = today,
-                DueDate = card.Due.HasValue ? DateOnly.FromDateTime(card.Due.Value) : null
-            });
-            added++;
-        }
+                if (existingSet.Contains(card.Id)) continue;
+                db.InboxTasks.Add(new InboxTask
+                {
+                    Text = card.Name,
+                    Source = InboxSource.Trello,
+                    ExternalId = card.Id,
+                    BoardName = boardName,
+                    ListName = listName,
+                    Url = card.ShortUrl,
+                    CreatedDate = today,
+                    DueDate = card.Due.HasValue ? DateOnly.FromDateTime(card.Due.Value) : null
+                });
+                added++;
+            }
 
-        // Only touch LastSyncUtc — settings.Token/ApiKey are decrypted in memory
-        // here, so a full Update(settings) would persist them as plaintext and
-        // undo the at-rest encryption from SaveTrelloSettingsAsync.
-        var tracked = await db.TrelloSettings.FirstOrDefaultAsync(s => s.Id == settings.Id, ct).ConfigureAwait(false);
-        if (tracked is not null)
-        {
-            tracked.LastSyncUtc = DateTime.UtcNow;
-            await db.SaveChangesAsync(ct).ConfigureAwait(false);
-        }
-        return added;
+            // Only touch LastSyncUtc — settings.Token/ApiKey are decrypted in memory
+            // here, so a full Update(settings) would persist them as plaintext and
+            // undo the at-rest encryption from SaveTrelloSettingsAsync.
+            var tracked = await db.TrelloSettings.FirstOrDefaultAsync(s => s.Id == settings.Id, ct).ConfigureAwait(false);
+            if (tracked is not null)
+            {
+                tracked.LastSyncUtc = DateTime.UtcNow;
+                await db.SaveChangesAsync(ct).ConfigureAwait(false);
+            }
+            return added;
         }
         finally { _trelloSyncGate.Release(); }
     }

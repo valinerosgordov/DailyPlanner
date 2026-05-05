@@ -1,0 +1,33 @@
+version: 2
+updates:
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    groups:
+      microsoft:
+        patterns:
+          - "Microsoft.*"
+      xunit:
+        patterns:
+          - "xunit*"
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: "deps"
+    ignore:
+      # FluentAssertions 8.x switched to a commercial license — pin on 7.x.
+      - dependency-name: "FluentAssertions"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "ci"
+    commit-message:
+      prefix: "ci"

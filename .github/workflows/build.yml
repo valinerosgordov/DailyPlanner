@@ -24,11 +24,22 @@ jobs:
       - name: Restore main
         run: dotnet restore DailyPlanner/DailyPlanner.csproj -r win-x64
 
+      - name: Format check
+        run: dotnet format --verify-no-changes --no-restore
+
       - name: Build
         run: dotnet build DailyPlanner/DailyPlanner.csproj --no-restore -c Release -r win-x64
 
-      - name: Test
-        run: dotnet test DailyPlanner.Tests/DailyPlanner.Tests.csproj --no-restore -c Debug --verbosity normal
+      - name: Test (with coverage)
+        run: dotnet test DailyPlanner.Tests/DailyPlanner.Tests.csproj --no-restore -c Debug --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/**/coverage.cobertura.xml
+          if-no-files-found: warn
 
       - name: Publish
         run: dotnet publish DailyPlanner/DailyPlanner.csproj --no-build -c Release -r win-x64 --self-contained -o ./publish

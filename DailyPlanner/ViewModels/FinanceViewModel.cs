@@ -163,175 +163,175 @@ public sealed partial class FinanceViewModel : ObservableObject
         IsLoading = true;
         try
         {
-        await _service.SeedFinanceCategoriesAsync();
+            await _service.SeedFinanceCategoriesAsync();
 
-        PeriodLabel = $"{Loc.GetMonthName(SelectedMonth)} {SelectedYear}";
+            PeriodLabel = $"{Loc.GetMonthName(SelectedMonth)} {SelectedYear}";
 
-        var firstDay = new DateOnly(SelectedYear, SelectedMonth, 1);
-        var lastDay = firstDay.AddMonths(1).AddDays(-1);
-        var monthYear = $"{SelectedYear:D4}-{SelectedMonth:D2}";
+            var firstDay = new DateOnly(SelectedYear, SelectedMonth, 1);
+            var lastDay = firstDay.AddMonths(1).AddDays(-1);
+            var monthYear = $"{SelectedYear:D4}-{SelectedMonth:D2}";
 
-        // Generate recurring entries for this month
-        await _service.GenerateRecurringEntriesAsync(firstDay, lastDay);
+            // Generate recurring entries for this month
+            await _service.GenerateRecurringEntriesAsync(firstDay, lastDay);
 
-        // Load categories
-        await LoadCategoriesAsync();
+            // Load categories
+            await LoadCategoriesAsync();
 
-        // Load entries (exclude split children — they're shown under parents)
-        var entries = await _service.GetFinanceEntriesAsync(firstDay, lastDay);
+            // Load entries (exclude split children — they're shown under parents)
+            var entries = await _service.GetFinanceEntriesAsync(firstDay, lastDay);
 
-        IncomeEntries.Clear();
-        ExpenseEntries.Clear();
-        decimal income = 0, expenses = 0;
+            IncomeEntries.Clear();
+            ExpenseEntries.Clear();
+            decimal income = 0, expenses = 0;
 
-        foreach (var entry in entries.Where(e => e.ParentEntryId is null))
-        {
-            var vm = new FinanceEntryViewModel(entry, _service);
-            if (entry.Type == FinanceEntryType.Income)
+            foreach (var entry in entries.Where(e => e.ParentEntryId is null))
             {
-                IncomeEntries.Add(vm);
-                income += entry.Amount;
+                var vm = new FinanceEntryViewModel(entry, _service);
+                if (entry.Type == FinanceEntryType.Income)
+                {
+                    IncomeEntries.Add(vm);
+                    income += entry.Amount;
+                }
+                else
+                {
+                    ExpenseEntries.Add(vm);
+                    expenses += entry.Amount;
+                }
+            }
+
+            TotalIncome = income;
+            TotalExpenses = expenses;
+            Balance = income - expenses;
+
+            // Load budgets
+            var budgets = await _service.GetBudgetsAsync(monthYear);
+            Budgets.Clear();
+            foreach (var b in budgets)
+            {
+                var vm = new BudgetViewModel(b, _service);
+                var spent = entries.Where(e => e.Type == FinanceEntryType.Expense && e.CategoryId == b.CategoryId)
+                    .Sum(e => e.Amount);
+                vm.SpentAmount = spent;
+                Budgets.Add(vm);
+            }
+
+            // Load debts
+            var debts = await _service.GetDebtsAsync();
+            LentDebts.Clear();
+            BorrowedDebts.Clear();
+            decimal owedToMe = 0, iOwe = 0;
+
+            foreach (var d in debts)
+            {
+                var vm = new DebtViewModel(d, _service);
+                if (d.Direction == DebtDirection.Lent)
+                {
+                    LentDebts.Add(vm);
+                    owedToMe += vm.RemainingAmount;
+                }
+                else
+                {
+                    BorrowedDebts.Add(vm);
+                    iOwe += vm.RemainingAmount;
+                }
+            }
+
+            DebtOwedToMe = owedToMe;
+            DebtIOwn = iOwe;
+
+            // Load recurring payments
+            var recurring = await _service.GetRecurringPaymentsAsync();
+            RecurringPayments.Clear();
+            foreach (var rp in recurring)
+                RecurringPayments.Add(new RecurringPaymentViewModel(rp, _service));
+            MonthlyObligatory = FinanceCalculations.MonthlyObligatory(recurring);
+
+            // Savings & Net Worth
+            Savings = income - expenses;
+            SavingsRatePercent = FinanceCalculations.SavingsRatePercent(Savings, income);
+            NetWorth = FinanceCalculations.NetWorth(Balance, owedToMe, iOwe);
+
+            // Analytics: category breakdown
+            var breakdown = await _service.GetExpensesByCategoryAsync(firstDay, lastDay);
+            CategoryBreakdown.Clear();
+            foreach (var item in breakdown)
+                CategoryBreakdown.Add(item);
+
+            // Analytics: 6-month trend
+            var trend = await _service.GetMonthlyTotalsAsync(6);
+            MonthlyTrend.Clear();
+            foreach (var item in trend)
+                MonthlyTrend.Add(item);
+
+            // Savings trend arrow (compare to previous month)
+            if (trend.Count >= 2)
+            {
+                var prev = trend[^2].Balance;
+                SavingsTrendArrow = Savings > prev ? "↑" : Savings < prev ? "↓" : "→";
             }
             else
             {
-                ExpenseEntries.Add(vm);
-                expenses += entry.Amount;
+                SavingsTrendArrow = string.Empty;
             }
-        }
 
-        TotalIncome = income;
-        TotalExpenses = expenses;
-        Balance = income - expenses;
+            // Financial Goals
+            var goals = await _service.GetFinancialGoalsAsync();
+            FinancialGoals.Clear();
+            foreach (var g in goals)
+                FinancialGoals.Add(new FinancialGoalViewModel(g, _service));
 
-        // Load budgets
-        var budgets = await _service.GetBudgetsAsync(monthYear);
-        Budgets.Clear();
-        foreach (var b in budgets)
-        {
-            var vm = new BudgetViewModel(b, _service);
-            var spent = entries.Where(e => e.Type == FinanceEntryType.Expense && e.CategoryId == b.CategoryId)
-                .Sum(e => e.Amount);
-            vm.SpentAmount = spent;
-            Budgets.Add(vm);
-        }
-
-        // Load debts
-        var debts = await _service.GetDebtsAsync();
-        LentDebts.Clear();
-        BorrowedDebts.Clear();
-        decimal owedToMe = 0, iOwe = 0;
-
-        foreach (var d in debts)
-        {
-            var vm = new DebtViewModel(d, _service);
-            if (d.Direction == DebtDirection.Lent)
+            // Accounts
+            var accounts = await _service.GetAccountsAsync();
+            Accounts.Clear();
+            foreach (var a in accounts)
             {
-                LentDebts.Add(vm);
-                owedToMe += vm.RemainingAmount;
+                var avm = new AccountViewModel(a, _service);
+                avm.CurrentBalance = await _service.GetAccountBalanceAsync(a.Id);
+                Accounts.Add(avm);
             }
-            else
+
+            // Account transfers for current month
+            var transfers = await _service.GetAccountTransfersAsync(firstDay, lastDay);
+            Transfers.Clear();
+            foreach (var t in transfers)
+                Transfers.Add(new AccountTransferViewModel(t, _service));
+
+            // Income Sources
+            var incomeSources = await _service.GetIncomeSourcesAsync();
+            IncomeSources.Clear();
+            foreach (var s in incomeSources)
+                IncomeSources.Add(new IncomeSourceViewModel(s, _service));
+
+            var statuses = await _service.GetIncomeSourceStatusAsync(SelectedYear, SelectedMonth);
+            IncomeSourceStatuses.Clear();
+            decimal expInc = 0, recvInc = 0;
+            foreach (var st in statuses)
             {
-                BorrowedDebts.Add(vm);
-                iOwe += vm.RemainingAmount;
+                IncomeSourceStatuses.Add(st);
+                expInc += st.Expected;
+                recvInc += st.Received;
             }
-        }
+            ExpectedIncome = expInc;
+            ReceivedIncome = recvInc;
 
-        DebtOwedToMe = owedToMe;
-        DebtIOwn = iOwe;
+            // Forecast (30 days)
+            var forecast = await _service.GetBalanceForecastAsync(30);
+            ForecastDays.Clear();
+            foreach (var fd in forecast)
+                ForecastDays.Add(fd);
+            if (forecast.Count > 0)
+            {
+                var last = forecast[^1];
+                ForecastBalance = last.Balance;
+                ProjectedIncome = forecast.Sum(f => f.Income);
+                ProjectedExpenses = forecast.Sum(f => f.Expenses);
+            }
 
-        // Load recurring payments
-        var recurring = await _service.GetRecurringPaymentsAsync();
-        RecurringPayments.Clear();
-        foreach (var rp in recurring)
-            RecurringPayments.Add(new RecurringPaymentViewModel(rp, _service));
-        MonthlyObligatory = FinanceCalculations.MonthlyObligatory(recurring);
-
-        // Savings & Net Worth
-        Savings = income - expenses;
-        SavingsRatePercent = FinanceCalculations.SavingsRatePercent(Savings, income);
-        NetWorth = FinanceCalculations.NetWorth(Balance, owedToMe, iOwe);
-
-        // Analytics: category breakdown
-        var breakdown = await _service.GetExpensesByCategoryAsync(firstDay, lastDay);
-        CategoryBreakdown.Clear();
-        foreach (var item in breakdown)
-            CategoryBreakdown.Add(item);
-
-        // Analytics: 6-month trend
-        var trend = await _service.GetMonthlyTotalsAsync(6);
-        MonthlyTrend.Clear();
-        foreach (var item in trend)
-            MonthlyTrend.Add(item);
-
-        // Savings trend arrow (compare to previous month)
-        if (trend.Count >= 2)
-        {
-            var prev = trend[^2].Balance;
-            SavingsTrendArrow = Savings > prev ? "↑" : Savings < prev ? "↓" : "→";
-        }
-        else
-        {
-            SavingsTrendArrow = string.Empty;
-        }
-
-        // Financial Goals
-        var goals = await _service.GetFinancialGoalsAsync();
-        FinancialGoals.Clear();
-        foreach (var g in goals)
-            FinancialGoals.Add(new FinancialGoalViewModel(g, _service));
-
-        // Accounts
-        var accounts = await _service.GetAccountsAsync();
-        Accounts.Clear();
-        foreach (var a in accounts)
-        {
-            var avm = new AccountViewModel(a, _service);
-            avm.CurrentBalance = await _service.GetAccountBalanceAsync(a.Id);
-            Accounts.Add(avm);
-        }
-
-        // Account transfers for current month
-        var transfers = await _service.GetAccountTransfersAsync(firstDay, lastDay);
-        Transfers.Clear();
-        foreach (var t in transfers)
-            Transfers.Add(new AccountTransferViewModel(t, _service));
-
-        // Income Sources
-        var incomeSources = await _service.GetIncomeSourcesAsync();
-        IncomeSources.Clear();
-        foreach (var s in incomeSources)
-            IncomeSources.Add(new IncomeSourceViewModel(s, _service));
-
-        var statuses = await _service.GetIncomeSourceStatusAsync(SelectedYear, SelectedMonth);
-        IncomeSourceStatuses.Clear();
-        decimal expInc = 0, recvInc = 0;
-        foreach (var st in statuses)
-        {
-            IncomeSourceStatuses.Add(st);
-            expInc += st.Expected;
-            recvInc += st.Received;
-        }
-        ExpectedIncome = expInc;
-        ReceivedIncome = recvInc;
-
-        // Forecast (30 days)
-        var forecast = await _service.GetBalanceForecastAsync(30);
-        ForecastDays.Clear();
-        foreach (var fd in forecast)
-            ForecastDays.Add(fd);
-        if (forecast.Count > 0)
-        {
-            var last = forecast[^1];
-            ForecastBalance = last.Balance;
-            ProjectedIncome = forecast.Sum(f => f.Income);
-            ProjectedExpenses = forecast.Sum(f => f.Expenses);
-        }
-
-        // Cashflow calendar
-        var cashflow = await _service.GetCashflowCalendarAsync(SelectedYear, SelectedMonth);
-        CashflowDays.Clear();
-        foreach (var cd in cashflow)
-            CashflowDays.Add(cd);
+            // Cashflow calendar
+            var cashflow = await _service.GetCashflowCalendarAsync(SelectedYear, SelectedMonth);
+            CashflowDays.Clear();
+            foreach (var cd in cashflow)
+                CashflowDays.Add(cd);
 
         }
         catch (Exception ex)

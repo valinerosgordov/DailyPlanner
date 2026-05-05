@@ -26,7 +26,9 @@ public abstract class PlannerServiceTestFixture : IDisposable
         PlannerDbContextFactory.OverrideFactory = () => new PlannerDbContext(options);
 
         using var ctx = PlannerDbContextFactory.Create();
-        ctx.Database.EnsureCreated();
+        // Run real migrations instead of EnsureCreated so tests catch
+        // schema drift between Configurations and migration files.
+        ctx.Database.Migrate();
 
         Service = new PlannerService();
     }
