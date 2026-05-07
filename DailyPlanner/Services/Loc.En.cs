@@ -1,4 +1,4 @@
-namespace DailyPlanner.Services;
+﻿namespace DailyPlanner.Services;
 
 internal static class LocEnStrings
 {
@@ -464,5 +464,22 @@ internal static class LocEnStrings
         ["TrelloSyncError"] = "Sync error",
         ["Enabled"] = "Enabled",
         ["Save"] = "Save",
+            // --- Command palette ---
+            ["CmdNoResults"] = "No results",
+            ["CmdNavigate"] = "Navigate",
+            ["CmdRun"] = "Run",
+            ["CmdGoToToday"] = "Jump to today",
+            ["CmdToggleSearch"] = "Search",
+            ["CmdTogglePomodoro"] = "Pomodoro",
+            ["CmdToggleFinance"] = "Finance",
+            ["CmdToggleInbox"] = "Inbox",
+            ["CmdToggleStatistics"] = "Statistics",
+            ["CmdToggleSettings"] = "Settings",
+            ["CmdWeeklyReview"] = "Weekly review",
+            ["CmdExportExcel"] = "Export to Excel",
+            ["CmdPreviousMonth"] = "Previous month",
+            ["CmdNextMonth"] = "Next month",
+            ["CmdBackupDb"] = "Backup database",
+            ["CmdRestoreDb"] = "Restore database",
     };
 }

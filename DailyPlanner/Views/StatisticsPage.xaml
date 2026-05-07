@@ -39,34 +39,33 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0" Style="{StaticResource PlannerCard}" Padding="16">
+                <Border Grid.Column="0" Style="{StaticResource StatCardRefresh}">
                     <StackPanel>
-                        <TextBlock Text="{Binding [TotalTasks], Source={x:Static svc:Loc.Instance}}" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
-                        <TextBlock Text="{Binding MonthTotalTasks}" FontSize="28" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding [TotalTasks], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabelDim}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding MonthTotalTasks}" Style="{StaticResource HeroNumber}"/>
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Column="2" Style="{StaticResource PlannerCard}" Padding="16">
+                <Border Grid.Column="2" Style="{StaticResource StatCardRefresh}">
                     <StackPanel>
-                        <TextBlock Text="{Binding [CompletedLabel], Source={x:Static svc:Loc.Instance}}" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
-                        <TextBlock Text="{Binding MonthCompletedTasks}" FontSize="28" FontWeight="Bold"
-                                   Foreground="{DynamicResource SuccessBrush}"/>
+                        <TextBlock Text="{Binding [CompletedLabel], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabelDim}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding MonthCompletedTasks}" Style="{StaticResource HeroNumber}" Foreground="{DynamicResource SuccessBrush}"/>
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Column="4" Style="{StaticResource PlannerCard}" Padding="16">
+                <Border Grid.Column="4" Style="{StaticResource StatCardRefresh}">
                     <StackPanel>
-                        <TextBlock Text="{Binding [Productivity], Source={x:Static svc:Loc.Instance}}" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
-                        <TextBlock FontSize="28" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">
+                        <TextBlock Text="{Binding [Productivity], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabelDim}" Margin="0,0,0,8"/>
+                        <TextBlock Style="{StaticResource HeroNumber}" Foreground="{DynamicResource AccentBrush}">
                             <Run Text="{Binding MonthCompletionRate, StringFormat={}{0}%, Mode=OneWay}"/>
                         </TextBlock>
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Column="6" Style="{StaticResource PlannerCard}" Padding="16">
+                <Border Grid.Column="6" Style="{StaticResource StatCardRefresh}">
                     <StackPanel>
-                        <TextBlock Text="{Binding [BestDayLabel], Source={x:Static svc:Loc.Instance}}" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
-                        <TextBlock Text="{Binding MostProductiveDay}" FontSize="20" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding [BestDayLabel], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabelDim}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding MostProductiveDay}" Style="{StaticResource HeroNumberSm}"/>
                     </StackPanel>
                 </Border>
             </Grid>
@@ -83,36 +82,33 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0" Style="{StaticResource PlannerCard}" Padding="16">
+                <Border Grid.Column="0" Style="{StaticResource StatCardRefresh}">
                     <StackPanel>
-                        <TextBlock Text="{Binding [Goals], Source={x:Static svc:Loc.Instance}}" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
-                        <TextBlock FontSize="28" FontWeight="Bold">
+                        <TextBlock Text="{Binding [Goals], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabelDim}" Margin="0,0,0,8"/>
+                        <TextBlock Style="{StaticResource HeroNumber}">
                             <Run Text="{Binding MonthCompletedGoals, Mode=OneWay}"/>/<Run Text="{Binding MonthTotalGoals, Mode=OneWay}"/>
                         </TextBlock>
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Column="2" Style="{StaticResource PlannerCard}" Padding="16">
+                <Border Grid.Column="2" Style="{StaticResource StatCardRefresh}">
                     <StackPanel>
-                        <TextBlock Text="{Binding [AvgSleep], Source={x:Static svc:Loc.Instance}}" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
-                        <TextBlock Text="{Binding AvgSleep, StringFormat={}{0:F1}}" FontSize="28" FontWeight="Bold"
-                                   Foreground="{DynamicResource InfoBrush}"/>
+                        <TextBlock Text="{Binding [AvgSleep], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabelDim}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding AvgSleep, StringFormat={}{0:F1}}" Style="{StaticResource HeroNumber}" Foreground="{DynamicResource InfoBrush}"/>
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Column="4" Style="{StaticResource PlannerCard}" Padding="16">
+                <Border Grid.Column="4" Style="{StaticResource StatCardRefresh}">
                     <StackPanel>
-                        <TextBlock Text="{Binding [AvgEnergy], Source={x:Static svc:Loc.Instance}}" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
-                        <TextBlock Text="{Binding AvgEnergy, StringFormat={}{0:F1}}" FontSize="28" FontWeight="Bold"
-                                   Foreground="{DynamicResource WarningBrush}"/>
+                        <TextBlock Text="{Binding [AvgEnergy], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabelDim}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding AvgEnergy, StringFormat={}{0:F1}}" Style="{StaticResource HeroNumber}" Foreground="{DynamicResource WarningBrush}"/>
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Column="6" Style="{StaticResource PlannerCard}" Padding="16">
+                <Border Grid.Column="6" Style="{StaticResource StatCardRefresh}">
                     <StackPanel>
-                        <TextBlock Text="{Binding [AvgMood], Source={x:Static svc:Loc.Instance}}" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
-                        <TextBlock Text="{Binding AvgMood, StringFormat={}{0:F1}}" FontSize="28" FontWeight="Bold"
-                                   Foreground="{DynamicResource SuccessBrush}"/>
+                        <TextBlock Text="{Binding [AvgMood], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabelDim}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding AvgMood, StringFormat={}{0:F1}}" Style="{StaticResource HeroNumber}" Foreground="{DynamicResource SuccessBrush}"/>
                     </StackPanel>
                 </Border>
             </Grid>
