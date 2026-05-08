@@ -1,4 +1,4 @@
-namespace DailyPlanner.Services;
+﻿namespace DailyPlanner.Services;
 
 internal static class LocRuStrings
 {
@@ -497,5 +497,22 @@ internal static class LocRuStrings
         ["TrelloSyncError"] = "Ошибка синхронизации",
         ["Enabled"] = "Включено",
         ["Save"] = "Сохранить",
+        // --- Command palette ---
+        ["CmdNoResults"] = "Ничего не найдено",
+        ["CmdNavigate"] = "Навигация",
+        ["CmdRun"] = "Выполнить",
+        ["CmdGoToToday"] = "Перейти к сегодня",
+        ["CmdToggleSearch"] = "Поиск",
+        ["CmdTogglePomodoro"] = "Помодоро",
+        ["CmdToggleFinance"] = "Финансы",
+        ["CmdToggleInbox"] = "Входящие",
+        ["CmdToggleStatistics"] = "Статистика",
+        ["CmdToggleSettings"] = "Настройки",
+        ["CmdWeeklyReview"] = "Итоги недели",
+        ["CmdExportExcel"] = "Экспорт в Excel",
+        ["CmdPreviousMonth"] = "Предыдущий месяц",
+        ["CmdNextMonth"] = "Следующий месяц",
+        ["CmdBackupDb"] = "Резервная копия БД",
+        ["CmdRestoreDb"] = "Восстановить БД",
     };
 }

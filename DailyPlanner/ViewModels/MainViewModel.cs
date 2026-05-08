@@ -5,7 +5,9 @@ using CommunityToolkit.Mvvm.Input;
 using DailyPlanner.Data;
 using DailyPlanner.Models;
 using DailyPlanner.Services;
+using DailyPlanner.Views;
 using Microsoft.Win32;
+using Wpf.Ui.Controls;
 
 namespace DailyPlanner.ViewModels;
 
@@ -232,6 +234,37 @@ public sealed partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand] private void TogglePomodoro() => IsPomodoroOpen = !IsPomodoroOpen;
+    [RelayCommand] private void ToggleStatistics() => IsStatisticsOpen = !IsStatisticsOpen;
+
+    [RelayCommand]
+    private void OpenCommandPalette()
+    {
+        var actions = BuildPaletteActions();
+        var vm = new CommandPaletteViewModel(actions);
+        var window = new CommandPaletteWindow(vm)
+        {
+            Owner = System.Windows.Application.Current.MainWindow
+        };
+        window.ShowDialog();
+    }
+
+    private IReadOnlyList<CommandPaletteAction> BuildPaletteActions() =>
+    [
+        new() { Label = Loc.Get("CmdGoToToday"),       Icon = SymbolRegular.CalendarToday24,  Shortcut = "Ctrl+T", Run = () => GoToTodayCommand.Execute(null) },
+        new() { Label = Loc.Get("CmdToggleSearch"),    Icon = SymbolRegular.Search24,         Shortcut = "Ctrl+F", Run = () => ToggleSearchCommand.Execute(null) },
+        new() { Label = Loc.Get("CmdTogglePomodoro"),  Icon = SymbolRegular.Timer24,          Shortcut = "Ctrl+P", Run = () => TogglePomodoroCommand.Execute(null) },
+        new() { Label = Loc.Get("CmdToggleFinance"),   Icon = SymbolRegular.Wallet24,         Shortcut = "Ctrl+M", Run = () => ToggleFinanceCommand.Execute(null) },
+        new() { Label = Loc.Get("CmdToggleInbox"),     Icon = SymbolRegular.MailInbox24,          Run = () => ToggleInboxCommand.Execute(null) },
+        new() { Label = Loc.Get("CmdToggleStatistics"),Icon = SymbolRegular.DataBarVertical24,Run = () => ToggleStatisticsCommand.Execute(null) },
+        new() { Label = Loc.Get("CmdWeeklyReview"),    Icon = SymbolRegular.ClipboardCheckmark24, Shortcut = "Ctrl+W", Run = () => ShowWeeklyReviewCommand.Execute(null) },
+        new() { Label = Loc.Get("CmdExportExcel"),     Icon = SymbolRegular.DocumentArrowDown24,  Shortcut = "Ctrl+E", Run = () => ExportToExcelCommand.Execute(null) },
+        new() { Label = Loc.Get("CmdPreviousMonth"),   Icon = SymbolRegular.ChevronLeft24,    Shortcut = "Ctrl+Left",  Run = () => PreviousMonthCommand.Execute(null) },
+        new() { Label = Loc.Get("CmdNextMonth"),       Icon = SymbolRegular.ChevronRight24,   Shortcut = "Ctrl+Right", Run = () => NextMonthCommand.Execute(null) },
+        new() { Label = Loc.Get("CmdToggleSettings"),  Icon = SymbolRegular.Settings24,       Run = () => ToggleSettingsCommand.Execute(null) },
+        new() { Label = Loc.Get("CmdBackupDb"),        Icon = SymbolRegular.SaveCopy24,       Run = () => BackupDatabaseCommand.Execute(null) },
+        new() { Label = Loc.Get("CmdRestoreDb"),       Icon = SymbolRegular.HistoryDismiss24, Run = () => RestoreDatabaseCommand.Execute(null) },
+    ];
+
 
     partial void OnSearchQueryChanged(string value)
     {
