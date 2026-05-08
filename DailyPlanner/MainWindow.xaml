@@ -77,8 +77,7 @@
                             <Run Text=" Planner" Foreground="{DynamicResource TextPrimaryBrush}"/>
                         </TextBlock>
                     </StackPanel>
-                    <TextBlock Text="{Binding SelectedYear}" FontSize="11"
-                               Foreground="{DynamicResource MutedBrush}" Margin="32,3,0,0"/>
+                    <TextBlock Text="{Binding SelectedYear}" Style="{StaticResource MicroLabelDim}" Margin="32,3,0,0"/>
                 </StackPanel>
 
                 <!-- Today Mini Widget -->
@@ -90,11 +89,8 @@
                         <DockPanel Margin="0,0,0,4">
                             <ui:SymbolIcon Symbol="CalendarToday24" FontSize="12"
                                            Foreground="{DynamicResource AccentBrush}" DockPanel.Dock="Left" Margin="0,0,6,0"/>
-                            <TextBlock Text="{Binding [Today], Source={x:Static svc:Loc.Instance}}" FontSize="9" FontWeight="Bold"
-                                       Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
-                            <TextBlock Text="{Binding TodayProgress}" FontSize="9"
-                                       Foreground="{DynamicResource MutedBrush}"
-                                       HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding [Today], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabelAccent}" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding TodayProgress}" Style="{StaticResource MicroLabelDim}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                         </DockPanel>
                         <TextBlock Text="{Binding TodayTasks}" FontSize="10"
                                    TextWrapping="Wrap" Foreground="{DynamicResource TextPrimaryBrush}"
@@ -412,12 +408,9 @@
                         <RowDefinition/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Column="0" Text="{Binding [PomWork], Source={x:Static svc:Loc.Instance}}" FontSize="9" HorizontalAlignment="Center"
-                               Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,4"/>
-                    <TextBlock Grid.Column="2" Text="{Binding [PomBreak], Source={x:Static svc:Loc.Instance}}" FontSize="9" HorizontalAlignment="Center"
-                               Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,4"/>
-                    <TextBlock Grid.Column="4" Text="{Binding [PomFocus], Source={x:Static svc:Loc.Instance}}" FontSize="9" HorizontalAlignment="Center"
-                               Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Grid.Column="0" Text="{Binding [PomWork], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabelDim}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                    <TextBlock Grid.Column="2" Text="{Binding [PomBreak], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabelDim}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                    <TextBlock Grid.Column="4" Text="{Binding [PomFocus], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabelDim}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                     <ui:NumberBox Grid.Row="1" Grid.Column="0" Value="{Binding WorkMinutes, Mode=TwoWay}"
                                   Minimum="1" Maximum="120" SpinButtonPlacementMode="Hidden"
                                   Height="36" FontSize="14" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" ClearButtonEnabled="False"/>
