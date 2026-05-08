@@ -280,28 +280,46 @@ public partial class WeekPage : Page
             _draggedTask = task;
     }
 
+    // Use 2x system threshold — defaults are too sensitive on hi-DPI / touchpad,
+    // accidental micro-drags cancel checkbox/text-entry clicks.
+    private static double DragThresholdX => SystemParameters.MinimumHorizontalDragDistance * 2.0;
+    private static double DragThresholdY => SystemParameters.MinimumVerticalDragDistance * 2.0;
+
     private void Task_PreviewMouseMove(object sender, MouseEventArgs e)
     {
         if (e.LeftButton != MouseButtonState.Pressed || _draggedTask is null) return;
 
         var pos = e.GetPosition(null);
         var diff = _dragStart - pos;
-        if (Math.Abs(diff.X) < SystemParameters.MinimumHorizontalDragDistance &&
-            Math.Abs(diff.Y) < SystemParameters.MinimumVerticalDragDistance)
+        if (Math.Abs(diff.X) < DragThresholdX && Math.Abs(diff.Y) < DragThresholdY)
             return;
 
         if (string.IsNullOrWhiteSpace(_draggedTask.Text)) return;
 
-        var data = new DataObject("TaskVM", _draggedTask);
-        DragDrop.DoDragDrop((DependencyObject)sender, data, DragDropEffects.Move);
+        var task = _draggedTask;
         _draggedTask = null;
+        task.IsBeingDragged = true;
+        try
+        {
+            var data = new DataObject("TaskVM", task);
+            DragDrop.DoDragDrop((DependencyObject)sender, data, DragDropEffects.Move);
+        }
+        finally { task.IsBeingDragged = false; }
     }
 
     private void Day_DragOver(object sender, DragEventArgs e)
     {
         var ok = e.Data.GetDataPresent("TaskVM") || e.Data.GetDataPresent(InboxDragFormat);
         e.Effects = ok ? DragDropEffects.Move : DragDropEffects.None;
+        if (ok && sender is ItemsControl { Tag: DayViewModel day })
+            day.IsDropTarget = true;
         e.Handled = true;
+    }
+
+    private void Day_DragLeave(object sender, DragEventArgs e)
+    {
+        if (sender is ItemsControl { Tag: DayViewModel day })
+            day.IsDropTarget = false;
     }
 
     private async void Day_Drop(object sender, DragEventArgs e)
@@ -313,6 +331,9 @@ public partial class WeekPage : Page
             target = System.Windows.Media.VisualTreeHelper.GetParent(target) as FrameworkElement;
         if (target is not ItemsControl { Tag: DayViewModel targetDay }) return;
 
+        // Always clear drop highlight, regardless of which branch handles the drop.
+        targetDay.IsDropTarget = false;
+
         var mainVm = DataContext as MainViewModel;
         if (mainVm?.SelectedWeek is null) return;
 
@@ -322,21 +343,48 @@ public partial class WeekPage : Page
         {
             try
             {
+                // Snapshot inbox fields BEFORE the await — MoveToDayAsync removes the
+                // InboxTaskViewModel from its collection, but the local reference is still valid.
+                var inboxText = inboxVm.Text;
+                var inboxModel = inboxVm.Model;
+
                 await mainVm.Inbox.MoveToDayAsync(inboxVm, targetDay.Date);
-                // Reload week so the new task appears in UI
-                await mainVm.LoadMonthCommand.ExecuteAsync(null);
+
+                // Mutate UI in place — the previous full LoadMonth caused a visible flash on every drop.
+                var slot = targetDay.Tasks.FirstOrDefault(t => string.IsNullOrWhiteSpace(t.Text));
+                if (slot is not null)
+                {
+                    slot.Text = inboxText;
+                    slot.Priority = inboxModel.Priority;
+                    slot.Category = inboxModel.Category;
+                    slot.Deadline = inboxModel.DueDate;
+                }
+                else
+                {
+                    await mainVm.LoadMonthCommand.ExecuteAsync(null); // fallback: no empty slot to mutate
+                }
             }
             catch (Exception ex) { Log.Error("WeekPage", $"Inbox drop failed: {ex.Message}"); }
             e.Handled = true;
             return;
         }
 
-        // Task-to-task move between days (existing behavior)
+        // Task-to-task move between days
         if (!e.Data.GetDataPresent("TaskVM")) return;
         if (e.Data.GetData("TaskVM") is not TaskViewModel sourceTask) return;
 
         var sourceDay = mainVm.SelectedWeek.Days.FirstOrDefault(d => d.Tasks.Contains(sourceTask));
-        if (sourceDay is null || sourceDay == targetDay) return;
+        if (sourceDay is null) return;
+
+        // Drop on the same day: don't silently swallow — user expects feedback.
+        if (sourceDay == targetDay)
+        {
+            Services.NotificationService.ShowToast(
+                Services.Loc.Get("MoveTitle"),
+                Services.Loc.Get("MoveSameDay"));
+            e.Handled = true;
+            return;
+        }
 
         var emptySlot = targetDay.Tasks.FirstOrDefault(t => string.IsNullOrWhiteSpace(t.Text));
         if (emptySlot is null)
@@ -345,13 +393,18 @@ public partial class WeekPage : Page
             return;
         }
 
+        // Copy ALL drag-relevant fields. Previously Deadline was dropped on the floor
+        // — that was the "drag works but loses metadata" bug.
         emptySlot.IsCompleted = sourceTask.IsCompleted;
         emptySlot.Text = sourceTask.Text;
         emptySlot.Priority = sourceTask.Priority;
         emptySlot.Category = sourceTask.Category;
+        emptySlot.Deadline = sourceTask.Deadline;
+
         sourceTask.Text = string.Empty;
         sourceTask.Priority = Models.TaskPriority.None;
         sourceTask.Category = Models.TaskCategory.None;
+        sourceTask.Deadline = null;
         sourceTask.IsCompleted = false;
 
         e.Handled = true;

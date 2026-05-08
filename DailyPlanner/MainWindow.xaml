@@ -29,13 +29,36 @@
         <KeyBinding Key="P" Modifiers="Ctrl" Command="{Binding TogglePomodoroCommand}"/>
         <KeyBinding Key="M" Modifiers="Ctrl" Command="{Binding ToggleFinanceCommand}"/>
         <KeyBinding Key="W" Modifiers="Ctrl" Command="{Binding ShowWeeklyReviewCommand}"/>
+        <KeyBinding Key="K" Modifiers="Ctrl" Command="{Binding OpenCommandPaletteCommand}"/>
     </ui:FluentWindow.InputBindings>
 
     <Grid>
+        <Grid.Resources>
+            <RadialGradientBrush x:Key="AmbientGlowTL" Center="0.25,0.1" GradientOrigin="0.25,0.1" RadiusX="0.55" RadiusY="0.55">
+                <GradientStop Color="White" Offset="0"/>
+                <GradientStop Color="Transparent" Offset="1"/>
+            </RadialGradientBrush>
+            <RadialGradientBrush x:Key="AmbientGlowBR" Center="0.85,0.95" GradientOrigin="0.85,0.95" RadiusX="0.45" RadiusY="0.45">
+                <GradientStop Color="White" Offset="0"/>
+                <GradientStop Color="Transparent" Offset="1"/>
+            </RadialGradientBrush>
+        </Grid.Resources>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="220"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
+
+        <!-- Ambient backlight: decorative radial glows. Mica shows through. -->
+        <Rectangle Grid.ColumnSpan="2" Fill="{StaticResource AmbientGlowTL}" Opacity="0.045" IsHitTestVisible="False">
+            <Rectangle.Effect>
+                <BlurEffect Radius="60" RenderingBias="Performance"/>
+            </Rectangle.Effect>
+        </Rectangle>
+        <Rectangle Grid.ColumnSpan="2" Fill="{StaticResource AmbientGlowBR}" Opacity="0.03" IsHitTestVisible="False">
+            <Rectangle.Effect>
+                <BlurEffect Radius="80" RenderingBias="Performance"/>
+            </Rectangle.Effect>
+        </Rectangle>
 
         <!-- SIDEBAR -->
         <Border Grid.Column="0" BorderBrush="{DynamicResource ControlElevationBorderBrush}" BorderThickness="0,0,1,0">

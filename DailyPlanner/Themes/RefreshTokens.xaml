@@ -1,0 +1,110 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        Visual refresh tokens (v3.27).
+        Additive over DarkTheme.xaml — does NOT redefine existing keys.
+        Loaded after DarkTheme.xaml in App.xaml so font/radii overrides cascade.
+
+        Typography:
+            FontSans   Inter Variable Text — body, headings, general UI
+            FontMono   JetBrains Mono     — numbers, kbd shortcuts, micro-labels
+            FontHero   Inter Variable Text + FontStyle=Italic FontWeight=Black
+                       — synthetic oblique on Inter Black gives editorial feel
+                       without bundling Playfair (TODO: real Playfair later).
+        Radii:
+            RadiusXl=22, RadiusXxl=28 — refresh cards (existing: Sm=6, Md=10, Lg=16).
+
+        Stat / hero / micro-label styles are NEW keys. Existing PageTitle /
+        StatValue / StatLabel keep working.
+    -->
+
+    <!-- Font families -->
+    <FontFamily x:Key="FontSans">pack://application:,,,/Assets/Fonts/#Inter Variable Text</FontFamily>
+    <FontFamily x:Key="FontMono">pack://application:,,,/Assets/Fonts/#JetBrains Mono</FontFamily>
+
+    <!-- Extended radii -->
+    <CornerRadius x:Key="RadiusXl">22</CornerRadius>
+    <CornerRadius x:Key="RadiusXxl">28</CornerRadius>
+
+    <!-- All-caps mono micro-label: section headers, stat captions, "DONE" / "LEFT" / etc.
+         Use UPPERCASE in XAML text — no automatic transform applied. -->
+    <Style x:Key="MicroLabel" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource FontMono}"/>
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="FontWeight" Value="Black"/>
+        <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
+        <Setter Property="Typography.NumeralStyle" Value="Lining"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal"/>
+    </Style>
+
+    <Style x:Key="MicroLabelDim" TargetType="TextBlock" BasedOn="{StaticResource MicroLabel}">
+        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
+    </Style>
+
+    <Style x:Key="MicroLabelAccent" TargetType="TextBlock" BasedOn="{StaticResource MicroLabel}">
+        <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+    </Style>
+
+    <!-- Hero mono number: stat cards, progress percentages, XP counters. -->
+    <Style x:Key="HeroNumber" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource FontMono}"/>
+        <Setter Property="FontSize" Value="36"/>
+        <Setter Property="FontWeight" Value="Black"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="LineHeight" Value="38"/>
+        <Setter Property="LineStackingStrategy" Value="BlockLineHeight"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal"/>
+    </Style>
+
+    <Style x:Key="HeroNumberLg" TargetType="TextBlock" BasedOn="{StaticResource HeroNumber}">
+        <Setter Property="FontSize" Value="48"/>
+        <Setter Property="LineHeight" Value="50"/>
+    </Style>
+
+    <Style x:Key="HeroNumberSm" TargetType="TextBlock" BasedOn="{StaticResource HeroNumber}">
+        <Setter Property="FontSize" Value="26"/>
+        <Setter Property="LineHeight" Value="28"/>
+    </Style>
+
+    <!-- Editorial italic hero — synthetic italic over Inter Black at large sizes.
+         Use sparingly: page-level titles only ("Май 2026", "Wallet"). -->
+    <Style x:Key="HeroSerifItalic" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource FontSans}"/>
+        <Setter Property="FontStyle" Value="Italic"/>
+        <Setter Property="FontWeight" Value="Black"/>
+        <Setter Property="FontSize" Value="32"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal"/>
+    </Style>
+
+    <!-- Larger glass card: 22px radius, 24px padding, soft hover. -->
+    <Style x:Key="GlassCardLg" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource CardBg}"/>
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusXl}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="24"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Stat card refresh: tighter, hero-number focused. -->
+    <Style x:Key="StatCardRefresh" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource CardBg}"/>
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusXl}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="22,20"/>
+        <Setter Property="MinHeight" Value="110"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="{DynamicResource AccentLightBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+</ResourceDictionary>
