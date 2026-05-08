@@ -120,7 +120,7 @@
                 <Border Grid.Column="0" Style="{StaticResource PlannerCard}" Padding="14">
                     <StackPanel>
                         <TextBlock Text="{Binding [Income], Source={x:Static svc:Loc.Instance}}"
-                                   Style="{StaticResource StatLabel}"/>
+                                   Style="{StaticResource MicroLabelDim}"/>
                         <TextBlock FontSize="24" FontWeight="Bold"
                                    Foreground="{DynamicResource SuccessBrush}">
                             <Run Text="+"/><Run Text="{Binding TotalIncome, StringFormat=N2, Mode=OneWay}"/>
@@ -132,7 +132,7 @@
                 <Border Grid.Column="2" Style="{StaticResource PlannerCard}" Padding="14">
                     <StackPanel>
                         <TextBlock Text="{Binding [Expenses], Source={x:Static svc:Loc.Instance}}"
-                                   Style="{StaticResource StatLabel}"/>
+                                   Style="{StaticResource MicroLabelDim}"/>
                         <TextBlock FontSize="24" FontWeight="Bold"
                                    Foreground="{DynamicResource DangerBrush}">
                             <Run Text="-"/><Run Text="{Binding TotalExpenses, StringFormat=N2, Mode=OneWay}"/>
@@ -144,7 +144,7 @@
                 <Border Grid.Column="4" Style="{StaticResource PlannerCard}" Padding="14">
                     <StackPanel>
                         <TextBlock Text="{Binding [BalanceLabel], Source={x:Static svc:Loc.Instance}}"
-                                   Style="{StaticResource StatLabel}"/>
+                                   Style="{StaticResource MicroLabelDim}"/>
                         <TextBlock Text="{Binding Balance, StringFormat=N2}" FontSize="24" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"/>
                         <TextBlock Style="{StaticResource MicroLabelDim}">
@@ -161,7 +161,7 @@
                 <Border Grid.Column="6" Style="{StaticResource PlannerCard}" Padding="14">
                     <StackPanel>
                         <TextBlock Text="{Binding [NetWorth], Source={x:Static svc:Loc.Instance}}"
-                                   Style="{StaticResource StatLabel}"/>
+                                   Style="{StaticResource MicroLabelDim}"/>
                         <TextBlock Text="{Binding NetWorth, StringFormat=N2}" FontSize="24" FontWeight="Bold"
                                    Foreground="{DynamicResource InfoBrush}"/>
                     </StackPanel>
@@ -184,7 +184,7 @@
                 <Border Grid.Column="0" Style="{StaticResource PlannerCard}" Padding="14">
                     <StackPanel>
                         <TextBlock Text="{Binding [ExpectedIncome], Source={x:Static svc:Loc.Instance}}"
-                                   Style="{StaticResource StatLabel}"/>
+                                   Style="{StaticResource MicroLabelDim}"/>
                         <TextBlock FontSize="20" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}">
                             <Run Text="{Binding ReceivedIncome, StringFormat=N2, Mode=OneWay}"/>
@@ -198,7 +198,7 @@
                 <Border Grid.Column="2" Style="{StaticResource PlannerCard}" Padding="14">
                     <StackPanel>
                         <TextBlock Text="{Binding [DebtLent], Source={x:Static svc:Loc.Instance}}"
-                                   Style="{StaticResource StatLabel}"/>
+                                   Style="{StaticResource MicroLabelDim}"/>
                         <TextBlock FontSize="20" FontWeight="Bold"
                                    Foreground="{DynamicResource SuccessBrush}">
                             <Run Text="+"/><Run Text="{Binding DebtOwedToMe, StringFormat=N2, Mode=OneWay}"/>
@@ -210,7 +210,7 @@
                 <Border Grid.Column="4" Style="{StaticResource PlannerCard}" Padding="14">
                     <StackPanel>
                         <TextBlock Text="{Binding [DebtBorrowed], Source={x:Static svc:Loc.Instance}}"
-                                   Style="{StaticResource StatLabel}"/>
+                                   Style="{StaticResource MicroLabelDim}"/>
                         <TextBlock FontSize="20" FontWeight="Bold"
                                    Foreground="{DynamicResource DangerBrush}">
                             <Run Text="-"/><Run Text="{Binding DebtIOwn, StringFormat=N2, Mode=OneWay}"/>
@@ -222,7 +222,7 @@
                 <Border Grid.Column="6" Style="{StaticResource PlannerCard}" Padding="14">
                     <StackPanel>
                         <TextBlock Text="{Binding [MonthlyObligatory], Source={x:Static svc:Loc.Instance}}"
-                                   Style="{StaticResource StatLabel}"/>
+                                   Style="{StaticResource MicroLabelDim}"/>
                         <TextBlock Text="{Binding MonthlyObligatory, StringFormat=N2}" FontSize="20" FontWeight="Bold"
                                    Foreground="{DynamicResource WarningBrush}"/>
                     </StackPanel>
@@ -598,7 +598,7 @@
                     <Border Grid.Column="0" Style="{StaticResource PlannerCard}" Padding="16">
                         <StackPanel>
                             <TextBlock Text="{Binding [DebtLent], Source={x:Static svc:Loc.Instance}}"
-                                       Style="{StaticResource StatLabel}"/>
+                                       Style="{StaticResource MicroLabelDim}"/>
                             <TextBlock FontSize="24" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}">
                                 <Run Text="+"/><Run Text="{Binding DebtOwedToMe, StringFormat=N2, Mode=OneWay}"/>
                             </TextBlock>
@@ -608,7 +608,7 @@
                     <Border Grid.Column="2" Style="{StaticResource PlannerCard}" Padding="16">
                         <StackPanel>
                             <TextBlock Text="{Binding [DebtBorrowed], Source={x:Static svc:Loc.Instance}}"
-                                       Style="{StaticResource StatLabel}"/>
+                                       Style="{StaticResource MicroLabelDim}"/>
                             <TextBlock FontSize="24" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}">
                                 <Run Text="-"/><Run Text="{Binding DebtIOwn, StringFormat=N2, Mode=OneWay}"/>
                             </TextBlock>

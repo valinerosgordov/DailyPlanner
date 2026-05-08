@@ -50,9 +50,8 @@
                             <ui:SymbolIcon Symbol="TaskListLtr24" FontSize="20" Foreground="{DynamicResource AccentBrush}"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="{Binding TotalTasks}" Style="{StaticResource StatValue}"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
-                            <TextBlock Text="{Binding [TotalTasks], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource StatLabel}"/>
+                            <TextBlock Text="{Binding TotalTasks}" Style="{StaticResource HeroNumber}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <TextBlock Text="{Binding [TotalTasks], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabelDim}" Margin="0,4,0,0"/>
                         </StackPanel>
                     </DockPanel>
                 </Border>
@@ -67,9 +66,8 @@
                             <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="20" Foreground="{DynamicResource SuccessBrush}"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="{Binding CompletedTasks}" Style="{StaticResource StatValue}"
-                                       Foreground="{DynamicResource SuccessBrush}"/>
-                            <TextBlock Text="{Binding [CompletedLabel], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource StatLabel}"/>
+                            <TextBlock Text="{Binding CompletedTasks}" Style="{StaticResource HeroNumber}" Foreground="{DynamicResource SuccessBrush}"/>
+                            <TextBlock Text="{Binding [CompletedLabel], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabelDim}" Margin="0,4,0,0"/>
                         </StackPanel>
                     </DockPanel>
                 </Border>
@@ -84,9 +82,8 @@
                             <ui:SymbolIcon Symbol="DismissCircle24" FontSize="20" Foreground="{DynamicResource DangerBrush}"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="{Binding NotCompletedTasks}" Style="{StaticResource StatValue}"
-                                       Foreground="{DynamicResource DangerBrush}"/>
-                            <TextBlock Text="{Binding [NotCompleted], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource StatLabel}"/>
+                            <TextBlock Text="{Binding NotCompletedTasks}" Style="{StaticResource HeroNumber}" Foreground="{DynamicResource DangerBrush}"/>
+                            <TextBlock Text="{Binding [NotCompleted], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabelDim}" Margin="0,4,0,0"/>
                         </StackPanel>
                     </DockPanel>
                 </Border>
@@ -101,10 +98,10 @@
                             <ui:SymbolIcon Symbol="Star24" FontSize="20" Foreground="{DynamicResource WarningBrush}"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Style="{StaticResource StatValue}" Foreground="{DynamicResource WarningBrush}">
+                            <TextBlock Style="{StaticResource HeroNumber}" Foreground="{DynamicResource WarningBrush}">
                                 <Run Text="{Binding CompletedGoals, Mode=OneWay}"/>/<Run Text="{Binding Goals.Count, Mode=OneWay}"/>
                             </TextBlock>
-                            <TextBlock Text="{Binding [GoalsReached], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource StatLabel}"/>
+                            <TextBlock Text="{Binding [GoalsReached], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabelDim}" Margin="0,4,0,0"/>
                         </StackPanel>
                     </DockPanel>
                 </Border>
@@ -240,14 +237,14 @@
                             <StackPanel Grid.Column="0" HorizontalAlignment="Center">
                                 <TextBlock Text="{Binding MostProductiveDay}" Foreground="{DynamicResource WarningBrush}"
                                            FontWeight="Bold" FontSize="14" HorizontalAlignment="Center"/>
-                                <TextBlock Text="{Binding [BestDay], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource StatLabel}" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding [BestDay], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabelDim}" HorizontalAlignment="Center" Margin="0,4,0,0"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1" HorizontalAlignment="Center">
                                 <TextBlock Foreground="{DynamicResource SuccessBrush}" FontWeight="Bold" FontSize="14"
                                            HorizontalAlignment="Center">
                                     <Run Text="{Binding CompletedGoals, Mode=OneWay}"/>/<Run Text="{Binding Goals.Count, Mode=OneWay}"/>
                                 </TextBlock>
-                                <TextBlock Text="{Binding [GoalsLabel], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource StatLabel}" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding [GoalsLabel], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabelDim}" HorizontalAlignment="Center" Margin="0,4,0,0"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
