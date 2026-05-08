@@ -19,9 +19,8 @@
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
                     <ui:Button Icon="{ui:SymbolIcon ChevronLeft24}" Appearance="Transparent"
                                Command="{Binding PreviousMonthCommand}" Padding="8"/>
-                    <TextBlock Text="{Binding PeriodLabel}" FontSize="24" FontWeight="SemiBold"
-                               VerticalAlignment="Center" Margin="12,0"
-                               FontFamily="{StaticResource MainFont}"/>
+                    <TextBlock Text="{Binding PeriodLabel}" Style="{StaticResource HeroSerifItalic}" FontSize="26"
+                               VerticalAlignment="Center" Margin="12,0"/>
                     <ui:Button Icon="{ui:SymbolIcon ChevronRight24}" Appearance="Transparent"
                                Command="{Binding NextMonthCommand}" Padding="8"/>
                 </StackPanel>

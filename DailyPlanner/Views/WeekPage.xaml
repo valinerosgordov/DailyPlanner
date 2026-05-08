@@ -543,8 +543,7 @@
                             <StackPanel>
                                 <DockPanel Margin="0,0,0,4">
                                     <TextBlock Text="{Binding DateFormatted}" DockPanel.Dock="Right"
-                                               Foreground="{DynamicResource MutedBrush}"
-                                               FontSize="10" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                               Style="{StaticResource MicroLabelDim}" VerticalAlignment="Center" Margin="6,0,0,0"/>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="{Binding DayName}" Style="{StaticResource DayHeader}" FontSize="12"/>
                                         <!-- Today badge -->
@@ -871,15 +870,15 @@
                                 <ColumnDefinition Width="28"/><ColumnDefinition Width="70"/>
                                 <ColumnDefinition Width="28"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="{Binding [HabitLabel], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource MutedBrush}" FontSize="10" Margin="4,0,0,0"/>
-                            <TextBlock Grid.Column="1" Text="{Binding [Mon], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="2" Text="{Binding [Tue], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="3" Text="{Binding [Wed], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="4" Text="{Binding [Thu], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="5" Text="{Binding [Fri], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="6" Text="{Binding [Sat], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="7" Text="{Binding [Sun], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="8" Text="{Binding [ProgressCol], Source={x:Static svc:Loc.Instance}}" Foreground="{DynamicResource MutedBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="0" Text="{Binding [HabitLabel], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabel}" Margin="4,0,0,0"/>
+                            <TextBlock Grid.Column="1" Text="{Binding [Mon], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabel}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="{Binding [Tue], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabel}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="3" Text="{Binding [Wed], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabel}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="4" Text="{Binding [Thu], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabel}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="5" Text="{Binding [Fri], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabel}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="6" Text="{Binding [Sat], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabel}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="7" Text="{Binding [Sun], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabel}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="8" Text="{Binding [ProgressCol], Source={x:Static svc:Loc.Instance}}" Style="{StaticResource MicroLabel}" HorizontalAlignment="Center"/>
                         </Grid>
                         <!-- Empty state -->
                         <TextBlock Text="{Binding [HabitEmpty], Source={x:Static svc:Loc.Instance}}" FontSize="11"
