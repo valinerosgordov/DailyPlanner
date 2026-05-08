@@ -535,6 +535,11 @@
                                                 </Setter.Value>
                                             </Setter>
                                         </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsDropTarget}" Value="True">
+                                            <Setter Property="BorderBrush" Value="{DynamicResource AccentLightBrush}"/>
+                                            <Setter Property="BorderThickness" Value="2"/>
+                                            <Setter Property="Background" Value="{DynamicResource HoverBgBrush}"/>
+                                        </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </Border.Style>
@@ -564,7 +569,7 @@
 
                                 <ItemsControl ItemsSource="{Binding Tasks}" AllowDrop="True"
                                               Tag="{Binding}"
-                                              DragOver="Day_DragOver" Drop="Day_Drop">
+                                              DragOver="Day_DragOver" DragLeave="Day_DragLeave" Drop="Day_Drop">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel>
@@ -572,6 +577,15 @@
                                                 <Grid Margin="0,1"
                                                       PreviewMouseLeftButtonDown="Task_PreviewMouseLeftButtonDown"
                                                       PreviewMouseMove="Task_PreviewMouseMove">
+                                                    <Grid.Style>
+                                                        <Style TargetType="Grid">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsBeingDragged}" Value="True">
+                                                                    <Setter Property="Opacity" Value="0.35"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Grid.Style>
                                                     <Grid.ContextMenu>
                                                         <ContextMenu>
                                                             <MenuItem Header="{Binding [DeadlineToday], Source={x:Static svc:Loc.Instance}}"

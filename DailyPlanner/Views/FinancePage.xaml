@@ -147,7 +147,7 @@
                                    Style="{StaticResource StatLabel}"/>
                         <TextBlock Text="{Binding Balance, StringFormat=N2}" FontSize="24" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"/>
-                        <TextBlock FontSize="10" Foreground="{DynamicResource MutedBrush}">
+                        <TextBlock Style="{StaticResource MicroLabelDim}">
                             <Run Text="{Binding [Savings], Source={x:Static svc:Loc.Instance}, Mode=OneWay}"/>
                             <Run Text=" "/>
                             <Run Text="{Binding SavingsRatePercent, StringFormat=N1, Mode=OneWay}"/>
@@ -278,11 +278,11 @@
                                PlaceholderText="{Binding [SearchPlaceholder], Source={x:Static svc:Loc.Instance}}"
                                MinWidth="150" FontSize="12" Padding="6,4"/>
                     <TextBlock Text="{Binding [DateFrom], Source={x:Static svc:Loc.Instance}}"
-                               FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="16,0,6,0"/>
+                               Style="{StaticResource MicroLabelDim}" VerticalAlignment="Center" Margin="16,0,6,0"/>
                     <DatePicker SelectedDate="{Binding FilterDateFrom, Converter={conv:NullableDateOnlyToDateTimeConverter}}"
                                 Style="{StaticResource CompactDatePicker}"/>
                     <TextBlock Text="{Binding [DateTo], Source={x:Static svc:Loc.Instance}}"
-                               FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="12,0,6,0"/>
+                               Style="{StaticResource MicroLabelDim}" VerticalAlignment="Center" Margin="12,0,6,0"/>
                     <DatePicker SelectedDate="{Binding FilterDateTo, Converter={conv:NullableDateOnlyToDateTimeConverter}}"
                                 Style="{StaticResource CompactDatePicker}"/>
                     <ui:Button Content="{Binding [ClearFilter], Source={x:Static svc:Loc.Instance}}"
@@ -300,11 +300,11 @@
                                PlaceholderText="{Binding [SearchPlaceholder], Source={x:Static svc:Loc.Instance}}"
                                MinWidth="150" FontSize="12" Padding="6,4"/>
                     <TextBlock Text="{Binding [DateFrom], Source={x:Static svc:Loc.Instance}}"
-                               FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="16,0,6,0"/>
+                               Style="{StaticResource MicroLabelDim}" VerticalAlignment="Center" Margin="16,0,6,0"/>
                     <DatePicker SelectedDate="{Binding FilterDateFrom, Converter={conv:NullableDateOnlyToDateTimeConverter}}"
                                 Style="{StaticResource CompactDatePicker}"/>
                     <TextBlock Text="{Binding [DateTo], Source={x:Static svc:Loc.Instance}}"
-                               FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="12,0,6,0"/>
+                               Style="{StaticResource MicroLabelDim}" VerticalAlignment="Center" Margin="12,0,6,0"/>
                     <DatePicker SelectedDate="{Binding FilterDateTo, Converter={conv:NullableDateOnlyToDateTimeConverter}}"
                                 Style="{StaticResource CompactDatePicker}"/>
                     <ui:Button Content="{Binding [ClearFilter], Source={x:Static svc:Loc.Instance}}"
@@ -364,7 +364,7 @@
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <StackPanel Orientation="Horizontal" Margin="0,2">
-                                                        <TextBlock Text="├" FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,0,6,0"/>
+                                                        <TextBlock Text="├" Style="{StaticResource MicroLabelDim}" Margin="0,0,6,0"/>
                                                         <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
                                                                  Style="{StaticResource FinanceInlineTextBox}" FontSize="11" MinWidth="80"/>
                                                         <TextBox Text="{Binding Amount, Converter={StaticResource CurrencyConv}, UpdateSourceTrigger=LostFocus}"
@@ -471,7 +471,7 @@
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <StackPanel Orientation="Horizontal" Margin="0,2">
-                                                        <TextBlock Text="├" FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,0,6,0"/>
+                                                        <TextBlock Text="├" Style="{StaticResource MicroLabelDim}" Margin="0,0,6,0"/>
                                                         <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
                                                                  Style="{StaticResource FinanceInlineTextBox}" FontSize="11" MinWidth="80"/>
                                                         <TextBox Text="{Binding Amount, Converter={StaticResource CurrencyConv}, UpdateSourceTrigger=LostFocus}"
@@ -647,12 +647,11 @@
                                                              Style="{StaticResource FinanceInlineTextBox}"
                                                              FontSize="15" FontWeight="SemiBold"/>
                                                     <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
-                                                             Style="{StaticResource FinanceInlineTextBox}"
-                                                             FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
+                                                             Style="{StaticResource FinanceInlineTextBox}"/>
                                                     <!-- DueDate picker -->
                                                     <StackPanel Orientation="Horizontal" Margin="4,4,0,0">
                                                         <TextBlock Text="{Binding [DueDate], Source={x:Static svc:Loc.Instance}}"
-                                                                   FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                                   Style="{StaticResource MicroLabelDim}" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                                         <DatePicker SelectedDate="{Binding DueDate, Converter={conv:NullableDateOnlyToDateTimeConverter}}"
                                                                     Style="{StaticResource CompactDatePicker}"/>
                                                     </StackPanel>
@@ -662,7 +661,7 @@
                                                          Height="4" Margin="0,10,0,6"
                                                          Style="{DynamicResource AccentProgressBar}"/>
                                             <DockPanel>
-                                                <TextBlock FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center">
+                                                <TextBlock Style="{StaticResource MicroLabelDim}" VerticalAlignment="Center">
                                                     <Run Text="{Binding [FinRemaining], Source={x:Static svc:Loc.Instance}, Mode=OneWay}"/>
                                                     <Run Text=": "/>
                                                     <Run Text="{Binding RemainingAmount, StringFormat=N2, Mode=OneWay}" FontWeight="SemiBold"/>
@@ -723,12 +722,11 @@
                                                              Style="{StaticResource FinanceInlineTextBox}"
                                                              FontSize="15" FontWeight="SemiBold"/>
                                                     <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
-                                                             Style="{StaticResource FinanceInlineTextBox}"
-                                                             FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
+                                                             Style="{StaticResource FinanceInlineTextBox}"/>
                                                     <!-- DueDate picker -->
                                                     <StackPanel Orientation="Horizontal" Margin="4,4,0,0">
                                                         <TextBlock Text="{Binding [DueDate], Source={x:Static svc:Loc.Instance}}"
-                                                                   FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                                   Style="{StaticResource MicroLabelDim}" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                                         <DatePicker SelectedDate="{Binding DueDate, Converter={conv:NullableDateOnlyToDateTimeConverter}}"
                                                                     Style="{StaticResource CompactDatePicker}"/>
                                                     </StackPanel>
@@ -738,7 +736,7 @@
                                                          Height="4" Margin="0,10,0,6"
                                                          Style="{DynamicResource AccentProgressBar}"/>
                                             <DockPanel>
-                                                <TextBlock FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center">
+                                                <TextBlock Style="{StaticResource MicroLabelDim}" VerticalAlignment="Center">
                                                     <Run Text="{Binding [FinRemaining], Source={x:Static svc:Loc.Instance}, Mode=OneWay}"/>
                                                     <Run Text=": "/>
                                                     <Run Text="{Binding RemainingAmount, StringFormat=N2, Mode=OneWay}" FontWeight="SemiBold"/>
@@ -803,7 +801,7 @@
                                                              Foreground="{Binding Type, Converter={StaticResource TypeBrushConv}}"
                                                              VerticalAlignment="Center" Margin="8,0"/>
                                                 </DockPanel>
-                                                <TextBlock FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="4,4,0,0">
+                                                <TextBlock Style="{StaticResource MicroLabelDim}" Margin="4,4,0,0">
                                                     <Run Text="{Binding FrequencyLabel, Mode=OneWay}"/>
                                                     <Run Text=" · "/>
                                                     <Run Text="{Binding ScheduleLabel, Mode=OneWay}"/>
@@ -814,7 +812,7 @@
                                                     <TextBlock FontSize="10" Foreground="{DynamicResource InfoBrush}"
                                                                Text="{Binding NextPaymentDate, Mode=OneWay}"
                                                                Margin="0,0,12,0"/>
-                                                    <TextBlock FontSize="10" Foreground="{DynamicResource MutedBrush}">
+                                                    <TextBlock Style="{StaticResource MicroLabelDim}">
                                                         <Run Text="{Binding [AnnualTotal], Source={x:Static svc:Loc.Instance}, Mode=OneWay}"/>
                                                         <Run Text=": "/>
                                                         <Run Text="{Binding AnnualTotal, StringFormat=N0, Mode=OneWay}"/>
@@ -825,14 +823,14 @@
                                                         <StackPanel Orientation="Horizontal">
                                                             <CheckBox IsChecked="{Binding IsActive}" VerticalAlignment="Center" Margin="0,0,4,0"/>
                                                             <TextBlock Text="{Binding [Active], Source={x:Static svc:Loc.Instance}}"
-                                                                       FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
+                                                                       Style="{StaticResource MicroLabelDim}" VerticalAlignment="Center"/>
                                                         </StackPanel>
                                                     </Border>
                                                     <Border Background="{DynamicResource SubtleBgBrush}" CornerRadius="8" Padding="8,3">
                                                         <StackPanel Orientation="Horizontal">
                                                             <CheckBox IsChecked="{Binding AutoCreate}" VerticalAlignment="Center" Margin="0,0,4,0"/>
                                                             <TextBlock Text="{Binding [Auto], Source={x:Static svc:Loc.Instance}}"
-                                                                       FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
+                                                                       Style="{StaticResource MicroLabelDim}" VerticalAlignment="Center"/>
                                                         </StackPanel>
                                                     </Border>
                                                 </StackPanel>
@@ -897,20 +895,20 @@
                                                         </Grid.ColumnDefinitions>
                                                         <StackPanel Grid.Column="0">
                                                             <TextBlock Text="{Binding [TargetAmount], Source={x:Static svc:Loc.Instance}}"
-                                                                       FontSize="10" Foreground="{DynamicResource MutedBrush}"/>
+                                                                       Style="{StaticResource MicroLabelDim}"/>
                                                             <TextBox Text="{Binding TargetAmount, Converter={StaticResource CurrencyConv}, UpdateSourceTrigger=LostFocus}"
                                                                      Style="{StaticResource FinanceInlineTextBox}" FontSize="13" MinWidth="80"/>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="2">
                                                             <TextBlock Text="{Binding [SavedAmount], Source={x:Static svc:Loc.Instance}}"
-                                                                       FontSize="10" Foreground="{DynamicResource MutedBrush}"/>
+                                                                       Style="{StaticResource MicroLabelDim}"/>
                                                             <TextBox Text="{Binding SavedAmount, Converter={StaticResource CurrencyConv}, UpdateSourceTrigger=LostFocus}"
                                                                      Style="{StaticResource FinanceInlineTextBox}" FontSize="13" MinWidth="80"
                                                                      Foreground="{DynamicResource SuccessBrush}"/>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="4">
                                                             <TextBlock Text="{Binding [TargetDate], Source={x:Static svc:Loc.Instance}}"
-                                                                       FontSize="10" Foreground="{DynamicResource MutedBrush}"/>
+                                                                       Style="{StaticResource MicroLabelDim}"/>
                                                             <DatePicker SelectedDate="{Binding TargetDate, Converter={conv:NullableDateOnlyToDateTimeConverter}}"
                                                                         Style="{StaticResource CompactDatePicker}"/>
                                                         </StackPanel>
@@ -924,7 +922,7 @@
                                                 <TextBlock Text="{Binding ProgressText}" FontSize="11"
                                                            Foreground="{DynamicResource AccentBrush}"/>
                                                 <TextBlock DockPanel.Dock="Right" HorizontalAlignment="Right"
-                                                           FontSize="11" Foreground="{DynamicResource MutedBrush}">
+                                                           Style="{StaticResource MicroLabelDim}">
                                                     <Run Text="{Binding [FinRemaining], Source={x:Static svc:Loc.Instance}, Mode=OneWay}"/>
                                                     <Run Text=": "/>
                                                     <Run Text="{Binding RemainingAmount, StringFormat=N2, Mode=OneWay}"/>
@@ -980,7 +978,7 @@
                                                 </TextBlock>
                                                 <StackPanel Orientation="Horizontal" Margin="4,4,0,0">
                                                     <TextBlock Text="{Binding [InitialBalance], Source={x:Static svc:Loc.Instance}}"
-                                                               FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                               Style="{StaticResource MicroLabelDim}" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                                     <TextBox Text="{Binding InitialBalance, Converter={StaticResource CurrencyConv}, UpdateSourceTrigger=LostFocus}"
                                                              Style="{StaticResource FinanceInlineTextBox}" FontSize="11" MinWidth="80"/>
                                                 </StackPanel>
@@ -1128,7 +1126,7 @@
                                                                    VerticalAlignment="Center"/>
                                                         <StackPanel Orientation="Horizontal">
                                                             <TextBlock Text="{Binding [PaymentDay], Source={x:Static svc:Loc.Instance}}"
-                                                                       FontSize="11" Foreground="{DynamicResource MutedBrush}"
+                                                                       Style="{StaticResource MicroLabelDim}"
                                                                        VerticalAlignment="Center" Margin="0,0,4,0"/>
                                                             <TextBox Text="{Binding DayOfMonth, UpdateSourceTrigger=LostFocus}"
                                                                      Style="{StaticResource FinanceInlineTextBox}" MinWidth="35" MaxWidth="40"/>
@@ -1148,7 +1146,7 @@
                                     <StackPanel Orientation="Horizontal" Margin="0,6,0,0"
                                                 Visibility="{Binding HasPayments, Converter={StaticResource VisConv}}">
                                         <TextBlock Text="{Binding [Scheduled], Source={x:Static svc:Loc.Instance}}"
-                                                   FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,0,6,0"/>
+                                                   Style="{StaticResource MicroLabelDim}" Margin="0,0,6,0"/>
                                         <TextBlock Text="{Binding ScheduledTotal, StringFormat=N2}"
                                                    FontSize="11" FontWeight="SemiBold"
                                                    Foreground="{DynamicResource AccentBrush}"/>
@@ -1230,7 +1228,7 @@
                                            Foreground="{DynamicResource InfoBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <TextBlock Text="{Binding [ForecastBalance], Source={x:Static svc:Loc.Instance}}"
                                        FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                            <TextBlock FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="12,0,0,0"
+                            <TextBlock Style="{StaticResource MicroLabelDim}" VerticalAlignment="Center" Margin="12,0,0,0"
                                        Text="{Binding [ForecastDays], Source={x:Static svc:Loc.Instance}}"/>
                         </StackPanel>
 
@@ -1243,19 +1241,19 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" HorizontalAlignment="Center">
                                 <TextBlock Text="{Binding [ProjectedIncome], Source={x:Static svc:Loc.Instance}}"
-                                           FontSize="10" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center"/>
+                                           Style="{StaticResource MicroLabelDim}" HorizontalAlignment="Center"/>
                                 <TextBlock Text="{Binding ProjectedIncome, StringFormat=N2}" FontSize="16" FontWeight="Bold"
                                            Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1" HorizontalAlignment="Center">
                                 <TextBlock Text="{Binding [ProjectedExpenses], Source={x:Static svc:Loc.Instance}}"
-                                           FontSize="10" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center"/>
+                                           Style="{StaticResource MicroLabelDim}" HorizontalAlignment="Center"/>
                                 <TextBlock Text="{Binding ProjectedExpenses, StringFormat=N2}" FontSize="16" FontWeight="Bold"
                                            Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2" HorizontalAlignment="Center">
                                 <TextBlock Text="{Binding [Forecast], Source={x:Static svc:Loc.Instance}}"
-                                           FontSize="10" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center"/>
+                                           Style="{StaticResource MicroLabelDim}" HorizontalAlignment="Center"/>
                                 <TextBlock Text="{Binding ForecastBalance, StringFormat=N2}" FontSize="16" FontWeight="Bold"
                                            Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center"/>
                             </StackPanel>
@@ -1440,7 +1438,7 @@
                                          Height="10" Margin="0,0,20,0"
                                          Style="{DynamicResource AccentProgressBar}"/>
                         </DockPanel>
-                        <TextBlock FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,8,0,0">
+                        <TextBlock Style="{StaticResource MicroLabelDim}" Margin="0,8,0,0">
                             <Run Text="{Binding [Savings], Source={x:Static svc:Loc.Instance}, Mode=OneWay}"/>
                             <Run Text=": "/>
                             <Run Text="{Binding Savings, StringFormat=N2, Mode=OneWay}" FontWeight="SemiBold"/>

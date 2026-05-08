@@ -71,6 +71,9 @@ public sealed partial class DayViewModel : ObservableObject
         OnPropertyChanged(nameof(ShortDayName));
     }
 
+    /// <summary>Transient UI flag - true while a drag is over this day. Not persisted.</summary>
+    [ObservableProperty] private bool _isDropTarget;
+
     [ObservableProperty] private int _sleep;
     [ObservableProperty] private int _energy;
     [ObservableProperty] private int _mood;

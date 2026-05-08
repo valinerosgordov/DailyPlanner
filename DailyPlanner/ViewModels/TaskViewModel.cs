@@ -29,6 +29,9 @@ public sealed partial class TaskViewModel : ObservableObject
     [ObservableProperty]
     private string _text;
 
+    /// <summary>Transient UI flag - true while this task is being dragged. Not persisted.</summary>
+    [ObservableProperty] private bool _isBeingDragged;
+
     [ObservableProperty]
     private bool _isCompleted;
 
