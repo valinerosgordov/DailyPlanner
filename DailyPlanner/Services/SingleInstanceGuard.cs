@@ -5,7 +5,7 @@ using System.Windows;
 
 namespace DailyPlanner.Services;
 
-public static class SingleInstanceGuard
+public static partial class SingleInstanceGuard
 {
     private const string MutexName = @"Global\DailyPlanner_Mutex_c3f4a2e1";
     private const string EventName = @"Global\DailyPlanner_Activate_c3f4a2e1";
@@ -96,15 +96,15 @@ public static class SingleInstanceGuard
         }
     }
 
-    [DllImport("user32.dll")]
+    [LibraryImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool SetForegroundWindow(nint hWnd);
+    private static partial bool SetForegroundWindow(nint hWnd);
 
-    [DllImport("user32.dll")]
+    [LibraryImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool ShowWindow(nint hWnd, int nCmdShow);
+    private static partial bool ShowWindow(nint hWnd, int nCmdShow);
 
-    [DllImport("user32.dll")]
+    [LibraryImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool IsIconic(nint hWnd);
+    private static partial bool IsIconic(nint hWnd);
 }

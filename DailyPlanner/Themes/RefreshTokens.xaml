@@ -31,10 +31,11 @@
          Use UPPERCASE in XAML text — no automatic transform applied. -->
     <Style x:Key="MicroLabel" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource FontMono}"/>
-        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="FontSize" Value="11"/>
         <Setter Property="FontWeight" Value="Black"/>
         <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
         <Setter Property="Typography.NumeralStyle" Value="Lining"/>
+        <Setter Property="Typography.Capitals" Value="AllSmallCaps"/>
         <Setter Property="TextOptions.TextFormattingMode" Value="Ideal"/>
     </Style>
 
