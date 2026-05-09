@@ -7,6 +7,23 @@ namespace DailyPlanner.Services;
 
 public static class ExportService
 {
+    /// <summary>
+    /// Prefixes a leading apostrophe to strings that Excel would otherwise
+    /// interpret as a formula (=, +, -, @, tab, CR). Without this guard, a
+    /// malicious task name like <c>=cmd|'/c calc.exe'!A1</c> would execute when
+    /// the exported XLSX is opened in Excel.
+    /// </summary>
+    private static string EscapeForExcel(string? s)
+    {
+        if (string.IsNullOrEmpty(s)) return s ?? string.Empty;
+        var first = s[0];
+        return first switch
+        {
+            '=' or '+' or '-' or '@' or '\t' or '\r' => "'" + s,
+            _ => s
+        };
+    }
+
     public static bool ExportWeekToExcel(PlannerWeek week, string filePath)
     {
         try
@@ -28,7 +45,7 @@ public static class ExportService
             foreach (var goal in week.Goals.OrderBy(g => g.Order))
             {
                 ws.Cell(row, 1).Value = goal.Order;
-                ws.Cell(row, 2).Value = goal.Text;
+                ws.Cell(row, 2).Value = EscapeForExcel(goal.Text);
                 ws.Cell(row, 3).Value = goal.IsCompleted ? "\u2713" : "";
                 row++;
             }
@@ -60,7 +77,7 @@ public static class ExportService
                         var prefix = task.ParentTaskId is not null ? "  └ " : "";
                         var text = $"{prefix}{task.Text}";
                         if (task.IsCompleted) text = $"\u2713 {text}";
-                        ws.Cell(row, d + 2).Value = text;
+                        ws.Cell(row, d + 2).Value = EscapeForExcel(text);
                     }
                 }
                 row++;
@@ -99,7 +116,7 @@ public static class ExportService
 
             foreach (var habit in week.Habits.OrderBy(h => h.Order))
             {
-                ws.Cell(row, 1).Value = habit.Name;
+                ws.Cell(row, 1).Value = EscapeForExcel(habit.Name);
                 var ordered = new[] { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday,
                 DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday };
                 var entryMap = habit.Entries.ToDictionary(e => e.DayOfWeek);
@@ -121,14 +138,14 @@ public static class ExportService
             {
                 foreach (var note in week.WeeklyNotes.OrderBy(n => n.Order))
                 {
-                    ws.Cell(row, 1).Value = note.Text;
+                    ws.Cell(row, 1).Value = EscapeForExcel(note.Text);
                     ws.Range(row, 1, row, 8).Merge();
                     row++;
                 }
             }
             if (!string.IsNullOrWhiteSpace(week.Notes))
             {
-                ws.Cell(row, 1).Value = week.Notes;
+                ws.Cell(row, 1).Value = EscapeForExcel(week.Notes);
                 ws.Range(row, 1, row, 8).Merge();
             }
 
@@ -188,8 +205,8 @@ public static class ExportService
 
             foreach (var e in income)
             {
-                ws.Cell(row, 1).Value = $"{e.CategoryIcon} {e.CategoryName}";
-                ws.Cell(row, 2).Value = e.Description;
+                ws.Cell(row, 1).Value = EscapeForExcel($"{e.CategoryIcon} {e.CategoryName}");
+                ws.Cell(row, 2).Value = EscapeForExcel(e.Description);
                 ws.Cell(row, 3).Value = e.Amount;
                 ws.Cell(row, 3).Style.NumberFormat.Format = "#,##0.00";
                 ws.Cell(row, 4).Value = e.DisplayDate;
@@ -210,8 +227,8 @@ public static class ExportService
 
             foreach (var e in expenses)
             {
-                ws.Cell(row, 1).Value = $"{e.CategoryIcon} {e.CategoryName}";
-                ws.Cell(row, 2).Value = e.Description;
+                ws.Cell(row, 1).Value = EscapeForExcel($"{e.CategoryIcon} {e.CategoryName}");
+                ws.Cell(row, 2).Value = EscapeForExcel(e.Description);
                 ws.Cell(row, 3).Value = e.Amount;
                 ws.Cell(row, 3).Style.NumberFormat.Format = "#,##0.00";
                 ws.Cell(row, 4).Value = e.DisplayDate;
@@ -234,7 +251,7 @@ public static class ExportService
 
                 foreach (var b in budgets)
                 {
-                    ws.Cell(row, 1).Value = $"{b.CategoryIcon} {b.CategoryName}";
+                    ws.Cell(row, 1).Value = EscapeForExcel($"{b.CategoryIcon} {b.CategoryName}");
                     ws.Cell(row, 2).Value = b.Amount;
                     ws.Cell(row, 2).Style.NumberFormat.Format = "#,##0.00";
                     ws.Cell(row, 3).Value = b.SpentAmount;
@@ -255,7 +272,7 @@ public static class ExportService
 
                 foreach (var c in breakdown)
                 {
-                    ws.Cell(row, 1).Value = $"{c.Icon} {c.Name}";
+                    ws.Cell(row, 1).Value = EscapeForExcel($"{c.Icon} {c.Name}");
                     ws.Cell(row, 2).Value = c.Amount;
                     ws.Cell(row, 2).Style.NumberFormat.Format = "#,##0.00";
                     row++;
