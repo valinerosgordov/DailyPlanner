@@ -8,7 +8,7 @@ public sealed partial class PlannerService
 {
     public async Task<List<InboxTask>> GetInboxTasksAsync(CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         return await db.InboxTasks
             .AsNoTracking()
             .Where(t => !t.IsArchived)
@@ -18,7 +18,7 @@ public sealed partial class PlannerService
     }
     public async Task SaveInboxTaskAsync(InboxTask task, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         if (task.Id == 0)
             db.InboxTasks.Add(task);
         else
@@ -27,7 +27,7 @@ public sealed partial class PlannerService
     }
     public async Task RemoveInboxTaskAsync(int taskId, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var t = await db.InboxTasks.FindAsync([taskId], ct).ConfigureAwait(false);
         if (t is null) return;
         db.InboxTasks.Remove(t);
@@ -35,7 +35,7 @@ public sealed partial class PlannerService
     }
     public async Task<DailyTask> MoveInboxToDayAsync(int inboxTaskId, DateOnly date, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var inbox = await db.InboxTasks.FindAsync([inboxTaskId], ct).ConfigureAwait(false)
             ?? throw new InvalidOperationException("Inbox task not found");
 
@@ -106,7 +106,7 @@ public sealed partial class PlannerService
     }
     public async Task<TrelloSettings> GetTrelloSettingsAsync(CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var settings = await db.TrelloSettings.FirstOrDefaultAsync(ct).ConfigureAwait(false);
         if (settings is null)
         {
@@ -122,7 +122,7 @@ public sealed partial class PlannerService
     {
         settings.ApiKey = ProtectedTokenStore.Protect(settings.ApiKey);
         settings.Token = ProtectedTokenStore.Protect(settings.Token);
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         db.TrelloSettings.Update(settings);
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
         settings.ApiKey = ProtectedTokenStore.Unprotect(settings.ApiKey);
@@ -143,7 +143,7 @@ public sealed partial class PlannerService
 
             var cards = await trello.GetCardsInListByNameAsync(settings.ListName, settings.ApiKey, settings.Token, ct).ConfigureAwait(false);
 
-            await using var db = PlannerDbContextFactory.Create();
+            await using var db = _dbFactory.CreateDbContext();
             var inInbox = await db.InboxTasks
                 .Where(t => t.Source == InboxSource.Trello && t.ExternalId != null)
                 .Select(t => t.ExternalId!)

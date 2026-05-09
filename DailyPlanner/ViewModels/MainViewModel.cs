@@ -70,9 +70,13 @@ public sealed partial class MainViewModel : ObservableObject
 
     private readonly TimeProvider _time;
 
-    public MainViewModel() : this(new PlannerService(), new TrelloService(),
-        new UpdateService("https://github.com/valinerosgordov/DailyPlanner"),
-        TimeProvider.System)
+    /// <summary>Design-time / fallback constructor — production code resolves this VM through the DI container.</summary>
+    public MainViewModel()
+        : this(
+            new PlannerService(new PlannerDbContextFactoryAdapter()),
+            new TrelloService(),
+            new UpdateService("https://github.com/valinerosgordov/DailyPlanner"),
+            TimeProvider.System)
     { }
 
     public MainViewModel(PlannerService service, TrelloService trelloService, UpdateService updateService, TimeProvider time)

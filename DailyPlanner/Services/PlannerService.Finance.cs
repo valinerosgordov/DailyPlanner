@@ -8,14 +8,14 @@ public sealed partial class PlannerService
 {
     public async Task<List<FinanceCategory>> GetFinanceCategoriesAsync(FinanceEntryType? type = null, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var query = db.FinanceCategories.AsNoTracking().Where(c => !c.IsArchived);
         if (type is not null) query = query.Where(c => c.Type == type);
         return await query.OrderBy(c => c.Order).ToListAsync(ct).ConfigureAwait(false);
     }
     public async Task SaveFinanceCategoryAsync(FinanceCategory category, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         if (category.Id == 0)
             db.FinanceCategories.Add(category);
         else
@@ -24,7 +24,7 @@ public sealed partial class PlannerService
     }
     public async Task ArchiveFinanceCategoryAsync(int categoryId, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var cat = await db.FinanceCategories.FindAsync([categoryId], ct).ConfigureAwait(false);
         if (cat is not null)
         {
@@ -34,14 +34,14 @@ public sealed partial class PlannerService
     }
     public async Task<bool> CanDeleteFinanceCategoryAsync(int categoryId, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var hasEntries = await db.FinanceEntries.AnyAsync(e => e.CategoryId == categoryId, ct).ConfigureAwait(false);
         var hasPayments = await db.RecurringPayments.AnyAsync(rp => rp.CategoryId == categoryId, ct).ConfigureAwait(false);
         return !hasEntries && !hasPayments;
     }
     public async Task<bool> RemoveFinanceCategoryAsync(int categoryId, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var hasEntries = await db.FinanceEntries.AnyAsync(e => e.CategoryId == categoryId, ct).ConfigureAwait(false);
         var hasPayments = await db.RecurringPayments.AnyAsync(rp => rp.CategoryId == categoryId, ct).ConfigureAwait(false);
         if (hasEntries || hasPayments) return false;
@@ -76,7 +76,7 @@ public sealed partial class PlannerService
 
     public async Task SeedFinanceCategoriesAsync(CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
 
         var existing = await db.FinanceCategories.ToListAsync(ct).ConfigureAwait(false);
         if (existing.Count == 0)
@@ -134,14 +134,14 @@ public sealed partial class PlannerService
     }
     public async Task<List<FinanceEntry>> GetFinanceEntriesAsync(DateOnly from, DateOnly to, FinanceEntryType? type = null, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var query = db.FinanceEntries.AsNoTracking().Include(e => e.Category).Where(e => e.Date >= from && e.Date <= to);
         if (type is not null) query = query.Where(e => e.Type == type);
         return await query.OrderBy(e => e.Date).ThenBy(e => e.Id).ToListAsync(ct).ConfigureAwait(false);
     }
     public async Task SaveFinanceEntryAsync(FinanceEntry entry, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
 
         if (entry.CategoryId > 0)
         {
@@ -166,18 +166,18 @@ public sealed partial class PlannerService
     }
     public async Task RemoveFinanceEntryAsync(int entryId, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var entry = await db.FinanceEntries.FindAsync([entryId], ct).ConfigureAwait(false);
         if (entry is not null) { db.FinanceEntries.Remove(entry); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
     }
     public async Task<List<FinanceBudget>> GetBudgetsAsync(string monthYear, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         return await db.FinanceBudgets.AsNoTracking().Include(b => b.Category).Where(b => b.MonthYear == monthYear).ToListAsync(ct).ConfigureAwait(false);
     }
     public async Task SaveBudgetAsync(FinanceBudget budget, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         if (budget.Id == 0)
         {
             db.FinanceBudgets.Add(budget);
@@ -191,20 +191,20 @@ public sealed partial class PlannerService
     }
     public async Task RemoveBudgetAsync(int budgetId, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var b = await db.FinanceBudgets.FindAsync([budgetId], ct).ConfigureAwait(false);
         if (b is not null) { db.FinanceBudgets.Remove(b); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
     }
     public async Task<List<RecurringPayment>> GetRecurringPaymentsAsync(bool activeOnly = true, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var query = db.RecurringPayments.AsNoTracking().Include(rp => rp.Category).AsQueryable();
         if (activeOnly) query = query.Where(rp => rp.IsActive);
         return await query.OrderBy(rp => rp.Type).ThenBy(rp => rp.Name).ToListAsync(ct).ConfigureAwait(false);
     }
     public async Task SaveRecurringPaymentAsync(RecurringPayment payment, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         if (payment.Id == 0)
         {
             db.RecurringPayments.Add(payment);
@@ -218,13 +218,13 @@ public sealed partial class PlannerService
     }
     public async Task RemoveRecurringPaymentAsync(int paymentId, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var rp = await db.RecurringPayments.FindAsync([paymentId], ct).ConfigureAwait(false);
         if (rp is not null) { db.RecurringPayments.Remove(rp); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
     }
     public async Task GenerateRecurringEntriesAsync(DateOnly from, DateOnly to, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var payments = await db.RecurringPayments
             .Where(rp => rp.IsActive && rp.AutoCreate && rp.StartDate <= to && (rp.EndDate == null || rp.EndDate >= from))
             .ToListAsync(ct).ConfigureAwait(false);
@@ -281,7 +281,7 @@ public sealed partial class PlannerService
     }
     public async Task<List<CategoryBreakdownItem>> GetExpensesByCategoryAsync(DateOnly from, DateOnly to, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var entries = await db.FinanceEntries
             .Include(e => e.Category)
             .Where(e => e.Type == FinanceEntryType.Expense && e.Date >= from && e.Date <= to)
@@ -301,7 +301,7 @@ public sealed partial class PlannerService
     }
     public async Task<List<MonthlyFinanceSummary>> GetMonthlyTotalsAsync(int months, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var cutoff = DateOnly.FromDateTime(DateTime.Today).AddMonths(-months + 1);
         cutoff = new DateOnly(cutoff.Year, cutoff.Month, 1);
 
@@ -330,43 +330,43 @@ public sealed partial class PlannerService
     }
     public async Task<List<FinancialGoal>> GetFinancialGoalsAsync(CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         return await db.FinancialGoals.OrderBy(g => g.Order).ToListAsync(ct).ConfigureAwait(false);
     }
     public async Task SaveFinancialGoalAsync(FinancialGoal goal, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         if (goal.Id == 0) db.FinancialGoals.Add(goal);
         else db.FinancialGoals.Update(goal);
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
     public async Task RemoveFinancialGoalAsync(int goalId, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var goal = await db.FinancialGoals.FindAsync([goalId], ct).ConfigureAwait(false);
         if (goal is not null) { db.FinancialGoals.Remove(goal); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
     }
     public async Task<List<Account>> GetAccountsAsync(CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         return await db.Accounts.Where(a => !a.IsArchived).OrderBy(a => a.Order).ToListAsync(ct).ConfigureAwait(false);
     }
     public async Task SaveAccountAsync(Account account, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         if (account.Id == 0) db.Accounts.Add(account);
         else db.Accounts.Update(account);
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
     public async Task RemoveAccountAsync(int accountId, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var account = await db.Accounts.FindAsync([accountId], ct).ConfigureAwait(false);
         if (account is not null) { db.Accounts.Remove(account); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
     }
     public async Task<decimal> GetAccountBalanceAsync(int accountId, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var account = await db.Accounts.FindAsync([accountId], ct).ConfigureAwait(false);
         if (account is null) return 0;
 
@@ -387,7 +387,7 @@ public sealed partial class PlannerService
     }
     public async Task<List<AccountTransfer>> GetAccountTransfersAsync(DateOnly from, DateOnly to, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         return await db.AccountTransfers
             .Include(t => t.FromAccount)
             .Include(t => t.ToAccount)
@@ -397,20 +397,20 @@ public sealed partial class PlannerService
     }
     public async Task SaveAccountTransferAsync(AccountTransfer transfer, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         if (transfer.Id == 0) db.AccountTransfers.Add(transfer);
         else db.AccountTransfers.Update(transfer);
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
     public async Task RemoveAccountTransferAsync(int transferId, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var transfer = await db.AccountTransfers.FindAsync([transferId], ct).ConfigureAwait(false);
         if (transfer is not null) { db.AccountTransfers.Remove(transfer); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
     }
     public async Task<List<FinanceEntry>> GetSplitEntriesAsync(int parentEntryId, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         return await db.FinanceEntries
             .Include(e => e.Category)
             .Where(e => e.ParentEntryId == parentEntryId)
@@ -419,7 +419,7 @@ public sealed partial class PlannerService
     }
     public async Task<List<ForecastDay>> GetBalanceForecastAsync(int days, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var today = DateOnly.FromDateTime(DateTime.Today);
         var endDate = today.AddDays(days);
 
@@ -495,7 +495,7 @@ public sealed partial class PlannerService
         var firstDay = new DateOnly(year, month, 1);
         var lastDay = firstDay.AddMonths(1).AddDays(-1);
 
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var entries = await db.FinanceEntries
             .Where(e => e.Date >= firstDay && e.Date <= lastDay)
             .ToListAsync(ct).ConfigureAwait(false);
@@ -528,7 +528,7 @@ public sealed partial class PlannerService
     }
     public async Task<int> ImportFinanceEntriesFromCsvAsync(string filePath, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var lines = await System.IO.File.ReadAllLinesAsync(filePath, System.Text.Encoding.UTF8, ct).ConfigureAwait(false);
         if (lines.Length < 2) return 0;
 
