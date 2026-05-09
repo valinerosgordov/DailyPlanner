@@ -8,14 +8,14 @@ public sealed partial class PlannerService
 {
     public async Task<List<IncomeSource>> GetIncomeSourcesAsync(bool activeOnly = true, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var query = db.IncomeSources.Include(s => s.Payments).AsQueryable();
         if (activeOnly) query = query.Where(s => s.IsActive);
         return await query.OrderBy(s => s.Order).ThenBy(s => s.Name).ToListAsync(ct).ConfigureAwait(false);
     }
     public async Task SaveIncomeSourceAsync(IncomeSource source, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         if (source.Id == 0)
             db.IncomeSources.Add(source);
         else
@@ -24,13 +24,13 @@ public sealed partial class PlannerService
     }
     public async Task RemoveIncomeSourceAsync(int sourceId, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var source = await db.IncomeSources.FindAsync([sourceId], ct).ConfigureAwait(false);
         if (source is not null) { db.IncomeSources.Remove(source); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
     }
     public async Task SaveIncomeSourcePaymentAsync(IncomeSourcePayment payment, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         if (payment.Id == 0)
             db.IncomeSourcePayments.Add(payment);
         else
@@ -39,7 +39,7 @@ public sealed partial class PlannerService
     }
     public async Task RemoveIncomeSourcePaymentAsync(int paymentId, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var payment = await db.IncomeSourcePayments.FindAsync([paymentId], ct).ConfigureAwait(false);
         if (payment is not null) { db.IncomeSourcePayments.Remove(payment); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
     }
@@ -49,7 +49,7 @@ public sealed partial class PlannerService
     /// </summary>
     public async Task<List<IncomeSourceStatus>> GetIncomeSourceStatusAsync(int year, int month, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var sources = await db.IncomeSources.Include(s => s.Payments)
             .Where(s => s.IsActive)
             .ToListAsync(ct).ConfigureAwait(false);
