@@ -7,11 +7,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ApplicationIcon>planner.ico</ApplicationIcon>
     <AssemblyName>DailyPlanner</AssemblyName>
-    <Version>3.30.0</Version>
+    <Version>3.31.0</Version>
     <Authors>DailyPlanner Team</Authors>
-    <Description>Daily &amp; Financial Planner — weekly planner with finance tracker, habits, Pomodoro and analytics</Description>
+    <Description>Daily &amp; Financial Planner вЂ” weekly planner with finance tracker, habits, Pomodoro and analytics</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
