@@ -378,84 +378,6 @@ public sealed partial class MainViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
-    private void BackupDatabase()
-    {
-        var dialog = new SaveFileDialog
-        {
-            FileName = $"DailyPlanner_Backup_{DateTime.Now:yyyyMMdd_HHmmss}.db",
-            DefaultExt = ".db",
-            Filter = "SQLite DB (*.db)|*.db"
-        };
-        if (dialog.ShowDialog() != true) return;
-
-        var dbPath = PlannerDbContextFactory.DbPath;
-        if (File.Exists(dbPath))
-            File.Copy(dbPath, dialog.FileName, true);
-    }
-
-    [RelayCommand]
-    private async Task RestoreDatabaseAsync()
-    {
-        var dialog = new OpenFileDialog
-        {
-            DefaultExt = ".db",
-            Filter = "SQLite DB (*.db)|*.db"
-        };
-        if (dialog.ShowDialog() != true) return;
-
-        var dbPath = PlannerDbContextFactory.DbPath;
-
-        // Validate the backup file is a valid SQLite database
-        try
-        {
-            await using var testDb = new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={dialog.FileName};Mode=ReadOnly");
-            await testDb.OpenAsync();
-            await testDb.CloseAsync();
-        }
-        catch (Exception ex)
-        {
-            Log.Error("MainVM", $"Invalid backup: {ex.Message}");
-            NotificationService.ShowToast(Loc.Get("RestoreTitle"), Loc.Get("RestoreInvalidDb"));
-            return;
-        }
-
-        // Create safety backup before overwriting
-        var backupPath = dbPath + ".pre-restore";
-        try
-        {
-            Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
-
-            if (File.Exists(dbPath))
-                File.Copy(dbPath, backupPath, true);
-
-            File.Copy(dialog.FileName, dbPath, true);
-
-            // WAL/SHM files may be briefly locked after pool clear
-            foreach (var suffix in new[] { "-wal", "-shm" })
-            {
-                var path = dbPath + suffix;
-                if (!File.Exists(path)) continue;
-                try { File.Delete(path); }
-                catch (IOException) { /* SQLite will recreate if needed */ }
-            }
-        }
-        catch (Exception ex)
-        {
-            Log.Error("MainVM", $"Restore failed: {ex.Message}");
-            // Restore from safety backup if copy failed
-            if (File.Exists(backupPath))
-                File.Copy(backupPath, dbPath, true);
-            NotificationService.ShowToast(Loc.Get("RestoreTitle"), Loc.Get("RestoreError"));
-            return;
-        }
-
-        await LoadMonthAsync();
-        await LoadTemplatesAsync();
-        await LoadRemindersAsync();
-        await LoadMeetingsAsync();
-        NotificationService.ShowToast(Loc.Get("RestoreTitle"), Loc.Get("RestoreSuccess"));
-    }
 
     [RelayCommand]
     private async Task LoadTemplatesAsync()
@@ -677,26 +599,6 @@ public sealed partial class MainViewModel : ObservableObject
         TrelloListName = string.IsNullOrWhiteSpace(s.ListName) ? "В работе" : s.ListName;
     }
 
-    [RelayCommand]
-    private async Task SaveTrelloSettingsAsync()
-    {
-        var s = await _service.GetTrelloSettingsAsync();
-        s.IsEnabled = TrelloIsEnabled;
-        s.AutoSyncOnStartup = TrelloAutoSyncOnStartup;
-        s.ApiKey = TrelloApiKey.Trim();
-        s.Token = TrelloToken.Trim();
-        s.ListName = string.IsNullOrWhiteSpace(TrelloListName) ? "В работе" : TrelloListName.Trim();
-        await _service.SaveTrelloSettingsAsync(s);
-        TrelloStatus = Loc.Get("TrelloSaved");
-    }
-
-    [RelayCommand]
-    private async Task TestTrelloConnectionAsync()
-    {
-        TrelloStatus = Loc.Get("TrelloTesting");
-        var ok = await _trelloService.TestConnectionAsync(TrelloApiKey.Trim(), TrelloToken.Trim());
-        TrelloStatus = ok ? Loc.Get("TrelloConnectionOk") : Loc.Get("TrelloConnectionFail");
-    }
 
     private System.Windows.Threading.DispatcherTimer? _reminderTimer;
 
