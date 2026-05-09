@@ -1,4 +1,4 @@
-﻿namespace DailyPlanner.Services;
+namespace DailyPlanner.Services;
 
 internal static class LocFrStrings
 {
@@ -480,6 +480,11 @@ internal static class LocFrStrings
         ["CmdPreviousMonth"] = "Mois précédent",
         ["CmdNextMonth"] = "Mois suivant",
         ["CmdBackupDb"] = "Sauvegarder la BD",
+        ["RecoveryTitle"] = "Vérification d'intégrité de la BD échouée",
+        ["RecoveryMessage"] = "Le fichier de données de l'application semble corrompu. Options disponibles :\n\n• Oui — récupération automatique (VACUUM INTO, conserve toutes les lignes lisibles)\n• Non — revenir à la dernière sauvegarde saine : {0}\n• Annuler — quitter pour résoudre manuellement\n\nLe fichier corrompu sera archivé en tant que .corrupt-{{horodatage}} dans tous les cas.",
+        ["RecoverySuccess"] = "BD récupérée avec succès. Redémarrez l'application.",
+        ["RecoveryFailed"] = "Échec de la récupération. Voir app.log.",
+        ["RecoveryNoBackup"] = "(aucune sauvegarde saine trouvée)",
         ["CmdRestoreDb"] = "Restaurer la BD",
     };
 }
