@@ -1,4 +1,4 @@
-﻿namespace DailyPlanner.Services;
+namespace DailyPlanner.Services;
 
 internal static class LocEsStrings
 {
@@ -480,6 +480,11 @@ internal static class LocEsStrings
         ["CmdPreviousMonth"] = "Mes anterior",
         ["CmdNextMonth"] = "Mes siguiente",
         ["CmdBackupDb"] = "Copia de seguridad",
+        ["RecoveryTitle"] = "Verificación de integridad de BD fallida",
+        ["RecoveryMessage"] = "El archivo de datos parece estar corrupto. Opciones disponibles:\n\n• Sí — recuperación automática (VACUUM INTO, conserva todas las filas legibles)\n• No — revertir a la copia de seguridad sana más reciente: {0}\n• Cancelar — salir para resolverlo manualmente\n\nEl archivo dañado se conservará como .corrupt-{{marca}} en cualquier caso.",
+        ["RecoverySuccess"] = "BD recuperada correctamente. Reinicia la aplicación.",
+        ["RecoveryFailed"] = "Recuperación fallida. Consulta app.log.",
+        ["RecoveryNoBackup"] = "(sin copia sana disponible)",
         ["CmdRestoreDb"] = "Restaurar BD",
     };
 }

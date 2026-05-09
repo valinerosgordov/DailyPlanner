@@ -1,4 +1,4 @@
-﻿namespace DailyPlanner.Services;
+namespace DailyPlanner.Services;
 
 internal static class LocRuStrings
 {
@@ -513,6 +513,11 @@ internal static class LocRuStrings
         ["CmdPreviousMonth"] = "Предыдущий месяц",
         ["CmdNextMonth"] = "Следующий месяц",
         ["CmdBackupDb"] = "Резервная копия БД",
+        ["RecoveryTitle"] = "Целостность БД нарушена",
+        ["RecoveryMessage"] = "Файл данных приложения повреждён. Доступные варианты:\n\n• Да — автоматическое восстановление (VACUUM INTO, сохраняет все читаемые записи)\n• Нет — откатиться к последней здоровой резервной копии: {0}\n• Отмена — выйти, чтобы решить вручную\n\nПовреждённый файл будет сохранён рядом как .corrupt-{{дата}} в любом случае.",
+        ["RecoverySuccess"] = "БД успешно восстановлена. Перезапустите приложение.",
+        ["RecoveryFailed"] = "Восстановление не удалось. Подробности в app.log.",
+        ["RecoveryNoBackup"] = "(нет здоровой копии)",
         ["CmdRestoreDb"] = "Восстановить БД",
     };
 }
