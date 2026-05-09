@@ -6,9 +6,23 @@ namespace DailyPlanner.Services;
 
 public sealed partial class PlannerService
 {
+    private readonly IDbContextFactory<PlannerDbContext> _dbFactory;
+
+    /// <summary>
+    /// Constructor-injected DbContext factory. Each call to <c>_dbFactory.CreateDbContext()</c>
+    /// produces a fresh, scoped DbContext — matches the pattern PlannerService partials
+    /// have always used (open, work, dispose) but routed through DI instead of the
+    /// static <c>_dbFactory.CreateDbContext()</c> which carried a mutable
+    /// <c>OverrideFactory</c> field that race-conditioned parallel test fixtures.
+    /// </summary>
+    public PlannerService(IDbContextFactory<PlannerDbContext> dbFactory)
+    {
+        _dbFactory = dbFactory;
+    }
+
     public async Task<PlannerWeek> GetOrCreateWeekAsync(DateOnly startDate, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
 
         // Split query: 5 nested Includes produce a Cartesian explosion in
         // single-query mode (~thousands of rows for one week). AsSplitQuery
@@ -94,14 +108,14 @@ public sealed partial class PlannerService
 
     public async Task SaveTaskAsync(DailyTask task, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         db.DailyTasks.Update(task);
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task AddSubTaskAsync(DailyTask subTask, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         db.DailyTasks.Add(subTask);
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
@@ -110,7 +124,7 @@ public sealed partial class PlannerService
     // restored task doesn't collide with whatever the user added after the delete.
     public async Task RestoreTaskAsync(DailyTask snapshot, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var emptySlot = await db.DailyTasks
             .Where(t => t.DailyPlanId == snapshot.DailyPlanId && t.ParentTaskId == null && (t.Text == null || t.Text == ""))
             .OrderBy(t => t.Order)
@@ -150,7 +164,7 @@ public sealed partial class PlannerService
 
     public async Task RemoveSubTaskAsync(int subTaskId, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var task = await db.DailyTasks.FindAsync([subTaskId], ct).ConfigureAwait(false);
         if (task is not null)
         {
@@ -161,7 +175,7 @@ public sealed partial class PlannerService
 
     public async Task RemoveTaskAsync(int taskId, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var task = await db.DailyTasks.Include(t => t.SubTasks).FirstOrDefaultAsync(t => t.Id == taskId, ct).ConfigureAwait(false);
         if (task is null) return;
 
@@ -173,7 +187,7 @@ public sealed partial class PlannerService
 
     public async Task MoveTaskToNextDayAsync(int taskId, DateOnly targetDate, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var task = await db.DailyTasks.Include(t => t.SubTasks).FirstOrDefaultAsync(t => t.Id == taskId, ct).ConfigureAwait(false);
         if (task is null) return;
 
@@ -243,28 +257,28 @@ public sealed partial class PlannerService
 
     public async Task AddGoalAsync(WeeklyGoal goal, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         db.WeeklyGoals.Add(goal);
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task SaveGoalAsync(WeeklyGoal goal, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         db.WeeklyGoals.Update(goal);
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task RemoveGoalAsync(int goalId, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var goal = await db.WeeklyGoals.FindAsync([goalId], ct).ConfigureAwait(false);
         if (goal is not null) { db.WeeklyGoals.Remove(goal); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
     }
 
     public async Task SaveDailyStateAsync(DailyState state, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         if (state.Id == 0)
             db.DailyStates.Add(state);
         else
@@ -274,28 +288,28 @@ public sealed partial class PlannerService
 
     public async Task SaveHabitEntryAsync(HabitEntry entry, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         db.HabitEntries.Update(entry);
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task AddHabitAsync(HabitDefinition habit, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         db.HabitDefinitions.Add(habit);
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task SaveHabitDefinitionAsync(HabitDefinition habit, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         db.HabitDefinitions.Update(habit);
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task RemoveHabitAsync(HabitDefinition habit, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var existing = await db.HabitDefinitions
             .Include(h => h.Entries)
             .FirstOrDefaultAsync(h => h.Id == habit.Id, ct).ConfigureAwait(false);
@@ -309,7 +323,7 @@ public sealed partial class PlannerService
 
     public async Task SaveNotesAsync(int weekId, string notes, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var week = await db.Weeks.FindAsync([weekId], ct).ConfigureAwait(false);
         if (week is not null)
         {
@@ -320,13 +334,13 @@ public sealed partial class PlannerService
 
     public async Task<List<RecurringTemplate>> GetActiveTemplatesAsync(CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         return await db.RecurringTemplates.Where(t => t.IsActive).ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task SaveTemplateAsync(RecurringTemplate template, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         if (template.Id == 0)
             db.RecurringTemplates.Add(template);
         else
@@ -336,14 +350,14 @@ public sealed partial class PlannerService
 
     public async Task RemoveTemplateAsync(int templateId, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var t = await db.RecurringTemplates.FindAsync([templateId], ct).ConfigureAwait(false);
         if (t is not null) { db.RecurringTemplates.Remove(t); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
     }
 
     public async Task ApplyTemplatesAsync(PlannerWeek week, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var templates = await db.RecurringTemplates.Where(t => t.IsActive && !string.IsNullOrEmpty(t.Text)).ToListAsync(ct).ConfigureAwait(false);
         if (templates.Count == 0) return;
 
@@ -379,7 +393,7 @@ public sealed partial class PlannerService
 
     public async Task SaveWeeklyNoteAsync(WeeklyNote note, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         if (note.Id == 0)
             db.WeeklyNotes.Add(note);
         else
@@ -389,14 +403,14 @@ public sealed partial class PlannerService
 
     public async Task RemoveWeeklyNoteAsync(int noteId, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var note = await db.WeeklyNotes.FindAsync([noteId], ct).ConfigureAwait(false);
         if (note is not null) { db.WeeklyNotes.Remove(note); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
     }
 
     public async Task SaveReminderAsync(Reminder reminder, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         if (reminder.Id == 0)
             db.Reminders.Add(reminder);
         else
@@ -406,20 +420,20 @@ public sealed partial class PlannerService
 
     public async Task RemoveReminderAsync(int reminderId, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var r = await db.Reminders.FindAsync([reminderId], ct).ConfigureAwait(false);
         if (r is not null) { db.Reminders.Remove(r); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
     }
 
     public async Task<List<Reminder>> GetRemindersAsync(CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         return await db.Reminders.AsNoTracking().OrderBy(r => r.Time).ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task SaveMeetingAsync(Meeting meeting, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         if (meeting.Id == 0)
             db.Meetings.Add(meeting);
         else
@@ -429,20 +443,20 @@ public sealed partial class PlannerService
 
     public async Task RemoveMeetingAsync(int meetingId, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var m = await db.Meetings.FindAsync([meetingId], ct).ConfigureAwait(false);
         if (m is not null) { db.Meetings.Remove(m); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
     }
 
     public async Task<List<Meeting>> GetMeetingsAsync(CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         return await db.Meetings.AsNoTracking().OrderBy(m => m.DateTime).ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task CopyWeekStructureAsync(int sourceWeekId, int targetWeekId, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var source = await db.Weeks
             .Include(w => w.Days).ThenInclude(d => d.Tasks)
             .FirstOrDefaultAsync(w => w.Id == sourceWeekId, ct).ConfigureAwait(false);
@@ -473,7 +487,7 @@ public sealed partial class PlannerService
 
     public async Task CarryOverTasksAsync(DateOnly fromDate, DateOnly toDate, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         var fromDay = await db.DailyPlans.Include(d => d.Tasks).ThenInclude(t => t.SubTasks).FirstOrDefaultAsync(d => d.Date == fromDate, ct).ConfigureAwait(false);
         var toDay = await db.DailyPlans.Include(d => d.Tasks).ThenInclude(t => t.SubTasks).FirstOrDefaultAsync(d => d.Date == toDate, ct).ConfigureAwait(false);
         if (fromDay is null || toDay is null) return;
@@ -539,7 +553,7 @@ public sealed partial class PlannerService
 
     public async Task<List<PlannerWeek>> GetWeeksInRangeAsync(DateOnly from, DateOnly to, CancellationToken ct = default)
     {
-        await using var db = PlannerDbContextFactory.Create();
+        await using var db = _dbFactory.CreateDbContext();
         return await db.Weeks
             .Include(w => w.Days).ThenInclude(d => d.Tasks).ThenInclude(t => t.SubTasks)
             .Include(w => w.Days).ThenInclude(d => d.State)
