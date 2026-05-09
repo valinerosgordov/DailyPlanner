@@ -312,14 +312,35 @@ public partial class WeekPage : Page
         var ok = e.Data.GetDataPresent("TaskVM") || e.Data.GetDataPresent(InboxDragFormat);
         e.Effects = ok ? DragDropEffects.Move : DragDropEffects.None;
         if (ok && sender is ItemsControl { Tag: DayViewModel day })
+        {
+            // Clear any stale highlight on sibling days. DragLeave on a previous day
+            // can be missed if the cursor jumped directly into a child element of the
+            // new day cell (DragLeave fires when entering a child, breaking the
+            // bounds check). Sweeping siblings here guarantees only one day glows.
+            if (DataContext is MainViewModel mainVm && mainVm.SelectedWeek is { } w)
+            {
+                foreach (var other in w.Days)
+                    if (other != day && other.IsDropTarget)
+                        other.IsDropTarget = false;
+            }
             day.IsDropTarget = true;
+        }
         e.Handled = true;
     }
 
     private void Day_DragLeave(object sender, DragEventArgs e)
     {
-        if (sender is ItemsControl { Tag: DayViewModel day })
-            day.IsDropTarget = false;
+        if (sender is not ItemsControl { Tag: DayViewModel day } ic) return;
+
+        // Suppress DragLeave when the cursor merely crossed onto a child element of
+        // the same day cell (TextBlock, Border, etc.) — without this guard the day
+        // highlight would flicker every time the pointer touched a different child.
+        // Real DragLeave still fires when cursor exits the ItemsControl bounds.
+        var p = e.GetPosition(ic);
+        if (p.X >= 0 && p.X <= ic.ActualWidth && p.Y >= 0 && p.Y <= ic.ActualHeight)
+            return;
+
+        day.IsDropTarget = false;
     }
 
     private async void Day_Drop(object sender, DragEventArgs e)
@@ -364,7 +385,13 @@ public partial class WeekPage : Page
                     await mainVm.LoadMonthCommand.ExecuteAsync(null); // fallback: no empty slot to mutate
                 }
             }
-            catch (Exception ex) { Log.Error("WeekPage", $"Inbox drop failed: {ex.Message}"); }
+            catch (Exception ex)
+            {
+                Log.Error("WeekPage", $"Inbox drop failed: {ex.Message}");
+                Services.NotificationService.ShowToast(
+                    Services.Loc.Get("MoveTitle"),
+                    Services.Loc.Get("MoveError"));
+            }
             e.Handled = true;
             return;
         }
