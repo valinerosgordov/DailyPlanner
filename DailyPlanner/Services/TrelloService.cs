@@ -1,4 +1,5 @@
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Reflection;
 using System.Text.Json.Serialization;
@@ -28,6 +29,22 @@ public sealed class TrelloService
         return client;
     }
 
+    /// <summary>
+    /// Builds an authenticated GET request. Trello accepts both query-string
+    /// auth (?key=...&amp;token=...) and an OAuth-style Authorization header.
+    /// We use the header so credentials don't end up in URLs (and from there
+    /// in crash logs, browser history if anything pastes the URL, server
+    /// access logs, or referer headers from any redirect).
+    /// </summary>
+    private static HttpRequestMessage AuthorizedGet(string url, string apiKey, string token)
+    {
+        var req = new HttpRequestMessage(HttpMethod.Get, url);
+        req.Headers.Authorization = new AuthenticationHeaderValue(
+            "OAuth",
+            $"oauth_consumer_key=\"{apiKey}\", oauth_token=\"{token}\"");
+        return req;
+    }
+
     public sealed record TrelloBoard(
         [property: JsonPropertyName("id")] string Id,
         [property: JsonPropertyName("name")] string Name);
@@ -48,8 +65,8 @@ public sealed class TrelloService
     {
         try
         {
-            var url = $"{ApiBase}/members/me?key={apiKey}&token={token}";
-            using var response = await Client.GetAsync(url, ct).ConfigureAwait(false);
+            using var req = AuthorizedGet($"{ApiBase}/members/me", apiKey, token);
+            using var response = await Client.SendAsync(req, ct).ConfigureAwait(false);
             return response.IsSuccessStatusCode;
         }
         catch
@@ -60,22 +77,28 @@ public sealed class TrelloService
 
     public async Task<List<TrelloBoard>> GetBoardsAsync(string apiKey, string token, CancellationToken ct = default)
     {
-        var url = $"{ApiBase}/members/me/boards?fields=name&key={apiKey}&token={token}";
-        var result = await Client.GetFromJsonAsync<List<TrelloBoard>>(url, ct).ConfigureAwait(false);
+        using var req = AuthorizedGet($"{ApiBase}/members/me/boards?fields=name", apiKey, token);
+        using var response = await Client.SendAsync(req, ct).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadFromJsonAsync<List<TrelloBoard>>(ct).ConfigureAwait(false);
         return result ?? [];
     }
 
     public async Task<List<TrelloList>> GetListsAsync(string boardId, string apiKey, string token, CancellationToken ct = default)
     {
-        var url = $"{ApiBase}/boards/{boardId}/lists?fields=name&key={apiKey}&token={token}";
-        var result = await Client.GetFromJsonAsync<List<TrelloList>>(url, ct).ConfigureAwait(false);
+        using var req = AuthorizedGet($"{ApiBase}/boards/{boardId}/lists?fields=name", apiKey, token);
+        using var response = await Client.SendAsync(req, ct).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadFromJsonAsync<List<TrelloList>>(ct).ConfigureAwait(false);
         return result ?? [];
     }
 
     public async Task<List<TrelloCard>> GetCardsAsync(string listId, string apiKey, string token, CancellationToken ct = default)
     {
-        var url = $"{ApiBase}/lists/{listId}/cards?fields=name,idBoard,idList,due,shortUrl&key={apiKey}&token={token}";
-        var result = await Client.GetFromJsonAsync<List<TrelloCard>>(url, ct).ConfigureAwait(false);
+        using var req = AuthorizedGet($"{ApiBase}/lists/{listId}/cards?fields=name,idBoard,idList,due,shortUrl", apiKey, token);
+        using var response = await Client.SendAsync(req, ct).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadFromJsonAsync<List<TrelloCard>>(ct).ConfigureAwait(false);
         return result ?? [];
     }
 
