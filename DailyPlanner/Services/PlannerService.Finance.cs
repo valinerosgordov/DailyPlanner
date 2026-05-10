@@ -222,8 +222,21 @@ public sealed partial class PlannerService
         var rp = await db.RecurringPayments.FindAsync([paymentId], ct).ConfigureAwait(false);
         if (rp is not null) { db.RecurringPayments.Remove(rp); await db.SaveChangesAsync(ct).ConfigureAwait(false); }
     }
+    /// <summary>
+    /// Materializes pending FinanceEntry rows for every active AutoCreate
+    /// RecurringPayment that has an occurrence in <paramref name="from"/>..
+    /// <paramref name="to"/>. Each created row is IsPaid=false ("pending")
+    /// so the user confirms with a one-click "Mark Paid" in the UI.
+    ///
+    /// Uses SubscriptionForecastService.EnumerateOccurrences as the single
+    /// source of truth for "when does this recur" — same logic the renewal
+    /// reminder service uses, so a payment that fires a reminder also gets
+    /// a pending entry materialized.
+    /// </summary>
     public async Task GenerateRecurringEntriesAsync(DateOnly from, DateOnly to, CancellationToken ct = default)
     {
+        if (to < from) return;
+
         await using var db = _dbFactory.CreateDbContext();
         var payments = await db.RecurringPayments
             .Where(rp => rp.IsActive && rp.AutoCreate && rp.StartDate <= to && (rp.EndDate == null || rp.EndDate >= from))
@@ -235,36 +248,23 @@ public sealed partial class PlannerService
             .ToListAsync(ct).ConfigureAwait(false))
             .ToHashSet();
 
+        var window = to.DayNumber - from.DayNumber + 1;
         var newEntries = new List<FinanceEntry>();
 
         foreach (var rp in payments)
         {
-            for (var date = from; date <= to; date = date.AddDays(1))
+            foreach (var occ in SubscriptionForecastService.EnumerateOccurrences(rp, from, window))
             {
-                if (date < rp.StartDate || (rp.EndDate is not null && date > rp.EndDate)) continue;
-
-                var match = rp.Frequency switch
-                {
-                    PaymentFrequency.Monthly => rp.DayOfMonth is not null && date.Day == rp.DayOfMonth,
-                    PaymentFrequency.Weekly => rp.DayOfWeek is not null && date.DayOfWeek == rp.DayOfWeek,
-                    PaymentFrequency.Biweekly => rp.DayOfWeek is not null && date.DayOfWeek == rp.DayOfWeek
-                        && Math.Abs(date.ToDateTime(TimeOnly.MinValue).Subtract(rp.StartDate.ToDateTime(TimeOnly.MinValue)).Days) % 14 == 0,
-                    PaymentFrequency.Quarterly => rp.DayOfMonth is not null && date.Day == rp.DayOfMonth
-                        && ((date.Year - rp.StartDate.Year) * 12 + date.Month - rp.StartDate.Month) % 3 == 0,
-                    PaymentFrequency.Yearly => rp.DayOfMonth is not null && date.Day == rp.DayOfMonth
-                        && date.Month == rp.StartDate.Month,
-                    _ => false
-                };
-
-                if (!match) continue;
-                if (!existingKeys.Add(new { RecurringPaymentId = (int?)rp.Id, Date = date })) continue;
+                if (occ.Date > to) break;
+                if (!existingKeys.Add(new { RecurringPaymentId = (int?)rp.Id, Date = occ.Date })) continue;
 
                 newEntries.Add(new FinanceEntry
                 {
-                    Date = date,
+                    Date = occ.Date,
                     CategoryId = rp.CategoryId,
                     Type = rp.Type,
                     Amount = rp.Amount,
+                    Currency = rp.Currency,
                     Description = rp.Name,
                     IsRecurring = true,
                     RecurringPaymentId = rp.Id,
