@@ -15,6 +15,26 @@ public sealed class FinanceEntry
     public int? AccountId { get; set; }
     public int? ParentEntryId { get; set; }
 
+    /// <summary>
+    /// Original currency the transaction happened in (ISO 4217, e.g. USD).
+    /// Pre-currency rows default to RUB through migration backfill.
+    /// </summary>
+    public string Currency { get; set; } = "RUB";
+
+    /// <summary>
+    /// Exchange rate to the base currency (RUB) at the moment the entry was
+    /// created. Stored so that historical totals stay stable even if today's
+    /// rate moves. Null for base-currency entries (rate = 1).
+    /// </summary>
+    public decimal? ExchangeRateToBase { get; set; }
+
+    /// <summary>
+    /// Computed-and-stored Amount * ExchangeRateToBase. Stored (not pure
+    /// computed) because we'd otherwise need a JOIN on every aggregate query.
+    /// Updated whenever Amount, Currency, or ExchangeRateToBase change.
+    /// </summary>
+    public decimal AmountInBaseCurrency { get; set; }
+
     public PlannerWeek? Week { get; set; }
     public FinanceCategory? Category { get; set; }
     public RecurringPayment? RecurringPayment { get; set; }
