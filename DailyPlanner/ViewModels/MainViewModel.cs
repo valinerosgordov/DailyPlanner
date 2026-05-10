@@ -646,6 +646,48 @@ public sealed partial class MainViewModel : ObservableObject
         }
 
         CheckMeetingReminders();
+        _ = CheckSubscriptionRemindersAsync();
+    }
+
+    /// <summary>
+    /// Fires renewal-reminder toasts for active subscriptions whose distance-
+    /// to-NextRenewalDate exactly matches one of the steps in their CSV ladder
+    /// (RenewalRemindDaysBefore, e.g. `30,7,1`). Each (subscription, renewal,
+    /// step) tuple fires at most once per day via _firedReminders dedup.
+    /// </summary>
+    private async Task CheckSubscriptionRemindersAsync()
+    {
+        try
+        {
+            var today = DateOnly.FromDateTime(_time.GetLocalNow().LocalDateTime);
+            var payments = await _service.GetRecurringPaymentsAsync(activeOnly: true);
+
+            foreach (var p in payments)
+            {
+                if (!p.IsSubscription || !p.NextRenewalDate.HasValue) continue;
+
+                var crossings = SubscriptionForecastService.StepsCrossingToday(p, today);
+                if (crossings.Count == 0) continue;
+
+                foreach (var days in crossings)
+                {
+                    var key = $"sub:{p.Id}:{p.NextRenewalDate.Value:yyyyMMdd}:{days}";
+                    if (!_firedReminders.Add(key)) continue;
+
+                    var title = days == 0
+                        ? Loc.Get("SubReminderToday")
+                        : string.Format(Loc.Get("SubReminderDaysBefore"), days);
+                    var message = string.Format(
+                        Loc.Get("SubReminderBody"),
+                        p.Name, p.Amount, p.Currency);
+                    NotificationService.ShowToast(title, message, "subscription");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error("MainVM", $"CheckSubscriptionReminders: {ex.Message}");
+        }
     }
 
     private void CheckMeetingReminders()
