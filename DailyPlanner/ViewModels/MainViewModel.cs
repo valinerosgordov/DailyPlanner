@@ -530,6 +530,7 @@ public sealed partial class MainViewModel : ObservableObject
         await LoadMeetingsAsync();
 
         StartReminderCheck();
+        _ = EnsureAutoCreateEntriesAsync();
         CheckForUpdatesAsync().FireAndForget("UpdateCheck");
         AutoSyncTrelloAsync().FireAndForget("TrelloAutoSync");
     }
@@ -614,6 +615,26 @@ public sealed partial class MainViewModel : ObservableObject
 
     private readonly HashSet<string> _firedReminders = [];
     private DateOnly _lastReminderDate = DateOnly.FromDateTime(DateTime.Today);
+    private DateOnly _lastAutoCreateDate = DateOnly.MinValue;
+
+    /// <summary>
+    /// Runs AutoCreate at most once per calendar day. Window [today-7..today+30]
+    /// catches anything missed (app closed when due date passed) and pre-creates
+    /// the next month so the calendar strip always has data. Each row materializes
+    /// with IsPaid=false ('pending') — the UI shows them with a 'Mark paid' button.
+    /// </summary>
+    private async Task EnsureAutoCreateEntriesAsync()
+    {
+        try
+        {
+            var today = DateOnly.FromDateTime(_time.GetLocalNow().LocalDateTime);
+            if (today == _lastAutoCreateDate) return;
+            _lastAutoCreateDate = today;
+
+            await _service.GenerateRecurringEntriesAsync(today.AddDays(-7), today.AddDays(30));
+        }
+        catch (Exception ex) { Log.Error("MainVM", $"AutoCreate failed: {ex.Message}"); }
+    }
 
     private void CheckReminders()
     {
@@ -646,6 +667,7 @@ public sealed partial class MainViewModel : ObservableObject
         }
 
         CheckMeetingReminders();
+        _ = EnsureAutoCreateEntriesAsync();
         _ = CheckSubscriptionRemindersAsync();
     }
 

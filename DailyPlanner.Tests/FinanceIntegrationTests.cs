@@ -324,6 +324,39 @@ public class FinanceIntegrationTests : PlannerServiceTestFixture
     // ─── Financial goals ────────────────────────────────────────────
 
     [Fact]
+    public async Task GenerateRecurringEntries_TimewebYearlyCommitment_CreatesPendingWithCurrency()
+    {
+        var cat = await SeededExpense();
+        await Service.SaveRecurringPaymentAsync(new RecurringPayment
+        {
+            Name = "Timeweb hosting",
+            Amount = 10584m,
+            Currency = "RUB",
+            Type = FinanceEntryType.Expense,
+            CategoryId = cat.Id,
+            Frequency = PaymentFrequency.Yearly,
+            BillingIntervalMonths = 12,
+            StartDate = new DateOnly(2026, 3, 15),
+            IsActive = true,
+            IsSubscription = true,
+            AutoCreate = true
+        });
+
+        // Window covering the March 2026 occurrence
+        await Service.GenerateRecurringEntriesAsync(new DateOnly(2026, 3, 1), new DateOnly(2026, 3, 31));
+
+        var entries = await Service.GetFinanceEntriesAsync(new DateOnly(2026, 3, 1), new DateOnly(2026, 3, 31));
+        var generated = entries.Where(e => e.Description == "Timeweb hosting").ToList();
+
+        generated.Should().HaveCount(1);
+        generated[0].Date.Should().Be(new DateOnly(2026, 3, 15));
+        generated[0].Amount.Should().Be(10584m);
+        generated[0].Currency.Should().Be("RUB");
+        generated[0].IsPaid.Should().BeFalse(); // pending — user confirms
+        generated[0].IsRecurring.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task FinancialGoal_SaveRemoveRoundTrip()
     {
         await Service.SaveFinancialGoalAsync(new FinancialGoal
