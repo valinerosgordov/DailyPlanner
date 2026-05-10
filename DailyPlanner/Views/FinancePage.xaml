@@ -768,7 +768,64 @@
             </StackPanel>
 
             <!-- ═══════════════ TAB 3: Recurring Payments ═══════════════ -->
-            <StackPanel Visibility="{Binding SelectedTabIndex, Converter={conv:IntToVisibilityConverter}, ConverterParameter=3}">
+            <StackPanel Visibility="{Binding SelectedTabIndex, Converter={conv:IntToVisibilityConverter}, ConverterParameter=3}">
+
+                <!-- Subscription summary cards (added 2026-05 — backend in PRs #78-83) -->
+                <UniformGrid Rows="1" Columns="4" Margin="0,0,0,12">
+
+                    <Border Style="{StaticResource PlannerCard}" Padding="14,12" Margin="0,0,8,0">
+                        <StackPanel>
+                            <TextBlock Text="{Binding [SubBurdenLabel], Source={x:Static svc:Loc.Instance}}"
+                                       Style="{StaticResource MicroLabelDim}"/>
+                            <TextBlock Margin="0,6,0,0" FontSize="22" FontWeight="Bold"
+                                       Foreground="{DynamicResource AccentBrush}">
+                                <Run Text="{Binding MonthlySubscriptionBurden, StringFormat=N2, Mode=OneWay}"/>
+                            </TextBlock>
+                            <TextBlock Style="{StaticResource MicroLabelDim}" Margin="0,4,0,0"
+                                       Text="{Binding [SubBurdenSubtitle], Source={x:Static svc:Loc.Instance}}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource PlannerCard}" Padding="14,12" Margin="4,0">
+                        <StackPanel>
+                            <TextBlock Text="{Binding [SubCountLabel], Source={x:Static svc:Loc.Instance}}"
+                                       Style="{StaticResource MicroLabelDim}"/>
+                            <TextBlock Margin="0,6,0,0" FontSize="22" FontWeight="Bold"
+                                       Foreground="{DynamicResource InfoBrush}">
+                                <Run Text="{Binding ActiveSubscriptionCount, Mode=OneWay}"/>
+                            </TextBlock>
+                            <TextBlock Style="{StaticResource MicroLabelDim}" Margin="0,4,0,0"
+                                       Text="{Binding [SubCountSubtitle], Source={x:Static svc:Loc.Instance}}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource PlannerCard}" Padding="14,12" Margin="4,0">
+                        <StackPanel>
+                            <TextBlock Text="{Binding [SubAnnualLabel], Source={x:Static svc:Loc.Instance}}"
+                                       Style="{StaticResource MicroLabelDim}"/>
+                            <TextBlock Margin="0,6,0,0" FontSize="22" FontWeight="Bold">
+                                <Run Text="{Binding AnnualSubscriptionCost, StringFormat=N0, Mode=OneWay}"/>
+                            </TextBlock>
+                            <TextBlock Style="{StaticResource MicroLabelDim}" Margin="0,4,0,0"
+                                       Text="{Binding [SubAnnualSubtitle], Source={x:Static svc:Loc.Instance}}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource PlannerCard}" Padding="14,12" Margin="8,0,0,0">
+                        <StackPanel>
+                            <TextBlock Text="{Binding [SubSavingsLabel], Source={x:Static svc:Loc.Instance}}"
+                                       Style="{StaticResource MicroLabelDim}"/>
+                            <TextBlock Margin="0,6,0,0" FontSize="22" FontWeight="Bold"
+                                       Foreground="{DynamicResource SuccessBrush}">
+                                <Run Text="{Binding AnnualSubscriptionSavings, StringFormat=N0, Mode=OneWay}"/>
+                            </TextBlock>
+                            <TextBlock Style="{StaticResource MicroLabelDim}" Margin="0,4,0,0"
+                                       Text="{Binding [SubSavingsSubtitle], Source={x:Static svc:Loc.Instance}}"/>
+                        </StackPanel>
+                    </Border>
+
+                </UniformGrid>
+
                 <Border Style="{StaticResource PlannerCard}" Padding="20">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,14">

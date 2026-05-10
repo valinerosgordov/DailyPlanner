@@ -24,6 +24,10 @@ public sealed partial class FinanceViewModel : ObservableObject
     [ObservableProperty] private decimal _debtOwedToMe;
     [ObservableProperty] private decimal _debtIOwn;
     [ObservableProperty] private decimal _monthlyObligatory;
+    [ObservableProperty] private decimal _monthlySubscriptionBurden;
+    [ObservableProperty] private decimal _annualSubscriptionCost;
+    [ObservableProperty] private decimal _annualSubscriptionSavings;
+    [ObservableProperty] private int _activeSubscriptionCount;
     [ObservableProperty] private decimal _savings;
     [ObservableProperty] private string _savingsTrendArrow = string.Empty;
     [ObservableProperty] private double _savingsRatePercent;
@@ -245,6 +249,14 @@ public sealed partial class FinanceViewModel : ObservableObject
             foreach (var rp in recurring)
                 RecurringPayments.Add(new RecurringPaymentViewModel(rp, _service));
             MonthlyObligatory = FinanceCalculations.MonthlyObligatory(recurring);
+
+            // Subscription-specific aggregates: separates the "cancellable SaaS"
+            // bucket from rent/utilities/loans so the user sees how much they're
+            // actually paying for services they could turn off.
+            MonthlySubscriptionBurden = SubscriptionForecastService.MonthlySubscriptionBurden(recurring);
+            AnnualSubscriptionCost = System.Math.Round(MonthlySubscriptionBurden * 12, 2);
+            AnnualSubscriptionSavings = SubscriptionForecastService.AnnualSavingsVsMonthly(recurring);
+            ActiveSubscriptionCount = recurring.Count(r => r.IsActive && r.IsSubscription);
 
             // Savings & Net Worth
             Savings = income - expenses;
