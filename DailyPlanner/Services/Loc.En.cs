@@ -484,6 +484,8 @@ internal static class LocEnStrings
         ["RecoveryMessage"] = "The application's data file appears to be corrupted. Available options:\n\n• Yes — automatic recovery (VACUUM INTO, preserves all readable rows)\n• No — roll back to the latest healthy backup: {0}\n• Cancel — quit so you can resolve manually\n\nThe corrupted file will be archived alongside as .corrupt-{{timestamp}} either way.",
         ["RecoverySuccess"] = "Database successfully recovered. Please restart the app.",
         ["RecoveryFailed"] = "Recovery failed. See app.log for details.",
+        ["SubAuditTitle"] = "Review subscriptions",
+        ["SubAuditBody"] = "{0} subscriptions haven't been reviewed for 90+ days",
         ["SubReminderToday"] = "Subscription renews today",
         ["SubReminderDaysBefore"] = "Subscription in {0} days",
         ["SubReminderBody"] = "{0} — {1:N2} {2}",
