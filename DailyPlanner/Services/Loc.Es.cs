@@ -484,6 +484,8 @@ internal static class LocEsStrings
         ["RecoveryMessage"] = "El archivo de datos parece estar corrupto. Opciones disponibles:\n\n• Sí — recuperación automática (VACUUM INTO, conserva todas las filas legibles)\n• No — revertir a la copia de seguridad sana más reciente: {0}\n• Cancelar — salir para resolverlo manualmente\n\nEl archivo dañado se conservará como .corrupt-{{marca}} en cualquier caso.",
         ["RecoverySuccess"] = "BD recuperada correctamente. Reinicia la aplicación.",
         ["RecoveryFailed"] = "Recuperación fallida. Consulta app.log.",
+        ["SubAuditTitle"] = "Revisar suscripciones",
+        ["SubAuditBody"] = "{0} suscripciones sin revisar hace más de 90 días",
         ["SubReminderToday"] = "Suscripción se renueva hoy",
         ["SubReminderDaysBefore"] = "Suscripción en {0} días",
         ["SubReminderBody"] = "{0} — {1:N2} {2}",

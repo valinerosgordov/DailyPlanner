@@ -484,6 +484,8 @@ internal static class LocFrStrings
         ["RecoveryMessage"] = "Le fichier de données de l'application semble corrompu. Options disponibles :\n\n• Oui — récupération automatique (VACUUM INTO, conserve toutes les lignes lisibles)\n• Non — revenir à la dernière sauvegarde saine : {0}\n• Annuler — quitter pour résoudre manuellement\n\nLe fichier corrompu sera archivé en tant que .corrupt-{{horodatage}} dans tous les cas.",
         ["RecoverySuccess"] = "BD récupérée avec succès. Redémarrez l'application.",
         ["RecoveryFailed"] = "Échec de la récupération. Voir app.log.",
+        ["SubAuditTitle"] = "Revoir les abonnements",
+        ["SubAuditBody"] = "{0} abonnements non revus depuis plus de 90 jours",
         ["SubReminderToday"] = "Abonnement renouvelé aujourd'hui",
         ["SubReminderDaysBefore"] = "Abonnement dans {0} jours",
         ["SubReminderBody"] = "{0} — {1:N2} {2}",
