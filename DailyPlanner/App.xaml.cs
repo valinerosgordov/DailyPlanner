@@ -190,6 +190,16 @@ public partial class App : Application
             }
 
             splash?.Close();
+
+            // Fire-and-forget: pull today's currency rates from CBR. Not awaited
+            // because finance aggregates fall back gracefully when rates are
+            // missing (logged + amount returned unconverted), and a slow CBR
+            // response should never delay app launch.
+            _ = Task.Run(async () =>
+            {
+                try { await ServiceHost.Get<ExchangeRateService>().RefreshAsync(); }
+                catch (Exception ex) { Log.Error("App", $"ExchangeRate refresh failed: {ex.Message}"); }
+            });
         }
         catch (Exception ex)
         {

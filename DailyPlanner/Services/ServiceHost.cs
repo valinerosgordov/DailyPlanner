@@ -31,6 +31,7 @@ public static class ServiceHost
         sc.AddSingleton(TimeProvider.System);
         sc.AddSingleton<PlannerService>();
         sc.AddSingleton<TrelloService>();
+        sc.AddSingleton<ExchangeRateService>();
         sc.AddSingleton(_ => new UpdateService("https://github.com/valinerosgordov/DailyPlanner"));
 
         // Main VM is one per window.
