@@ -29,6 +29,7 @@ public sealed class PlannerDbContext(DbContextOptions<PlannerDbContext> options)
     public DbSet<IncomeSourcePayment> IncomeSourcePayments => Set<IncomeSourcePayment>();
     public DbSet<InboxTask> InboxTasks => Set<InboxTask>();
     public DbSet<TrelloSettings> TrelloSettings => Set<TrelloSettings>();
+    public DbSet<ExchangeRate> ExchangeRates => Set<ExchangeRate>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
