@@ -669,6 +669,7 @@ public sealed partial class MainViewModel : ObservableObject
         CheckMeetingReminders();
         _ = EnsureAutoCreateEntriesAsync();
         _ = CheckSubscriptionRemindersAsync();
+        _ = CheckSubscriptionAuditAsync();
     }
 
     /// <summary>
@@ -710,6 +711,35 @@ public sealed partial class MainViewModel : ObservableObject
         {
             Log.Error("MainVM", $"CheckSubscriptionReminders: {ex.Message}");
         }
+    }
+
+    /// <summary>
+    /// Once-per-day prompt: nudges the user to revisit subscriptions whose
+    /// LastReviewedDate is null or older than 90 days. Single aggregate toast
+    /// ("3 subscriptions waiting for review") rather than one toast per stale
+    /// subscription — bulk audit is what we want, not noise.
+    /// </summary>
+    private async Task CheckSubscriptionAuditAsync()
+    {
+        try
+        {
+            var today = DateOnly.FromDateTime(_time.GetLocalNow().LocalDateTime);
+            var key = $"audit:{today:yyyyMMdd}";
+            if (!_firedReminders.Add(key)) return;
+
+            var subs = await _service.GetRecurringPaymentsAsync(activeOnly: true);
+            var stale = subs.Count(s => s.IsSubscription &&
+                (s.LastReviewedDate is null ||
+                 (today.DayNumber - s.LastReviewedDate.Value.DayNumber) > 90));
+
+            if (stale == 0) return;
+
+            NotificationService.ShowToast(
+                Loc.Get("SubAuditTitle"),
+                string.Format(Loc.Get("SubAuditBody"), stale),
+                "audit");
+        }
+        catch (Exception ex) { Log.Error("MainVM", $"CheckSubscriptionAudit: {ex.Message}"); }
     }
 
     private void CheckMeetingReminders()
