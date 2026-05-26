@@ -417,6 +417,9 @@ public sealed partial class FinanceViewModel : ObservableObject
         IncomeEntries.Remove(vm);
         TotalIncome -= vm.Amount;
         Balance = TotalIncome - TotalExpenses;
+        Savings = TotalIncome - TotalExpenses;
+        SavingsRatePercent = FinanceCalculations.SavingsRatePercent(Savings, TotalIncome);
+        NetWorth = FinanceCalculations.NetWorth(Balance, DebtOwedToMe, DebtIOwn);
     }
 
     [RelayCommand]
@@ -427,6 +430,9 @@ public sealed partial class FinanceViewModel : ObservableObject
         ExpenseEntries.Remove(vm);
         TotalExpenses -= vm.Amount;
         Balance = TotalIncome - TotalExpenses;
+        Savings = TotalIncome - TotalExpenses;
+        SavingsRatePercent = FinanceCalculations.SavingsRatePercent(Savings, TotalIncome);
+        NetWorth = FinanceCalculations.NetWorth(Balance, DebtOwedToMe, DebtIOwn);
     }
 
     // ─── Split Entries ───────────────────────────────────────────

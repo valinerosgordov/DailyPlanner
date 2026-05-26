@@ -214,10 +214,11 @@ public sealed partial class WeekViewModel : ObservableObject
 
     private void RefreshAnalytics()
     {
-        _analyticsDebounce?.Cancel();
-        _analyticsDebounce?.Dispose();
+        var prev = _analyticsDebounce;
         _analyticsDebounce = new CancellationTokenSource();
         var token = _analyticsDebounce.Token;
+        prev?.Cancel();
+        prev?.Dispose();
 
         System.Windows.Application.Current?.Dispatcher.InvokeAsync(() =>
         {

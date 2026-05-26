@@ -13,7 +13,8 @@ public record ThemePalette(
     Color SidebarBg, Color InputBg, Color SubtleBg,
     Color Text, Color Muted, Color CheckBorder,
     Color HoverBg, Color ProgressTrack, Color KeyboardBg,
-    Color Success, Color Warning, Color Danger, Color Info);
+    Color Success, Color Warning, Color Danger, Color Info,
+    Color OnAccent);
 
 public static class ThemeService
 {
@@ -77,7 +78,9 @@ public static class ThemeService
             HoverBg: Argb(0x1A, "#FFFFFF"), ProgressTrack: Argb(0x14, "#FFFFFF"),
             KeyboardBg: Argb(0x14, "#FFFFFF"),
             // Semantic colors kept green/amber/red/blue so money and ratings stay readable
-            Success: Hex("#34D399"), Warning: Hex("#FBBF24"), Danger: Hex("#F87171"), Info: Hex("#60A5FA")),
+            Success: Hex("#34D399"), Warning: Hex("#FBBF24"), Danger: Hex("#F87171"), Info: Hex("#60A5FA"),
+            // OnAccent: text colour drawn ON the accent background (white accent → black text)
+            OnAccent: Hex("#000000")),
 
         // Pure Monochrome Light
         ["Light"] = new("Light", false,
@@ -86,7 +89,9 @@ public static class ThemeService
             SidebarBg: Hex("#F5F5F5"), InputBg: Hex("#F5F5F5"), SubtleBg: Hex("#EFEFEF"),
             Text: Hex("#000000"), Muted: Hex("#6B6B6B"), CheckBorder: Hex("#D4D4D4"),
             HoverBg: Hex("#EBEBEB"), ProgressTrack: Hex("#E5E5E5"), KeyboardBg: Hex("#EFEFEF"),
-            Success: Hex("#10B981"), Warning: Hex("#D97706"), Danger: Hex("#DC2626"), Info: Hex("#2563EB")),
+            Success: Hex("#10B981"), Warning: Hex("#D97706"), Danger: Hex("#DC2626"), Info: Hex("#2563EB"),
+            // OnAccent: text colour drawn ON the accent background (black accent → white text)
+            OnAccent: Hex("#FFFFFF")),
     };
 
     public static void ApplyPalette(string name)
@@ -107,6 +112,8 @@ public static class ThemeService
         res["AccentLightBrush"] = new SolidColorBrush(p.AccentLight);
         res["AccentLightColor"] = p.AccentLight;
         res["AccentDarkColor"] = p.AccentDark;
+        res["OnAccentBrush"] = new SolidColorBrush(p.OnAccent);
+        res["OnAccentColor"] = p.OnAccent;
 
         // Semantic colors
         res["SuccessBrush"] = new SolidColorBrush(p.Success);
