@@ -480,6 +480,8 @@ internal static class LocEnStrings
         ["CmdPreviousMonth"] = "Previous month",
         ["CmdNextMonth"] = "Next month",
         ["CmdBackupDb"] = "Backup database",
+        ["BackupTitle"] = "Backup",
+        ["BackupCorruptError"] = "Backup refused: database is corrupted. Please recover the database first.",
         ["RecoveryTitle"] = "Database integrity check failed",
         ["RecoveryMessage"] = "The application's data file appears to be corrupted. Available options:\n\n• Yes — automatic recovery (VACUUM INTO, preserves all readable rows)\n• No — roll back to the latest healthy backup: {0}\n• Cancel — quit so you can resolve manually\n\nThe corrupted file will be archived alongside as .corrupt-{{timestamp}} either way.",
         ["RecoverySuccess"] = "Database successfully recovered. Please restart the app.",

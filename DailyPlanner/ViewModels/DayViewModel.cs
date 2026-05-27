@@ -54,7 +54,13 @@ public sealed partial class DayViewModel : ObservableObject
         task.PropertyChanged += (_, _) => NotifyStats();
         foreach (var sub in task.SubTasks)
             sub.PropertyChanged += (_, _) => NotifyStats();
-        task.SubTasks.CollectionChanged += (_, _) => NotifyStats();
+        task.SubTasks.CollectionChanged += (_, e) =>
+        {
+            if (e.NewItems is not null)
+                foreach (TaskViewModel sub in e.NewItems)
+                    sub.PropertyChanged += (_, _) => NotifyStats();
+            NotifyStats();
+        };
     }
 
     private void NotifyStats()
