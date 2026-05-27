@@ -3,6 +3,8 @@
 
     <!-- Pure Monochrome Dark (default). ThemeService overrides at runtime. -->
     <SolidColorBrush x:Key="AccentBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="OnAccentBrush" Color="#000000"/>
+    <Color x:Key="OnAccentColor">#000000</Color>
     <SolidColorBrush x:Key="AccentLightBrush" Color="#F5F5F5"/>
     <SolidColorBrush x:Key="SuccessBrush" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="WarningBrush" Color="#E5E5E5"/>
@@ -107,7 +109,7 @@
     <Style x:Key="GlowCard" TargetType="Border" BasedOn="{StaticResource PlannerCard}">
         <Setter Property="Effect">
             <Setter.Value>
-                <DropShadowEffect Color="{StaticResource AccentColor}" BlurRadius="24"
+                <DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="24"
                                   ShadowDepth="0" Opacity="0.15"/>
             </Setter.Value>
         </Setter>
@@ -119,7 +121,7 @@
         <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="Effect">
             <Setter.Value>
-                <DropShadowEffect Color="{StaticResource AccentColor}" BlurRadius="20"
+                <DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="20"
                                   ShadowDepth="0" Opacity="0.3"/>
             </Setter.Value>
         </Setter>
@@ -180,6 +182,7 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="Check" Property="Stroke" Value="{DynamicResource OnAccentBrush}"/>
                             <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                             <Setter TargetName="Bd" Property="Background">
                                 <Setter.Value>
