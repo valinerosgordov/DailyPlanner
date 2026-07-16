@@ -10,7 +10,6 @@ public sealed class FinanceBudgetConfiguration : IEntityTypeConfiguration<Financ
     {
         e.HasKey(b => b.Id);
         e.HasIndex(b => new { b.CategoryId, b.MonthYear }).IsUnique();
-        e.Property(b => b.Amount).HasColumnType("decimal(18,2)");
         e.Property(b => b.MonthYear).HasMaxLength(7);
     }
 }

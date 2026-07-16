@@ -12,6 +12,5 @@ public sealed class AccountConfiguration : IEntityTypeConfiguration<Account>
         e.Property(a => a.Name).HasMaxLength(200);
         e.Property(a => a.Icon).HasMaxLength(50);
         e.Property(a => a.Color).HasMaxLength(20);
-        e.Property(a => a.InitialBalance).HasColumnType("decimal(18,2)");
     }
 }

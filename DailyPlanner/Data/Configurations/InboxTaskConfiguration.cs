@@ -9,7 +9,9 @@ public sealed class InboxTaskConfiguration : IEntityTypeConfiguration<InboxTask>
     public void Configure(EntityTypeBuilder<InboxTask> e)
     {
         e.HasKey(t => t.Id);
-        e.HasIndex(t => t.ExternalId);
+        // Schema-level Trello dedup: SyncTrelloAsync's app-level HashSet check has
+        // a race window; the partial unique index makes a duplicate card impossible.
+        e.HasIndex(t => t.ExternalId).IsUnique().HasFilter("\"ExternalId\" IS NOT NULL");
         e.HasIndex(t => t.IsArchived);
         e.Property(t => t.Text).HasMaxLength(500);
         e.Property(t => t.ExternalId).HasMaxLength(100);
