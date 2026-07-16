@@ -21,7 +21,8 @@ public partial class WeekPage : Page
         {
             if (DataContext is MainViewModel vm)
             {
-                try { await vm.Inbox.LoadAsync(); } catch { }
+                try { await vm.Inbox.LoadAsync(); }
+                catch (Exception ex) { Log.Error("WeekPage", $"Inbox load failed: {ex.Message}"); }
             }
         };
     }
@@ -38,16 +39,22 @@ public partial class WeekPage : Page
             task.CycleCategoryCommand.Execute(null);
     }
 
+    // async void event handlers: a DB failure here would otherwise surface as the
+    // global crash dialog — log + soft-fail instead (same pattern as InboxPage).
     private async void CarryOver_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is not FrameworkElement { Tag: DayViewModel day }) return;
+        try
+        {
+            if (sender is not FrameworkElement { Tag: DayViewModel day }) return;
 
-        var mainVm = DataContext as MainViewModel;
-        if (mainVm?.SelectedWeek is null) return;
+            var mainVm = DataContext as MainViewModel;
+            if (mainVm?.SelectedWeek is null) return;
 
-        var nextDate = day.Date.AddDays(1);
-        await mainVm.Service.CarryOverTasksAsync(day.Date, nextDate);
-        await mainVm.LoadMonthCommand.ExecuteAsync(null);
+            var nextDate = day.Date.AddDays(1);
+            await mainVm.Service.CarryOverTasksAsync(day.Date, nextDate);
+            await mainVm.LoadMonthCommand.ExecuteAsync(null);
+        }
+        catch (Exception ex) { Log.Error("WeekPage", $"CarryOver failed: {ex.Message}"); }
     }
 
     private void ToggleExpand_Click(object sender, MouseButtonEventArgs e)
@@ -61,33 +68,45 @@ public partial class WeekPage : Page
 
     private async void AddSubTask_Click(object sender, MouseButtonEventArgs e)
     {
-        if (sender is FrameworkElement { DataContext: TaskViewModel task } && !task.IsSubTask
-            && !string.IsNullOrWhiteSpace(task.Text))
+        try
         {
-            await task.AddSubTaskCommand.ExecuteAsync(null);
-            e.Handled = true;
+            if (sender is FrameworkElement { DataContext: TaskViewModel task } && !task.IsSubTask
+                && !string.IsNullOrWhiteSpace(task.Text))
+            {
+                await task.AddSubTaskCommand.ExecuteAsync(null);
+                e.Handled = true;
+            }
         }
+        catch (Exception ex) { Log.Error("WeekPage", $"AddSubTask failed: {ex.Message}"); }
     }
 
     // Overload for ContextMenu MenuItem (RoutedEventArgs)
     private async void AddSubTask_Click(object sender, RoutedEventArgs e)
     {
-        var task = GetCtxTask(sender);
-        if (task is not null && !task.IsSubTask && !string.IsNullOrWhiteSpace(task.Text))
-            await task.AddSubTaskCommand.ExecuteAsync(null);
+        try
+        {
+            var task = GetCtxTask(sender);
+            if (task is not null && !task.IsSubTask && !string.IsNullOrWhiteSpace(task.Text))
+                await task.AddSubTaskCommand.ExecuteAsync(null);
+        }
+        catch (Exception ex) { Log.Error("WeekPage", $"AddSubTask failed: {ex.Message}"); }
     }
 
     private async void RemoveSubTask_Click(object sender, MouseButtonEventArgs e)
     {
-        if (sender is not FrameworkElement { DataContext: TaskViewModel subTask }) return;
-
-        // Find parent task
-        var parent = FindParentTask(subTask);
-        if (parent is not null)
+        try
         {
-            await parent.RemoveSubTaskCommand.ExecuteAsync(subTask);
-            e.Handled = true;
+            if (sender is not FrameworkElement { DataContext: TaskViewModel subTask }) return;
+
+            // Find parent task
+            var parent = FindParentTask(subTask);
+            if (parent is not null)
+            {
+                await parent.RemoveSubTaskCommand.ExecuteAsync(subTask);
+                e.Handled = true;
+            }
         }
+        catch (Exception ex) { Log.Error("WeekPage", $"RemoveSubTask failed: {ex.Message}"); }
     }
 
     private TaskViewModel? FindParentTask(TaskViewModel subTask)
@@ -103,34 +122,8 @@ public partial class WeekPage : Page
     private async void DeleteTask_Click(object sender, MouseButtonEventArgs e)
     {
         if (sender is not FrameworkElement { DataContext: TaskViewModel task }) return;
-        if (string.IsNullOrWhiteSpace(task.Text)) return;
-
-        var mainVm = DataContext as MainViewModel;
-        if (mainVm?.SelectedWeek is null) return;
-
-        var day = mainVm.SelectedWeek.Days.FirstOrDefault(d => d.Tasks.Contains(task));
-        if (day is null) return;
-
-        // Save snapshot for undo
-        var snapshot = new Models.DailyTask
-        {
-            DailyPlanId = task.Model.DailyPlanId,
-            Order = task.Model.Order,
-            Text = task.Model.Text,
-            IsCompleted = task.Model.IsCompleted,
-            Priority = task.Model.Priority,
-            Category = task.Model.Category,
-            Deadline = task.Model.Deadline
-        };
-        var dayRef = day;
-
-        await mainVm.Service.RemoveTaskAsync(task.Model.Id);
-        day.Tasks.Remove(task);
-
-        Services.UndoService.Push(
-            string.Format(Services.Loc.Get("TaskDeleted"), snapshot.Text),
-            () => RestoreTask(mainVm, dayRef, snapshot));
-
+        try { await DeleteTaskCore(task); }
+        catch (Exception ex) { Log.Error("WeekPage", $"DeleteTask failed: {ex.Message}"); }
         e.Handled = true;
     }
 
@@ -138,7 +131,9 @@ public partial class WeekPage : Page
     private async void DeleteTask_Click(object sender, RoutedEventArgs e)
     {
         var task = GetCtxTask(sender);
-        if (task is not null) await DeleteTaskCore(task);
+        if (task is null) return;
+        try { await DeleteTaskCore(task); }
+        catch (Exception ex) { Log.Error("WeekPage", $"DeleteTask failed: {ex.Message}"); }
     }
 
     private async Task DeleteTaskCore(TaskViewModel task)
@@ -149,6 +144,8 @@ public partial class WeekPage : Page
         var day = mainVm.SelectedWeek.Days.FirstOrDefault(d => d.Tasks.Contains(task));
         if (day is null) return;
 
+        // Snapshot for undo. ReminderTime/ExternalId ride along — losing them on
+        // undo silently broke Trello dedup and dropped the task's reminder.
         var snapshot = new Models.DailyTask
         {
             DailyPlanId = task.Model.DailyPlanId,
@@ -157,7 +154,9 @@ public partial class WeekPage : Page
             IsCompleted = task.Model.IsCompleted,
             Priority = task.Model.Priority,
             Category = task.Model.Category,
-            Deadline = task.Model.Deadline
+            Deadline = task.Model.Deadline,
+            ReminderTime = task.Model.ReminderTime,
+            ExternalId = task.Model.ExternalId
         };
         var dayRef = day;
         await mainVm.Service.RemoveTaskAsync(task.Model.Id);
@@ -169,8 +168,12 @@ public partial class WeekPage : Page
 
     private async void RestoreTask(MainViewModel mainVm, DayViewModel day, Models.DailyTask snapshot)
     {
-        await mainVm.Service.RestoreTaskAsync(snapshot);
-        await mainVm.LoadMonthCommand.ExecuteAsync(null);
+        try
+        {
+            await mainVm.Service.RestoreTaskAsync(snapshot);
+            await mainVm.LoadMonthCommand.ExecuteAsync(null);
+        }
+        catch (Exception ex) { Log.Error("WeekPage", $"Undo restore failed: {ex.Message}"); }
     }
 
     private void DuplicateTask_Click(object sender, RoutedEventArgs e)
@@ -245,7 +248,8 @@ public partial class WeekPage : Page
     private async void MoveTaskNextDay_Click(object sender, MouseButtonEventArgs e)
     {
         if (sender is not FrameworkElement { DataContext: TaskViewModel task }) return;
-        await MoveTaskNextDayCore(task);
+        try { await MoveTaskNextDayCore(task); }
+        catch (Exception ex) { Log.Error("WeekPage", $"MoveTaskNextDay failed: {ex.Message}"); }
         e.Handled = true;
     }
 
@@ -253,7 +257,9 @@ public partial class WeekPage : Page
     private async void MoveTaskNextDay_Click(object sender, RoutedEventArgs e)
     {
         var task = GetCtxTask(sender);
-        if (task is not null) await MoveTaskNextDayCore(task);
+        if (task is null) return;
+        try { await MoveTaskNextDayCore(task); }
+        catch (Exception ex) { Log.Error("WeekPage", $"MoveTaskNextDay failed: {ex.Message}"); }
     }
 
     private async Task MoveTaskNextDayCore(TaskViewModel task)
@@ -422,6 +428,14 @@ public partial class WeekPage : Page
 
         // Copy ALL drag-relevant fields. Previously Deadline was dropped on the floor
         // — that was the "drag works but loses metadata" bug.
+        // ReminderTime/ExternalId are not exposed as VM properties, so transfer them
+        // on the Model FIRST — the VM setters below schedule the save that persists
+        // the whole model, these fields included.
+        emptySlot.Model.ReminderTime = sourceTask.Model.ReminderTime;
+        emptySlot.Model.ExternalId = sourceTask.Model.ExternalId;
+        sourceTask.Model.ReminderTime = null;
+        sourceTask.Model.ExternalId = null;
+
         emptySlot.IsCompleted = sourceTask.IsCompleted;
         emptySlot.Text = sourceTask.Text;
         emptySlot.Priority = sourceTask.Priority;

@@ -49,15 +49,20 @@ public static class NotificationService
         // from different sources (reminders / meetings / Trello / Pomodoro)
         // suppressing each other within the same day.
         var key = $"{category}:{title}:{message}";
-        lock (_lock) { if (!_notifiedToday.Add(key)) return; }
-        NotificationTriggered?.Invoke(title, message);
+        lock (_lock) { if (_notifiedToday.Contains(key)) return; }
 
         if (Application.Current?.Dispatcher is null) return;
         Application.Current.Dispatcher.Invoke(() =>
         {
+            // Every guard below returns WITHOUT marking the dedup key, so a
+            // notification dropped here (toast limit, no window yet) is retried
+            // on the next reminder tick instead of being suppressed for a day.
             if (_activeToasts >= 3) return; // Limit concurrent toasts
             var mainWindow = Application.Current.MainWindow;
-            if (mainWindow is null) return;
+            if (mainWindow?.Content is not Grid grid) return;
+
+            lock (_lock) { if (!_notifiedToday.Add(key)) return; }
+            NotificationTriggered?.Invoke(title, message);
 
             Interlocked.Increment(ref _activeToasts);
             var toast = new Border
@@ -103,28 +108,25 @@ public static class NotificationService
             });
             toast.Child = stack;
 
-            if (mainWindow.Content is Grid grid)
+            Panel.SetZIndex(toast, 9999);
+            grid.Children.Add(toast);
+
+            var fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(300));
+            toast.BeginAnimation(UIElement.OpacityProperty, fadeIn);
+
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(4) };
+            timer.Tick += (_, _) =>
             {
-                Panel.SetZIndex(toast, 9999);
-                grid.Children.Add(toast);
-
-                var fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(300));
-                toast.BeginAnimation(UIElement.OpacityProperty, fadeIn);
-
-                var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(4) };
-                timer.Tick += (_, _) =>
+                timer.Stop();
+                var fadeOut = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(300));
+                fadeOut.Completed += (_, _) =>
                 {
-                    timer.Stop();
-                    var fadeOut = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(300));
-                    fadeOut.Completed += (_, _) =>
-                    {
-                        grid.Children.Remove(toast);
-                        Interlocked.Decrement(ref _activeToasts);
-                    };
-                    toast.BeginAnimation(UIElement.OpacityProperty, fadeOut);
+                    grid.Children.Remove(toast);
+                    Interlocked.Decrement(ref _activeToasts);
                 };
-                timer.Start();
-            }
+                toast.BeginAnimation(UIElement.OpacityProperty, fadeOut);
+            };
+            timer.Start();
         });
     }
 }

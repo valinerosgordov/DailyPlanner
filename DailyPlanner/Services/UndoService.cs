@@ -32,9 +32,10 @@ public static class UndoService
         {
             if (_activeToasts >= 3) return;
             var mainWindow = Application.Current.MainWindow;
-            if (mainWindow is null) return;
-
-            Interlocked.Increment(ref _activeToasts);
+            // Counter increment and _activeToast assignment happen only after the
+            // toast is actually inserted into the tree — an early return here used
+            // to leak the counter until Undo stopped appearing for the session.
+            if (mainWindow?.Content is not Grid grid) return;
 
             var toast = new Border
             {
@@ -97,26 +98,28 @@ public static class UndoService
             dock.Children.Add(textBlock);
 
             toast.Child = dock;
+
+            Interlocked.Increment(ref _activeToasts);
             _activeToast = toast;
 
-            if (mainWindow.Content is Grid grid)
+            Panel.SetZIndex(toast, 9998);
+            grid.Children.Add(toast);
+
+            var fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(250));
+            toast.BeginAnimation(UIElement.OpacityProperty, fadeIn);
+
+            _timer?.Stop();
+            _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(6) };
+            _timer.Tick += (_, _) =>
             {
-                Panel.SetZIndex(toast, 9998);
-                grid.Children.Add(toast);
-
-                var fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(250));
-                toast.BeginAnimation(UIElement.OpacityProperty, fadeIn);
-
-                _timer?.Stop();
-                _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(6) };
-                _timer.Tick += (_, _) =>
-                {
-                    _timer.Stop();
-                    _undoAction = null;
-                    FadeOutAndRemove(toast, grid);
-                };
-                _timer.Start();
-            }
+                _timer.Stop();
+                _undoAction = null;
+                // Clear _activeToast so a later Push can't fade the same toast
+                // twice (double decrement drove the counter negative).
+                if (ReferenceEquals(_activeToast, toast)) _activeToast = null;
+                FadeOutAndRemove(toast, grid);
+            };
+            _timer.Start();
         });
     }
 
@@ -129,17 +132,20 @@ public static class UndoService
         if (Application.Current?.Dispatcher is null) return;
         Application.Current.Dispatcher.Invoke(() =>
         {
-            var mainWindow = Application.Current.MainWindow;
-            if (mainWindow?.Content is Grid grid && _activeToast is not null)
-            {
-                FadeOutAndRemove(_activeToast, grid);
-            }
+            var toast = _activeToast;
             _activeToast = null;
+            var mainWindow = Application.Current.MainWindow;
+            if (mainWindow?.Content is Grid grid && toast is not null)
+            {
+                FadeOutAndRemove(toast, grid);
+            }
         });
     }
 
     private static void FadeOutAndRemove(Border toast, Grid grid)
     {
+        if (!grid.Children.Contains(toast)) return; // already removed — don't double-decrement
+
         var fadeOut = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(200));
         fadeOut.Completed += (_, _) =>
         {

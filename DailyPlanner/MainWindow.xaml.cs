@@ -108,7 +108,8 @@ public partial class MainWindow : FluentWindow
             _viewModel.IsStatisticsOpen = false;
             _viewModel.IsFinanceOpen = false;
             _viewModel.IsInboxOpen = false;
-            try { await _viewModel.LoadTrelloSettingsAsync(); } catch { }
+            try { await _viewModel.LoadTrelloSettingsAsync(); }
+            catch (Exception ex) { Log.Error("MainWindow", $"Trello settings load failed: {ex.Message}"); }
             NavigateWithAnimation(_settingsPage);
         }
     }
