@@ -40,7 +40,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.7" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7" />
-    <PackageReference Include="Velopack" Version="0.0.1589-ga2c5a97" />
+    <PackageReference Include="Velopack" Version="1.2.0" />
     <PackageReference Include="WPF-UI" Version="4.2.1" />
     <!-- Transitive pin: SQLitePCLRaw.lib.e_sqlite3 2.1.11 (pulled by EFCore.Sqlite) has a high-severity
          native SQLite vulnerability (NU1903, GHSA-2m69-gcr7-jv3q / CVE-2025-6965, memory corruption

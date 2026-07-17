@@ -302,8 +302,8 @@
       },
       "Velopack": {
         "type": "Transitive",
-        "resolved": "0.0.1589-ga2c5a97",
-        "contentHash": "PoHi9BgM+siDh0eSQUOy397fix2co66YrupZ1xtAf5RlUQNZYTaro0cGXPh+TIxwV8zHiUQ22Uh2NyAK9T3VEw=="
+        "resolved": "1.2.0",
+        "contentHash": "Rz67gJL619fSBS6omaSINUxyDuwhIxkm5mmubf7uLd5Qgi6LLKaKCha+QFP6n+Bw/UjA0vutnH4JQfYzn6ANtw=="
       },
       "WPF-UI": {
         "type": "Transitive",
@@ -366,7 +366,7 @@
           "Microsoft.EntityFrameworkCore.Sqlite": "[10.0.7, )",
           "Microsoft.Extensions.DependencyInjection": "[10.0.7, )",
           "SQLitePCLRaw.lib.e_sqlite3": "[2.1.12, )",
-          "Velopack": "[0.0.1589-ga2c5a97, )",
+          "Velopack": "[1.2.0, )",
           "WPF-UI": "[4.2.1, )"
         }
       }
