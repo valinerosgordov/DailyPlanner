@@ -49,6 +49,7 @@ public partial class MainWindow : FluentWindow
 
         Closed += (_, _) =>
         {
+            NotificationService.SystemNotifier = null; // before the icon is disposed
             _trayIcon?.Dispose();
             NotificationService.Stop();
             _viewModel.Cleanup();
@@ -80,6 +81,11 @@ public partial class MainWindow : FluentWindow
 
         _trayIcon.ContextMenuStrip = menu;
         _trayIcon.DoubleClick += (_, _) => ShowFromTray();
+
+        // Reminders fired while the window sits in the tray surface as native
+        // system toasts instead of invisible in-window ones.
+        NotificationService.SystemNotifier = (title, message) =>
+            _trayIcon?.ShowBalloonTip(5000, title, message, System.Windows.Forms.ToolTipIcon.Info);
     }
 
     private void ShowFromTray()

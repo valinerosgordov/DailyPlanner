@@ -16,6 +16,14 @@ public static class NotificationService
 
     public static event Action<string, string>? NotificationTriggered;
 
+    /// <summary>
+    /// System-level fallback (tray balloon → native Win10/11 toast), used when
+    /// the main window is hidden to tray or minimized and an in-window toast
+    /// would never be seen. Registered by MainWindow next to its NotifyIcon;
+    /// also the seam tests use to observe notifications without WPF.
+    /// </summary>
+    public static Action<string, string>? SystemNotifier { get; set; }
+
     public static void Start()
     {
         _lastCheckDate = DateOnly.FromDateTime(DateTime.Today);
@@ -54,11 +62,23 @@ public static class NotificationService
         if (Application.Current?.Dispatcher is null) return;
         Application.Current.Dispatcher.Invoke(() =>
         {
+            var mainWindow = Application.Current.MainWindow;
+
+            // Window hidden to tray or minimized: route to the system notifier —
+            // an in-window toast would fade out unseen and the reminder is lost.
+            if (SystemNotifier is not null
+                && (mainWindow is null || !mainWindow.IsVisible || mainWindow.WindowState == WindowState.Minimized))
+            {
+                lock (_lock) { if (!_notifiedToday.Add(key)) return; }
+                NotificationTriggered?.Invoke(title, message);
+                SystemNotifier(title, message);
+                return;
+            }
+
             // Every guard below returns WITHOUT marking the dedup key, so a
             // notification dropped here (toast limit, no window yet) is retried
             // on the next reminder tick instead of being suppressed for a day.
             if (_activeToasts >= 3) return; // Limit concurrent toasts
-            var mainWindow = Application.Current.MainWindow;
             if (mainWindow?.Content is not Grid grid) return;
 
             lock (_lock) { if (!_notifiedToday.Add(key)) return; }
