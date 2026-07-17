@@ -572,7 +572,12 @@ public sealed partial class PlannerService
     public async Task<List<PlannerWeek>> GetWeeksInRangeAsync(DateOnly from, DateOnly to, CancellationToken ct = default)
     {
         await using var db = _dbFactory.CreateDbContext();
+        // Same shape as GetOrCreateWeekAsync: 4 sibling Include chains explode
+        // into a ~10k-row cartesian per week without AsSplitQuery. Statistics only
+        // reads, so AsNoTracking skips snapshotting hundreds of entities per load.
         return await db.Weeks
+            .AsNoTracking()
+            .AsSplitQuery()
             .Include(w => w.Days).ThenInclude(d => d.Tasks).ThenInclude(t => t.SubTasks)
             .Include(w => w.Days).ThenInclude(d => d.State)
             .Include(w => w.Goals)

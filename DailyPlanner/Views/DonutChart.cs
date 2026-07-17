@@ -73,6 +73,26 @@ public sealed class DonutChart : Control
             chart.InvalidateVisual();
     }
 
+    // OnRender fires ~36 times per 600ms value animation — and the value animates
+    // on every task check/uncheck, the most frequent action in the app. Pens and
+    // typefaces are cached across frames instead of being allocated per frame.
+    private static readonly Typeface CenterTypeface =
+        new(new FontFamily("Segoe UI Variable, Segoe UI"), FontStyles.Normal, FontWeights.Bold, FontStretches.Normal);
+    private static readonly Typeface SubTypeface =
+        new(new FontFamily("Segoe UI Variable, Segoe UI"), FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
+
+    private Pen? _trackPen;
+    private Pen? _valuePen;
+
+    private Pen GetPen(ref Pen? cache, Brush brush)
+    {
+        // Not frozen: freezing the Pen would freeze its Brush too, and theme
+        // brushes coming from resources must stay mutable.
+        if (cache is null || !ReferenceEquals(cache.Brush, brush) || cache.Thickness != RingThickness)
+            cache = new Pen(brush, RingThickness) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round };
+        return cache;
+    }
+
     protected override void OnRender(DrawingContext dc)
     {
         base.OnRender(dc);
@@ -82,8 +102,8 @@ public sealed class DonutChart : Control
 
         var center = new Point(ActualWidth / 2, ActualHeight / 2);
         var radius = (size - RingThickness) / 2;
-        var trackPen = new Pen(TrackBrush, RingThickness) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round };
-        var valuePen = new Pen(ValueBrush, RingThickness) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round };
+        var trackPen = GetPen(ref _trackPen, TrackBrush);
+        var valuePen = GetPen(ref _valuePen, ValueBrush);
 
         // Track circle
         dc.DrawEllipse(null, trackPen, center, radius, radius);
@@ -123,9 +143,8 @@ public sealed class DonutChart : Control
         // Center text
         if (!string.IsNullOrEmpty(CenterText))
         {
-            var typeface = new Typeface(new FontFamily("Segoe UI Variable, Segoe UI"), FontStyles.Normal, FontWeights.Bold, FontStretches.Normal);
             var text = new FormattedText(CenterText, System.Globalization.CultureInfo.CurrentCulture,
-                FlowDirection.LeftToRight, typeface, size * 0.22, Foreground ?? Brushes.White,
+                FlowDirection.LeftToRight, CenterTypeface, size * 0.22, Foreground ?? Brushes.White,
                 VisualTreeHelper.GetDpi(this).PixelsPerDip);
             text.TextAlignment = TextAlignment.Center;
 
@@ -136,10 +155,9 @@ public sealed class DonutChart : Control
         // Sub text
         if (!string.IsNullOrEmpty(SubText))
         {
-            var typeface = new Typeface(new FontFamily("Segoe UI Variable, Segoe UI"), FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
             var subBrush = TryFindResource("MutedBrush") as Brush ?? new SolidColorBrush(Color.FromRgb(0x98, 0x98, 0xB0));
             var text = new FormattedText(SubText, System.Globalization.CultureInfo.CurrentCulture,
-                FlowDirection.LeftToRight, typeface, size * 0.11, subBrush,
+                FlowDirection.LeftToRight, SubTypeface, size * 0.11, subBrush,
                 VisualTreeHelper.GetDpi(this).PixelsPerDip);
             text.TextAlignment = TextAlignment.Center;
             dc.DrawText(text, new Point(center.X, center.Y + text.Height * 0.3));

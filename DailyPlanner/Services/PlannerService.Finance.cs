@@ -193,7 +193,7 @@ public sealed partial class PlannerService
 
         if (rate is null)
         {
-            Log.Error("Finance", $"No {entry.Currency}->{ExchangeRateService.BaseCurrency} rate on or before {entry.Date:yyyy-MM-dd}; storing raw amount as base.");
+            Log.Warn("Finance", $"No {entry.Currency}->{ExchangeRateService.BaseCurrency} rate on or before {entry.Date:yyyy-MM-dd}; storing raw amount as base.");
             entry.ExchangeRateToBase = null;
             entry.AmountInBaseCurrency = entry.Amount;
             return;
@@ -401,7 +401,7 @@ public sealed partial class PlannerService
     public async Task<List<FinancialGoal>> GetFinancialGoalsAsync(CancellationToken ct = default)
     {
         await using var db = _dbFactory.CreateDbContext();
-        return await db.FinancialGoals.OrderBy(g => g.Order).ToListAsync(ct).ConfigureAwait(false);
+        return await db.FinancialGoals.AsNoTracking().OrderBy(g => g.Order).ToListAsync(ct).ConfigureAwait(false);
     }
     public async Task SaveFinancialGoalAsync(FinancialGoal goal, CancellationToken ct = default)
     {
@@ -419,7 +419,7 @@ public sealed partial class PlannerService
     public async Task<List<Account>> GetAccountsAsync(CancellationToken ct = default)
     {
         await using var db = _dbFactory.CreateDbContext();
-        return await db.Accounts.Where(a => !a.IsArchived).OrderBy(a => a.Order).ToListAsync(ct).ConfigureAwait(false);
+        return await db.Accounts.AsNoTracking().Where(a => !a.IsArchived).OrderBy(a => a.Order).ToListAsync(ct).ConfigureAwait(false);
     }
     public async Task SaveAccountAsync(Account account, CancellationToken ct = default)
     {

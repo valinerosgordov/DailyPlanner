@@ -24,7 +24,7 @@ public sealed partial class MyDayViewModel : ObservableObject
     public MyDayViewModel(WeekViewModel? week)
     {
         var today = DateOnly.FromDateTime(DateTime.Today);
-        TodayDate = today.ToString("dddd, dd MMMM yyyy");
+        TodayDate = today.ToString("dddd, dd MMMM yyyy", Loc.Instance.Culture);
 
         var hour = DateTime.Now.Hour;
         Greeting = hour switch
