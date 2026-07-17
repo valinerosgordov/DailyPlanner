@@ -73,9 +73,9 @@
       },
       "Velopack": {
         "type": "Direct",
-        "requested": "[0.0.1589-ga2c5a97, )",
-        "resolved": "0.0.1589-ga2c5a97",
-        "contentHash": "PoHi9BgM+siDh0eSQUOy397fix2co66YrupZ1xtAf5RlUQNZYTaro0cGXPh+TIxwV8zHiUQ22Uh2NyAK9T3VEw=="
+        "requested": "[1.2.0, )",
+        "resolved": "1.2.0",
+        "contentHash": "Rz67gJL619fSBS6omaSINUxyDuwhIxkm5mmubf7uLd5Qgi6LLKaKCha+QFP6n+Bw/UjA0vutnH4JQfYzn6ANtw=="
       },
       "WPF-UI": {
         "type": "Direct",
