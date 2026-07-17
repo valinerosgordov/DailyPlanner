@@ -71,7 +71,10 @@ public class TaskCarryOverTests : PlannerServiceTestFixture
         await Service.SaveTaskAsync(parentA);
         await Service.AddSubTaskAsync(new DailyTask
         {
-            DailyPlanId = day0.Id, ParentTaskId = parentA.Id, Order = 1, Text = "subA"
+            DailyPlanId = day0.Id,
+            ParentTaskId = parentA.Id,
+            Order = 1,
+            Text = "subA"
         });
 
         var parentB = day0.Tasks[1];
@@ -79,7 +82,10 @@ public class TaskCarryOverTests : PlannerServiceTestFixture
         await Service.SaveTaskAsync(parentB);
         await Service.AddSubTaskAsync(new DailyTask
         {
-            DailyPlanId = day0.Id, ParentTaskId = parentB.Id, Order = 1, Text = "subB"
+            DailyPlanId = day0.Id,
+            ParentTaskId = parentB.Id,
+            Order = 1,
+            Text = "subB"
         });
 
         await Service.CarryOverTasksAsync(day0.Date, week.Days[1].Date);
@@ -107,7 +113,10 @@ public class TaskCarryOverTests : PlannerServiceTestFixture
         // Empty-text subtask row — the trap the slot search used to fall into
         await Service.AddSubTaskAsync(new DailyTask
         {
-            DailyPlanId = day0.Id, ParentTaskId = parent.Id, Order = 1, Text = ""
+            DailyPlanId = day0.Id,
+            ParentTaskId = parent.Id,
+            Order = 1,
+            Text = ""
         });
 
         await Service.SaveTemplateAsync(new RecurringTemplate { Text = "Daily standup", IsActive = true });

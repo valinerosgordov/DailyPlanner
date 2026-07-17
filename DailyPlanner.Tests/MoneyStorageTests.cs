@@ -112,11 +112,19 @@ public class MoneyStorageTests : PlannerServiceTestFixture
 
         await Service.SaveFinanceEntryAsync(new FinanceEntry
         {
-            Date = today, Type = FinanceEntryType.Expense, Amount = 300m, Currency = "RUB", CategoryId = catId
+            Date = today,
+            Type = FinanceEntryType.Expense,
+            Amount = 300m,
+            Currency = "RUB",
+            CategoryId = catId
         });
         await Service.SaveFinanceEntryAsync(new FinanceEntry
         {
-            Date = today, Type = FinanceEntryType.Expense, Amount = 20m, Currency = "USD", CategoryId = catId
+            Date = today,
+            Type = FinanceEntryType.Expense,
+            Amount = 20m,
+            Currency = "USD",
+            CategoryId = catId
         });
 
         var totals = await Service.GetMonthlyTotalsAsync(1);
@@ -130,14 +138,18 @@ public class MoneyStorageTests : PlannerServiceTestFixture
         await using var db = CreateContext();
         db.InboxTasks.Add(new InboxTask
         {
-            Text = "first", Source = InboxSource.Trello, ExternalId = "dup-1",
+            Text = "first",
+            Source = InboxSource.Trello,
+            ExternalId = "dup-1",
             CreatedDate = DateOnly.FromDateTime(DateTime.Today)
         });
         await db.SaveChangesAsync();
 
         db.InboxTasks.Add(new InboxTask
         {
-            Text = "second", Source = InboxSource.Trello, ExternalId = "dup-1",
+            Text = "second",
+            Source = InboxSource.Trello,
+            ExternalId = "dup-1",
             CreatedDate = DateOnly.FromDateTime(DateTime.Today)
         });
 
