@@ -10,19 +10,19 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
         with:
           dotnet-version: '10.0.x'
-          dotnet-quality: 'preview'
+          dotnet-quality: 'ga'
 
       - name: Restore tests
-        run: dotnet restore DailyPlanner.Tests/DailyPlanner.Tests.csproj
+        run: dotnet restore DailyPlanner.Tests/DailyPlanner.Tests.csproj --locked-mode
 
       - name: Restore main
-        run: dotnet restore DailyPlanner/DailyPlanner.csproj -r win-x64
+        run: dotnet restore DailyPlanner/DailyPlanner.csproj -r win-x64 --locked-mode
 
       - name: Format check
         run: dotnet format --verify-no-changes --no-restore
@@ -35,7 +35,7 @@ jobs:
 
       - name: Upload coverage
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: coverage
           path: coverage/**/coverage.cobertura.xml
