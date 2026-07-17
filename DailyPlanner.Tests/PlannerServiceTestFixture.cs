@@ -20,6 +20,7 @@ namespace DailyPlanner.Tests;
 public abstract class PlannerServiceTestFixture : IDisposable
 {
     private readonly SqliteConnection _connection;
+    private readonly InMemorySqliteDbFactory _dbFactory;
     protected readonly PlannerService Service;
 
     protected PlannerServiceTestFixture()
@@ -27,16 +28,27 @@ public abstract class PlannerServiceTestFixture : IDisposable
         _connection = new SqliteConnection("DataSource=:memory:");
         _connection.Open();
 
-        var dbFactory = new InMemorySqliteDbFactory(_connection);
+        _dbFactory = new InMemorySqliteDbFactory(_connection);
 
         // Run real migrations instead of EnsureCreated so tests catch
         // schema drift between Configurations and migration files.
-        using (var ctx = dbFactory.CreateDbContext())
+        using (var ctx = _dbFactory.CreateDbContext())
         {
             ctx.Database.Migrate();
         }
 
-        Service = new PlannerService(dbFactory);
+        Service = new PlannerService(_dbFactory);
+    }
+
+    /// <summary>Direct context over the same in-memory DB — for seeding and asserts.</summary>
+    protected PlannerDbContext CreateContext() => _dbFactory.CreateDbContext();
+
+    /// <summary>Raw scalar against the live connection — for storage-level asserts (e.g. typeof()).</summary>
+    protected object? ExecuteScalar(string sql)
+    {
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText = sql;
+        return cmd.ExecuteScalar();
     }
 
     public void Dispose()
