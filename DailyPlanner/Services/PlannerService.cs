@@ -230,6 +230,9 @@ public sealed partial class PlannerService
             };
             db.DailyTasks.Add(targetTask);
         }
+        // The Trello link now lives on the copy; clearing the source BEFORE the
+        // flush keeps ExternalId unique per table at every intermediate state.
+        task.ExternalId = null;
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
 
         foreach (var sub in task.SubTasks.OrderBy(s => s.Order))
@@ -372,7 +375,8 @@ public sealed partial class PlannerService
                 var alreadyExists = day.Tasks.Any(t => t.Text == template.Text);
                 if (alreadyExists) continue;
 
-                var emptySlot = day.Tasks.FirstOrDefault(t => string.IsNullOrWhiteSpace(t.Text));
+                // ParentTaskId filter: never let a template occupy an empty subtask row.
+                var emptySlot = day.Tasks.FirstOrDefault(t => string.IsNullOrWhiteSpace(t.Text) && t.ParentTaskId is null);
                 if (emptySlot is not null)
                 {
                     emptySlot.Text = template.Text;
@@ -473,7 +477,9 @@ public sealed partial class PlannerService
             var sTasks = sourceDays[i].Tasks.Where(t => !string.IsNullOrWhiteSpace(t.Text)).OrderBy(t => t.Order).ToList();
             foreach (var sTask in sTasks)
             {
-                var slot = targetDays[i].Tasks.FirstOrDefault(t => string.IsNullOrWhiteSpace(t.Text));
+                // ParentTaskId filter: an empty SUBTASK row must never be used as a
+                // top-level slot — the copied text would silently become a subtask.
+                var slot = targetDays[i].Tasks.FirstOrDefault(t => string.IsNullOrWhiteSpace(t.Text) && t.ParentTaskId is null);
                 if (slot is not null)
                 {
                     slot.Text = sTask.Text;
@@ -497,6 +503,11 @@ public sealed partial class PlannerService
             .ToList();
         var nextOrder = toDay.Tasks.Count > 0 ? toDay.Tasks.Max(t => t.Order) + 1 : 1;
 
+        // source -> carried copy, by reference. Re-linking subtasks through a
+        // Text lookup used to attach them to the wrong parent when two carried
+        // tasks shared the same text.
+        var carryMap = new Dictionary<DailyTask, DailyTask>();
+
         foreach (var task in incomplete)
         {
             DailyTask target;
@@ -506,6 +517,10 @@ public sealed partial class PlannerService
                 emptySlot.Text = task.Text;
                 emptySlot.Priority = task.Priority;
                 emptySlot.Category = task.Category;
+                emptySlot.IsCompleted = false;
+                emptySlot.Deadline = task.Deadline;
+                emptySlot.ReminderTime = task.ReminderTime;
+                emptySlot.ExternalId = task.ExternalId;
                 target = emptySlot;
             }
             else
@@ -515,25 +530,26 @@ public sealed partial class PlannerService
                     Order = nextOrder++,
                     Text = task.Text,
                     Priority = task.Priority,
-                    Category = task.Category
+                    Category = task.Category,
+                    Deadline = task.Deadline,
+                    ReminderTime = task.ReminderTime,
+                    ExternalId = task.ExternalId
                 };
                 toDay.Tasks.Add(target);
             }
-
+            // Trello dedup: the carried copy is the live task now — the stale
+            // source must not keep the card id (known footgun: dropping it here
+            // made SyncTrelloAsync re-import the card as a duplicate).
+            task.ExternalId = null;
+            carryMap[task] = target;
         }
 
         // Flush so every new/updated parent task gets a real Id
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
 
         // Carry over subtasks (batch — one SaveChanges for all)
-        var targetLookup = toDay.Tasks
-            .Where(t => t.ParentTaskId is null)
-            .GroupBy(t => t.Text)
-            .ToDictionary(g => g.Key, g => g.First());
-
-        foreach (var task in incomplete)
+        foreach (var (task, target) in carryMap)
         {
-            if (!targetLookup.TryGetValue(task.Text, out var target)) continue;
             foreach (var sub in task.SubTasks.Where(s => !s.IsCompleted && !string.IsNullOrWhiteSpace(s.Text)).OrderBy(s => s.Order))
             {
                 db.DailyTasks.Add(new DailyTask
@@ -544,7 +560,9 @@ public sealed partial class PlannerService
                     Text = sub.Text,
                     Priority = sub.Priority,
                     Category = sub.Category,
-                    IsCompleted = false
+                    IsCompleted = false,
+                    Deadline = sub.Deadline,
+                    ReminderTime = sub.ReminderTime
                 });
             }
         }
@@ -554,7 +572,12 @@ public sealed partial class PlannerService
     public async Task<List<PlannerWeek>> GetWeeksInRangeAsync(DateOnly from, DateOnly to, CancellationToken ct = default)
     {
         await using var db = _dbFactory.CreateDbContext();
+        // Same shape as GetOrCreateWeekAsync: 4 sibling Include chains explode
+        // into a ~10k-row cartesian per week without AsSplitQuery. Statistics only
+        // reads, so AsNoTracking skips snapshotting hundreds of entities per load.
         return await db.Weeks
+            .AsNoTracking()
+            .AsSplitQuery()
             .Include(w => w.Days).ThenInclude(d => d.Tasks).ThenInclude(t => t.SubTasks)
             .Include(w => w.Days).ThenInclude(d => d.State)
             .Include(w => w.Goals)

@@ -13,7 +13,6 @@ public sealed class IncomeSourceConfiguration : IEntityTypeConfiguration<IncomeS
         e.Property(s => s.ClientName).HasMaxLength(200);
         e.Property(s => s.Icon).HasMaxLength(50);
         e.Property(s => s.Color).HasMaxLength(20);
-        e.Property(s => s.TotalMonthlyAmount).HasColumnType("decimal(18,2)");
         e.Property(s => s.Note).HasMaxLength(1000);
         e.HasMany(s => s.Payments).WithOne(p => p.IncomeSource).HasForeignKey(p => p.IncomeSourceId).OnDelete(DeleteBehavior.Cascade);
     }

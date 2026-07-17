@@ -613,9 +613,15 @@ public sealed partial class MainViewModel : ObservableObject
         _reminderTimer.Start();
     }
 
+    // THREADING INVARIANT: _firedReminders is a plain HashSet mutated from
+    // CheckReminders (sync, UI thread) and from async continuations that resume
+    // on the UI SynchronizationContext. Do NOT add ConfigureAwait(false) anywhere
+    // in the await chains that touch it — that would move the mutation to the
+    // thread pool and race the set.
     private readonly HashSet<string> _firedReminders = [];
     private DateOnly _lastReminderDate = DateOnly.FromDateTime(DateTime.Today);
     private DateOnly _lastAutoCreateDate = DateOnly.MinValue;
+    private int _subscriptionCheckRunning;
 
     /// <summary>
     /// Runs AutoCreate at most once per calendar day. Window [today-7..today+30]
@@ -657,8 +663,11 @@ public sealed partial class MainViewModel : ObservableObject
             var r = vm.Model;
             if (r.DayOfWeek is not null && r.DayOfWeek != today) continue;
 
+            // Catch-up window: 60 min instead of a 1.5-min point probe. The app
+            // being closed (or the PC asleep) at the exact minute used to mean
+            // the reminder never fired at all; dedup still caps it at once/day.
             var diff = (now - r.Time).TotalMinutes;
-            if (diff < 0 || diff > 1.5) continue;
+            if (diff < 0 || diff > 60) continue;
 
             var key = $"{dateKey}:{r.Id}";
             if (!_firedReminders.Add(key)) continue;
@@ -680,6 +689,9 @@ public sealed partial class MainViewModel : ObservableObject
     /// </summary>
     private async Task CheckSubscriptionRemindersAsync()
     {
+        // Single-flight: under DB contention a slow pass could overlap the next
+        // 30s tick and re-query recurring payments for nothing.
+        if (Interlocked.Exchange(ref _subscriptionCheckRunning, 1) == 1) return;
         try
         {
             var today = DateOnly.FromDateTime(_time.GetLocalNow().LocalDateTime);
@@ -710,6 +722,10 @@ public sealed partial class MainViewModel : ObservableObject
         catch (Exception ex)
         {
             Log.Error("MainVM", $"CheckSubscriptionReminders: {ex.Message}");
+        }
+        finally
+        {
+            Interlocked.Exchange(ref _subscriptionCheckRunning, 0);
         }
     }
 
@@ -751,54 +767,50 @@ public sealed partial class MainViewModel : ObservableObject
             var m = vm.Model;
             var meetingTime = m.DateTime;
 
-            // Notify 1 day before
-            if (m.NotifyDayBefore)
+            // Range checks (threshold passed AND meeting not started yet), not the
+            // old ±1-minute point probe on a 30s timer: if the app was closed or
+            // the PC asleep during that exact minute the reminder was lost forever.
+            // A late reminder is still useful right up until the meeting begins;
+            // _firedReminders dedups each step to a single toast.
+
+            // Notify 1 day before (only while it is still the previous calendar
+            // day — _firedReminders clears at midnight, and without the Date
+            // bound the same toast would fire again on the meeting morning)
+            if (m.NotifyDayBefore && now >= meetingTime.AddDays(-1) && now.Date < meetingTime.Date)
             {
-                var dayBefore = meetingTime.AddDays(-1);
-                if (Math.Abs((now - dayBefore).TotalMinutes) < 1)
+                var key = $"meeting-day:{m.Id}:{meetingTime:yyyyMMdd}";
+                if (_firedReminders.Add(key))
                 {
-                    var key = $"meeting-day:{m.Id}:{meetingTime:yyyyMMdd}";
-                    if (_firedReminders.Add(key))
-                    {
-                        NotificationService.ShowToast(
-                            Loc.Get("MeetingTomorrow"),
-                            $"{m.Title} — {meetingTime:HH:mm}\n{m.Attendees}",
-                            "meeting");
-                    }
+                    NotificationService.ShowToast(
+                        Loc.Get("MeetingTomorrow"),
+                        $"{m.Title} — {meetingTime:HH:mm}\n{m.Attendees}",
+                        "meeting");
                 }
             }
 
             // Notify 2 hours before
-            if (m.NotifyTwoHoursBefore)
+            if (m.NotifyTwoHoursBefore && now >= meetingTime.AddHours(-2) && now < meetingTime)
             {
-                var twoHours = meetingTime.AddHours(-2);
-                if (Math.Abs((now - twoHours).TotalMinutes) < 1)
+                var key = $"meeting-2h:{m.Id}:{meetingTime:yyyyMMdd}";
+                if (_firedReminders.Add(key))
                 {
-                    var key = $"meeting-2h:{m.Id}:{meetingTime:yyyyMMdd}";
-                    if (_firedReminders.Add(key))
-                    {
-                        NotificationService.ShowToast(
-                            Loc.Get("MeetingSoon"),
-                            $"{m.Title} — {Loc.Get("MeetingIn2Hours")}\n{m.Attendees}",
-                            "meeting");
-                    }
+                    NotificationService.ShowToast(
+                        Loc.Get("MeetingSoon"),
+                        $"{m.Title} — {Loc.Get("MeetingIn2Hours")}\n{m.Attendees}",
+                        "meeting");
                 }
             }
 
             // Notify 30 minutes before
-            if (m.Notify30MinBefore)
+            if (m.Notify30MinBefore && now >= meetingTime.AddMinutes(-30) && now < meetingTime)
             {
-                var thirtyMin = meetingTime.AddMinutes(-30);
-                if (Math.Abs((now - thirtyMin).TotalMinutes) < 1)
+                var key = $"meeting-30m:{m.Id}:{meetingTime:yyyyMMdd}";
+                if (_firedReminders.Add(key))
                 {
-                    var key = $"meeting-30m:{m.Id}:{meetingTime:yyyyMMdd}";
-                    if (_firedReminders.Add(key))
-                    {
-                        NotificationService.ShowToast(
-                            Loc.Get("MeetingSoon"),
-                            $"{m.Title} — {Loc.Get("MeetingIn30Min")}\n{m.Attendees}",
-                            "meeting");
-                    }
+                    NotificationService.ShowToast(
+                        Loc.Get("MeetingSoon"),
+                        $"{m.Title} — {Loc.Get("MeetingIn30Min")}\n{m.Attendees}",
+                        "meeting");
                 }
             }
         }

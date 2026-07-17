@@ -81,7 +81,9 @@ public sealed class TrelloService
         using var response = await Client.SendAsync(req, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<List<TrelloBoard>>(ct).ConfigureAwait(false);
-        return result ?? [];
+        // Non-nullable record fields are a compiler fiction at the JSON boundary —
+        // a null Id would poison the sync dedup HashSet downstream.
+        return result?.Where(b => !string.IsNullOrEmpty(b.Id) && !string.IsNullOrEmpty(b.Name)).ToList() ?? [];
     }
 
     public async Task<List<TrelloList>> GetListsAsync(string boardId, string apiKey, string token, CancellationToken ct = default)
@@ -90,7 +92,7 @@ public sealed class TrelloService
         using var response = await Client.SendAsync(req, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<List<TrelloList>>(ct).ConfigureAwait(false);
-        return result ?? [];
+        return result?.Where(l => !string.IsNullOrEmpty(l.Id) && !string.IsNullOrEmpty(l.Name)).ToList() ?? [];
     }
 
     public async Task<List<TrelloCard>> GetCardsAsync(string listId, string apiKey, string token, CancellationToken ct = default)
@@ -99,7 +101,7 @@ public sealed class TrelloService
         using var response = await Client.SendAsync(req, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<List<TrelloCard>>(ct).ConfigureAwait(false);
-        return result ?? [];
+        return result?.Where(c => !string.IsNullOrEmpty(c.Id) && !string.IsNullOrEmpty(c.Name)).ToList() ?? [];
     }
 
     public async Task<List<(TrelloCard Card, string BoardName, string ListName)>> GetCardsInListByNameAsync(

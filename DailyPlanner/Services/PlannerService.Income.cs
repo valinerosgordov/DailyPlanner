@@ -9,7 +9,7 @@ public sealed partial class PlannerService
     public async Task<List<IncomeSource>> GetIncomeSourcesAsync(bool activeOnly = true, CancellationToken ct = default)
     {
         await using var db = _dbFactory.CreateDbContext();
-        var query = db.IncomeSources.Include(s => s.Payments).AsQueryable();
+        var query = db.IncomeSources.AsNoTracking().Include(s => s.Payments).AsQueryable();
         if (activeOnly) query = query.Where(s => s.IsActive);
         return await query.OrderBy(s => s.Order).ThenBy(s => s.Name).ToListAsync(ct).ConfigureAwait(false);
     }

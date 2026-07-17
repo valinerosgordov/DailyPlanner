@@ -48,11 +48,15 @@ public static class DbIntegrity
     public static bool IsHealthy(string dbPath) => Check(dbPath) == OkResult;
 
     /// <summary>
-    /// Copies <paramref name="sourcePath"/> to <paramref name="destPath"/> only when
+    /// Snapshots <paramref name="sourcePath"/> to <paramref name="destPath"/> only when
     /// the source passes <c>PRAGMA integrity_check</c>. If the source is unhealthy,
     /// the copy is refused and the existing destination (if any) is left intact.
+    ///
+    /// The snapshot itself is <c>VACUUM INTO</c>, not <see cref="File.Copy"/>: a raw
+    /// copy of a live DB can capture a mid-write state and silently misses the
+    /// committed tail still sitting in the -wal sidecar.
     /// </summary>
-    /// <returns>true if the copy was performed; false otherwise.</returns>
+    /// <returns>true if the snapshot was produced; false otherwise.</returns>
     public static bool SafeCopy(string sourcePath, string destPath)
     {
         var status = Check(sourcePath);
@@ -65,13 +69,45 @@ public static class DbIntegrity
 
         try
         {
-            File.Copy(sourcePath, destPath, true);
+            // VACUUM INTO refuses to overwrite an existing file
+            if (File.Exists(destPath)) File.Delete(destPath);
+
+            using var conn = new SqliteConnection($"Data Source={sourcePath};Mode=ReadOnly");
+            conn.Open();
+            using var cmd = conn.CreateCommand();
+            // VACUUM INTO does not accept parameter binding for the path literal.
+            // Paths come from app config or the user's own Save dialog, not remote input.
+            cmd.CommandText = $"VACUUM INTO '{destPath.Replace("'", "''")}';";
+            cmd.ExecuteNonQuery();
             return true;
         }
         catch (Exception ex)
         {
             Log.Error("DbIntegrity", $"SafeCopy failed: {ex.Message}");
             return false;
+        }
+    }
+
+    /// <summary>
+    /// Switches the database to persistent WAL journal mode. Readers stop blocking
+    /// writers (debounced saves, reminder timer ticks, startup rate refresh), and
+    /// the checkpoint/recovery plumbing in this class becomes meaningful.
+    /// Idempotent — the mode is stored inside the DB file.
+    /// </summary>
+    public static void EnableWal(string dbPath)
+    {
+        if (!File.Exists(dbPath)) return;
+        try
+        {
+            using var conn = new SqliteConnection($"Data Source={dbPath}");
+            conn.Open();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = "PRAGMA journal_mode=WAL;";
+            cmd.ExecuteScalar();
+        }
+        catch (Exception ex)
+        {
+            Log.Error("DbIntegrity", $"EnableWal failed: {ex.Message}");
         }
     }
 

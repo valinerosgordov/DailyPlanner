@@ -30,7 +30,10 @@ public sealed class UpdateService
 
     public async Task DownloadAndApplyAsync(UpdateInfo update, Action<int>? progress = null, CancellationToken ct = default)
     {
-        await _manager.DownloadUpdatesAsync(update, progress).ConfigureAwait(false);
+        await _manager.DownloadUpdatesAsync(update, progress, ct).ConfigureAwait(false);
+        // The restart kills the process — flush debounced saves first or edits
+        // from the last 300 ms window are lost.
+        DebounceService.FlushAll();
         _manager.ApplyUpdatesAndRestart(update);
     }
 }

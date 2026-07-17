@@ -513,6 +513,7 @@ internal static class LocRuStrings
         ["CmdPreviousMonth"] = "Предыдущий месяц",
         ["CmdNextMonth"] = "Следующий месяц",
         ["BackupTitle"] = "Резервная копия",
+        ["BackupSuccess"] = "Резервная копия успешно создана",
         ["BackupCorruptError"] = "Резервная копия отклонена: база данных повреждена. Сначала восстановите базу данных.",
         ["CmdBackupDb"] = "Резервная копия БД",
         ["RecoveryTitle"] = "Целостность БД нарушена",

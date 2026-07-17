@@ -14,7 +14,6 @@ public sealed class ExchangeRateConfiguration : IEntityTypeConfiguration<Exchang
         e.HasIndex(x => new { x.CurrencyCode, x.BaseCurrency, x.Date }).IsUnique();
         e.Property(x => x.CurrencyCode).HasMaxLength(8).IsRequired();
         e.Property(x => x.BaseCurrency).HasMaxLength(8).IsRequired();
-        e.Property(x => x.Rate).HasColumnType("decimal(18,6)");
         e.Property(x => x.Source).HasMaxLength(64);
     }
 }

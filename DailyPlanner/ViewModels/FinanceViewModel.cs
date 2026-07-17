@@ -194,12 +194,12 @@ public sealed partial class FinanceViewModel : ObservableObject
                 if (entry.Type == FinanceEntryType.Income)
                 {
                     IncomeEntries.Add(vm);
-                    income += entry.Amount;
+                    income += entry.BaseAmount;
                 }
                 else
                 {
                     ExpenseEntries.Add(vm);
-                    expenses += entry.Amount;
+                    expenses += entry.BaseAmount;
                 }
             }
 
@@ -214,7 +214,7 @@ public sealed partial class FinanceViewModel : ObservableObject
             {
                 var vm = new BudgetViewModel(b, _service);
                 var spent = entries.Where(e => e.Type == FinanceEntryType.Expense && e.CategoryId == b.CategoryId)
-                    .Sum(e => e.Amount);
+                    .Sum(e => e.BaseAmount);
                 vm.SpentAmount = spent;
                 Budgets.Add(vm);
             }

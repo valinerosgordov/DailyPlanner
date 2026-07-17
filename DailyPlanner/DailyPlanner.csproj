@@ -13,6 +13,14 @@
     <Version>3.41.0</Version>
     <Authors>DailyPlanner Team</Authors>
     <Description>Daily &amp; Financial Planner вЂ” weekly planner with finance tracker, habits, Pomodoro and analytics</Description>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <!-- Plural form (unconditional) so the lock file always carries a win-x64 restore graph,
+         independent of Configuration. Actual publish RID selection stays on the singular,
+         Release-only RuntimeIdentifier below. Needed so a plain restore of this project (e.g. via
+         the Tests project's ProjectReference, which restores without an explicit RID) and a
+         restore that passes -r win-x64 (used for the Release self-contained publish) both
+         validate against the same packages.lock.json under locked-mode restore. -->
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
@@ -34,6 +42,12 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7" />
     <PackageReference Include="Velopack" Version="0.0.1589-ga2c5a97" />
     <PackageReference Include="WPF-UI" Version="4.2.1" />
+    <!-- Transitive pin: SQLitePCLRaw.lib.e_sqlite3 2.1.11 (pulled by EFCore.Sqlite) has a high-severity
+         native SQLite vulnerability (NU1903, GHSA-2m69-gcr7-jv3q / CVE-2025-6965, memory corruption
+         below SQLite 3.50.2). 2.1.12 ships native SQLite 3.53.3 in the same 2.1.x line as
+         SQLitePCLRaw.core/provider 2.1.11 already resolved (v3.x restructures the dependency graph
+         and is not a drop-in). -->
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.12" />
   </ItemGroup>
 
   <ItemGroup>

@@ -87,7 +87,8 @@ public sealed class ExchangeRateService
         var rate = await GetRateAsync(fromCurrency, date, ct).ConfigureAwait(false);
         if (!rate.HasValue)
         {
-            Log.Error("ExchangeRate",
+            // Expected fallback (offline first launch, exotic currency) — Warn, not Error.
+            Log.Warn("ExchangeRate",
                 $"No rate found for {fromCurrency} on or before {date:yyyy-MM-dd}. " +
                 $"Returning unconverted amount {amount}.");
             return amount;
@@ -144,16 +145,17 @@ public sealed class ExchangeRateService
                     Rate = perUnit,
                     Source = "cbr.ru"
                 });
+                upserted++;
             }
             else if (existing.Rate != perUnit)
             {
                 existing.Rate = perUnit;
+                upserted++;
             }
-            upserted++;
         }
 
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
-        Log.Error("ExchangeRate", $"Refresh: {upserted} currencies upserted for {date:yyyy-MM-dd}");
+        Log.Info("ExchangeRate", $"Refresh: {upserted} currencies upserted for {date:yyyy-MM-dd}");
         return upserted;
     }
 

@@ -13,7 +13,8 @@ public sealed class FinanceCategoryConfiguration : IEntityTypeConfiguration<Fina
         e.Property(c => c.Icon).HasMaxLength(50);
         e.Property(c => c.Color).HasMaxLength(20);
         e.Property(c => c.SeedKey).HasMaxLength(50);
-        e.HasIndex(c => c.SeedKey);
+        // Unique: SeedKey is the idempotency key for default-category seeding.
+        e.HasIndex(c => c.SeedKey).IsUnique().HasFilter("\"SeedKey\" IS NOT NULL");
         e.HasMany(c => c.Entries).WithOne(fe => fe.Category).HasForeignKey(fe => fe.CategoryId).OnDelete(DeleteBehavior.Restrict);
         e.HasMany(c => c.Budgets).WithOne(b => b.Category).HasForeignKey(b => b.CategoryId).OnDelete(DeleteBehavior.Cascade);
         e.HasMany(c => c.RecurringPayments).WithOne(rp => rp.Category).HasForeignKey(rp => rp.CategoryId).OnDelete(DeleteBehavior.Restrict);

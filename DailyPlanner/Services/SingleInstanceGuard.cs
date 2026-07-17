@@ -7,8 +7,11 @@ namespace DailyPlanner.Services;
 
 public static partial class SingleInstanceGuard
 {
-    private const string MutexName = @"Global\DailyPlanner_Mutex_c3f4a2e1";
-    private const string EventName = @"Global\DailyPlanner_Activate_c3f4a2e1";
+    // Local\ (per-session), not Global\: the DB is per-user in LocalAppData, so a
+    // planner in an RDP / Fast-User-Switching session must not block (or activate
+    // the window of) another user's instance.
+    private const string MutexName = @"Local\DailyPlanner_Mutex_c3f4a2e1";
+    private const string EventName = @"Local\DailyPlanner_Activate_c3f4a2e1";
     private const int SW_RESTORE = 9;
 
     private static Mutex? _mutex;
@@ -18,19 +21,31 @@ public static partial class SingleInstanceGuard
 
     public static bool TryAcquire(out bool alreadyRunning)
     {
-        _mutex = new Mutex(true, MutexName, out var createdNew);
-        if (createdNew)
+        alreadyRunning = false;
+        try
         {
-            _activationEvent = new EventWaitHandle(false, EventResetMode.AutoReset, EventName);
-            _shutdownEvent = new EventWaitHandle(false, EventResetMode.ManualReset);
-            alreadyRunning = false;
+            _mutex = new Mutex(true, MutexName, out var createdNew);
+            if (createdNew)
+            {
+                _activationEvent = new EventWaitHandle(false, EventResetMode.AutoReset, EventName);
+                _shutdownEvent = new EventWaitHandle(false, EventResetMode.ManualReset);
+                return true;
+            }
+
+            _mutex.Dispose();
+            _mutex = null;
+            alreadyRunning = true;
+            return false;
+        }
+        catch (Exception ex)
+        {
+            // Locked-down environments can deny named-object creation. This runs
+            // BEFORE the global exception handler is wired up — failing open
+            // (run without the guard) beats a silent startup crash.
+            Log.Warn("SingleInstance", $"Guard unavailable: {ex.Message}");
+            _mutex = null;
             return true;
         }
-
-        _mutex.Dispose();
-        _mutex = null;
-        alreadyRunning = true;
-        return false;
     }
 
     public static void SignalExistingInstance()
@@ -84,15 +99,23 @@ public static partial class SingleInstanceGuard
 
     private static void ActivateByWindowHandle()
     {
-        var current = Process.GetCurrentProcess();
-        foreach (var p in Process.GetProcessesByName(current.ProcessName))
+        using var current = Process.GetCurrentProcess();
+        var processes = Process.GetProcessesByName(current.ProcessName);
+        try
         {
-            if (p.Id == current.Id) continue;
-            var handle = p.MainWindowHandle;
-            if (handle == nint.Zero) continue;
-            if (IsIconic(handle)) ShowWindow(handle, SW_RESTORE);
-            SetForegroundWindow(handle);
-            return;
+            foreach (var p in processes)
+            {
+                if (p.Id == current.Id) continue;
+                var handle = p.MainWindowHandle;
+                if (handle == nint.Zero) continue;
+                if (IsIconic(handle)) ShowWindow(handle, SW_RESTORE);
+                SetForegroundWindow(handle);
+                return;
+            }
+        }
+        finally
+        {
+            foreach (var p in processes) p.Dispose();
         }
     }
 

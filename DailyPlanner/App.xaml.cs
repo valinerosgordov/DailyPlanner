@@ -24,17 +24,22 @@ public partial class App : Application
             try
             {
                 var logPath = System.IO.Path.Combine(PlannerDbContextFactory.AppDataFolder, "crash.log");
+                RotateCrashLog(logPath);
                 System.IO.File.AppendAllText(logPath,
                     $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {e.Exception}\n\n");
             }
             catch { }
             System.Windows.MessageBox.Show(
-                $"An unexpected error occurred:\n{e.Exception.Message}",
+                $"An unexpected error occurred:\n{e.Exception.Message}\n\nLogs: {PlannerDbContextFactory.AppDataFolder}",
                 "Daily & Financial Planner", MessageBoxButton.OK, MessageBoxImage.Error);
             e.Handled = true;
         };
 
-        Exit += (_, _) => SingleInstanceGuard.Release();
+        Exit += (_, _) =>
+        {
+            DebounceService.FlushAll(); // don't lose edits from the last debounce window
+            SingleInstanceGuard.Release();
+        };
 
         base.OnStartup(e);
 
@@ -170,6 +175,11 @@ public partial class App : Application
                 {
                     using var db = PlannerDbContextFactory.Create();
                     db.Database.Migrate();
+
+                    // Persistent WAL: in the default rollback-journal mode every reader
+                    // blocked every writer, so concurrent debounced saves / timer ticks
+                    // could stall the UI for the full 30s busy timeout.
+                    DbIntegrity.EnableWal(PlannerDbContextFactory.DbPath);
                 });
 
                 // WAL checkpoint right after migration: flushes any -wal residue into
@@ -298,6 +308,22 @@ public partial class App : Application
             Loc.Get("RecoveryTitle"), MessageBoxButton.OK, MessageBoxImage.Information);
         return true;
     }
+    // crash.log is append-only and outside Log.cs rotation — cap it the same way
+    // (2 MB + one .old generation) so a crash loop can't grow it unbounded.
+    private static void RotateCrashLog(string path)
+    {
+        const long maxBytes = 2 * 1024 * 1024;
+        try
+        {
+            var info = new System.IO.FileInfo(path);
+            if (!info.Exists || info.Length < maxBytes) return;
+            var old = path + ".old";
+            if (System.IO.File.Exists(old)) System.IO.File.Delete(old);
+            System.IO.File.Move(path, old);
+        }
+        catch { /* best-effort — the crash handler must never throw */ }
+    }
+
     private void ActivateMainWindow()
     {
         if (MainWindow is null) return;

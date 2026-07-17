@@ -15,12 +15,13 @@ public sealed class FinanceEntryConfiguration : IEntityTypeConfiguration<Finance
         e.HasIndex(fe => fe.AccountId);
         e.HasIndex(fe => fe.ParentEntryId);
         e.HasIndex(fe => fe.IsPaid);
-
-        e.Property(fe => fe.Amount).HasColumnType("decimal(18,2)");
+        // Money columns intentionally have NO HasColumnType: on SQLite the string
+        // "decimal(18,2)" falls into NUMERIC affinity and silently stores REAL
+        // (IEEE 754 float — verified with typeof() on a live DB). Omitting it keeps
+        // the provider's default exact TEXT mapping for decimal.
         e.Property(fe => fe.Description).HasMaxLength(500);
         e.Property(fe => fe.Currency).HasMaxLength(8).HasDefaultValue("RUB");
-        e.Property(fe => fe.ExchangeRateToBase).HasColumnType("decimal(18,6)");
-        e.Property(fe => fe.AmountInBaseCurrency).HasColumnType("decimal(18,2)").HasDefaultValue(0m);
+        e.Property(fe => fe.AmountInBaseCurrency).HasDefaultValue(0m);
 
         e.HasOne(fe => fe.Week).WithMany().HasForeignKey(fe => fe.WeekId).OnDelete(DeleteBehavior.SetNull);
         e.HasOne(fe => fe.RecurringPayment).WithMany(rp => rp.GeneratedEntries).HasForeignKey(fe => fe.RecurringPaymentId).OnDelete(DeleteBehavior.SetNull);
