@@ -196,44 +196,20 @@ public static class ExportService
             ws.Cell(row, 1).Value = Loc.Get("Income");
             ws.Cell(row, 1).Style.Font.SetBold(true).Font.SetFontSize(12);
             row++;
-            ws.Cell(row, 1).Value = Loc.Get("CtxCategory");
-            ws.Cell(row, 2).Value = Loc.Get("FinanceDescription");
-            ws.Cell(row, 3).Value = Loc.Get("Amount");
-            ws.Cell(row, 4).Value = Loc.Get("Date");
-            ws.Range(row, 1, row, 4).Style.Font.SetBold(true);
-            row++;
+            row = WriteEntryHeader(ws, row);
 
             foreach (var e in income)
-            {
-                ws.Cell(row, 1).Value = EscapeForExcel($"{e.CategoryIcon} {e.CategoryName}");
-                ws.Cell(row, 2).Value = EscapeForExcel(e.Description);
-                ws.Cell(row, 3).Value = e.Amount;
-                ws.Cell(row, 3).Style.NumberFormat.Format = "#,##0.00";
-                ws.Cell(row, 4).Value = e.DisplayDate;
-                row++;
-            }
+                row = WriteEntryRow(ws, row, e);
 
             // Expense entries
             row++;
             ws.Cell(row, 1).Value = Loc.Get("Expenses");
             ws.Cell(row, 1).Style.Font.SetBold(true).Font.SetFontSize(12);
             row++;
-            ws.Cell(row, 1).Value = Loc.Get("CtxCategory");
-            ws.Cell(row, 2).Value = Loc.Get("FinanceDescription");
-            ws.Cell(row, 3).Value = Loc.Get("Amount");
-            ws.Cell(row, 4).Value = Loc.Get("Date");
-            ws.Range(row, 1, row, 4).Style.Font.SetBold(true);
-            row++;
+            row = WriteEntryHeader(ws, row);
 
             foreach (var e in expenses)
-            {
-                ws.Cell(row, 1).Value = EscapeForExcel($"{e.CategoryIcon} {e.CategoryName}");
-                ws.Cell(row, 2).Value = EscapeForExcel(e.Description);
-                ws.Cell(row, 3).Value = e.Amount;
-                ws.Cell(row, 3).Style.NumberFormat.Format = "#,##0.00";
-                ws.Cell(row, 4).Value = e.DisplayDate;
-                row++;
-            }
+                row = WriteEntryRow(ws, row, e);
 
             // Budgets
             if (budgets.Count > 0)
@@ -288,5 +264,32 @@ public static class ExportService
             Log.Error("ExportService", $"Finance export failed: {ex.Message}");
             return false;
         }
+    }
+
+    private static int WriteEntryHeader(IXLWorksheet ws, int row)
+    {
+        ws.Cell(row, 1).Value = Loc.Get("CtxCategory");
+        ws.Cell(row, 2).Value = Loc.Get("FinanceDescription");
+        ws.Cell(row, 3).Value = Loc.Get("Amount");
+        ws.Cell(row, 4).Value = Loc.Get("FinCurrency");
+        ws.Cell(row, 5).Value = "RUB";
+        ws.Cell(row, 6).Value = Loc.Get("Date");
+        ws.Range(row, 1, row, 6).Style.Font.SetBold(true);
+        return row + 1;
+    }
+
+    // Original amount + currency + the stamped base value — the summary totals
+    // are base-currency sums, so the per-row RUB column makes them reconcilable.
+    private static int WriteEntryRow(IXLWorksheet ws, int row, FinanceEntryViewModel e)
+    {
+        ws.Cell(row, 1).Value = EscapeForExcel($"{e.CategoryIcon} {e.CategoryName}");
+        ws.Cell(row, 2).Value = EscapeForExcel(e.Description);
+        ws.Cell(row, 3).Value = e.Amount;
+        ws.Cell(row, 3).Style.NumberFormat.Format = "#,##0.00";
+        ws.Cell(row, 4).Value = e.Currency;
+        ws.Cell(row, 5).Value = e.Model.BaseAmount;
+        ws.Cell(row, 5).Style.NumberFormat.Format = "#,##0.00";
+        ws.Cell(row, 6).Value = e.DisplayDate;
+        return row + 1;
     }
 }

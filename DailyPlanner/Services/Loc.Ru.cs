@@ -205,6 +205,7 @@ internal static class LocRuStrings
         ["RestoreSuccess"] = "База данных успешно восстановлена",
         ["RestoreError"] = "Ошибка при восстановлении",
         ["RestoreInvalidDb"] = "Файл не является базой данных SQLite",
+        ["FinCurrency"] = "Валюта",
         ["CopyTitle"] = "Копирование",
         ["CopySuccess"] = "Структура прошлой недели скопирована",
         ["Reminder"] = "Напоминание",

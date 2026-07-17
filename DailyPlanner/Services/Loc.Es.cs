@@ -189,6 +189,7 @@ internal static class LocEsStrings
         ["RestoreSuccess"] = "Base de datos restaurada correctamente",
         ["RestoreError"] = "Error al restaurar la base de datos",
         ["RestoreInvalidDb"] = "El archivo no es una base de datos SQLite válida",
+        ["FinCurrency"] = "Moneda",
         ["CopyTitle"] = "Copiar",
         ["CopySuccess"] = "Estructura de la semana pasada copiada",
         ["Reminder"] = "Recordatorio",

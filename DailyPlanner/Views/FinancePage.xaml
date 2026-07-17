@@ -4,6 +4,7 @@
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:conv="clr-namespace:DailyPlanner.Converters"
       xmlns:svc="clr-namespace:DailyPlanner.Services"
+      xmlns:vm="clr-namespace:DailyPlanner.ViewModels"
       Foreground="{DynamicResource TextPrimaryBrush}">
 
     <Page.Resources>
@@ -338,11 +339,15 @@
                                                        DockPanel.Dock="Right" Padding="4" VerticalAlignment="Center"
                                                        Command="{Binding DataContext.RemoveIncomeEntryCommand, RelativeSource={RelativeSource AncestorType=Page}}"
                                                        CommandParameter="{Binding}"/>
-                                            <TextBox DockPanel.Dock="Right"
-                                                     Text="{Binding Amount, Converter={StaticResource CurrencyConv}, UpdateSourceTrigger=LostFocus}"
-                                                     Style="{StaticResource FinanceAmountTextBox}"
-                                                     Foreground="{DynamicResource SuccessBrush}"
-                                                     VerticalAlignment="Center" Margin="8,0"/>
+                                            <StackPanel DockPanel.Dock="Right" VerticalAlignment="Center" Margin="8,0">
+                                                <TextBox Text="{Binding Amount, Converter={StaticResource CurrencyConv}, UpdateSourceTrigger=LostFocus}"
+                                                         Style="{StaticResource FinanceAmountTextBox}"
+                                                         Foreground="{DynamicResource SuccessBrush}"/>
+                                                <TextBlock Text="{Binding BaseAmountHint}" FontSize="10"
+                                                           HorizontalAlignment="Right"
+                                                           Foreground="{DynamicResource MutedBrush}"
+                                                           Visibility="{Binding IsForeignCurrency, Converter={StaticResource VisConv}}"/>
+                                            </StackPanel>
                                             <StackPanel VerticalAlignment="Center">
                                                 <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
                                                          Style="{StaticResource FinanceInlineTextBox}"/>
@@ -355,6 +360,10 @@
                                                               Background="Transparent" BorderThickness="0"/>
                                                     <DatePicker SelectedDate="{Binding Date, Converter={conv:DateOnlyToDateTimeConverter}}"
                                                                 Style="{StaticResource CompactDatePicker}" Margin="8,0,0,0"/>
+                                                    <ComboBox ItemsSource="{x:Static vm:FinanceEntryViewModel.CurrencyOptions}"
+                                                              SelectedItem="{Binding Currency}"
+                                                              FontSize="11" Padding="4,1" Margin="8,0,0,0"
+                                                              Background="Transparent" BorderThickness="0"/>
                                                 </StackPanel>
                                             </StackPanel>
                                         </DockPanel>
@@ -445,11 +454,15 @@
                                                        DockPanel.Dock="Right" Padding="4" VerticalAlignment="Center"
                                                        Command="{Binding DataContext.RemoveExpenseEntryCommand, RelativeSource={RelativeSource AncestorType=Page}}"
                                                        CommandParameter="{Binding}"/>
-                                            <TextBox DockPanel.Dock="Right"
-                                                     Text="{Binding Amount, Converter={StaticResource CurrencyConv}, UpdateSourceTrigger=LostFocus}"
-                                                     Style="{StaticResource FinanceAmountTextBox}"
-                                                     Foreground="{DynamicResource DangerBrush}"
-                                                     VerticalAlignment="Center" Margin="8,0"/>
+                                            <StackPanel DockPanel.Dock="Right" VerticalAlignment="Center" Margin="8,0">
+                                                <TextBox Text="{Binding Amount, Converter={StaticResource CurrencyConv}, UpdateSourceTrigger=LostFocus}"
+                                                         Style="{StaticResource FinanceAmountTextBox}"
+                                                         Foreground="{DynamicResource DangerBrush}"/>
+                                                <TextBlock Text="{Binding BaseAmountHint}" FontSize="10"
+                                                           HorizontalAlignment="Right"
+                                                           Foreground="{DynamicResource MutedBrush}"
+                                                           Visibility="{Binding IsForeignCurrency, Converter={StaticResource VisConv}}"/>
+                                            </StackPanel>
                                             <StackPanel VerticalAlignment="Center">
                                                 <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
                                                          Style="{StaticResource FinanceInlineTextBox}"/>
@@ -462,6 +475,10 @@
                                                               Background="Transparent" BorderThickness="0"/>
                                                     <DatePicker SelectedDate="{Binding Date, Converter={conv:DateOnlyToDateTimeConverter}}"
                                                                 Style="{StaticResource CompactDatePicker}" Margin="8,0,0,0"/>
+                                                    <ComboBox ItemsSource="{x:Static vm:FinanceEntryViewModel.CurrencyOptions}"
+                                                              SelectedItem="{Binding Currency}"
+                                                              FontSize="11" Padding="4,1" Margin="8,0,0,0"
+                                                              Background="Transparent" BorderThickness="0"/>
                                                 </StackPanel>
                                             </StackPanel>
                                         </DockPanel>
@@ -768,7 +785,7 @@
             </StackPanel>
 
             <!-- ═══════════════ TAB 3: Recurring Payments ═══════════════ -->
-            <StackPanel Visibility="{Binding SelectedTabIndex, Converter={conv:IntToVisibilityConverter}, ConverterParameter=3}">
+            <StackPanel Visibility="{Binding SelectedTabIndex, Converter={conv:IntToVisibilityConverter}, ConverterParameter=3}">
 
                 <!-- Subscription summary cards (added 2026-05 — backend in PRs #78-83) -->
                 <UniformGrid Rows="1" Columns="4" Margin="0,0,0,12">

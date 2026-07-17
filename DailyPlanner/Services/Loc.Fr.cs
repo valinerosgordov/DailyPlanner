@@ -189,6 +189,7 @@ internal static class LocFrStrings
         ["RestoreSuccess"] = "Base de données restaurée avec succès",
         ["RestoreError"] = "Erreur lors de la restauration",
         ["RestoreInvalidDb"] = "Le fichier n'est pas une base de données SQLite valide",
+        ["FinCurrency"] = "Devise",
         ["CopyTitle"] = "Copier",
         ["CopySuccess"] = "Structure de la semaine dernière copiée",
         ["Reminder"] = "Rappel",

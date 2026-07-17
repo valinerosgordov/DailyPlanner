@@ -82,6 +82,12 @@ public sealed partial class DebtViewModel : ObservableObject
         OnPropertyChanged(nameof(PaidAmount));
         OnPropertyChanged(nameof(RemainingAmount));
         OnPropertyChanged(nameof(ProgressPercent));
+
+        // Mirror of PlannerService.RecalcSettledStateAsync: settled state follows
+        // the payments. Runs only when payments/amount change, so a manual
+        // write-off (no payments) is left alone until the numbers move.
+        var fullyPaid = Amount > 0 && RemainingAmount <= 0;
+        if (fullyPaid != IsSettled) IsSettled = fullyPaid;
     }
 
     private void Save()
