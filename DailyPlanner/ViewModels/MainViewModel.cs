@@ -59,6 +59,7 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly TrelloService _trelloService;
     [ObservableProperty] private bool _trelloIsEnabled;
     [ObservableProperty] private bool _trelloAutoSyncOnStartup;
+    [ObservableProperty] private bool _trelloPushCompletions;
     [ObservableProperty] private string _trelloApiKey = string.Empty;
     [ObservableProperty] private string _trelloToken = string.Empty;
     [ObservableProperty] private string _trelloListName = "В работе";
@@ -595,6 +596,7 @@ public sealed partial class MainViewModel : ObservableObject
         var s = await _service.GetTrelloSettingsAsync();
         TrelloIsEnabled = s.IsEnabled;
         TrelloAutoSyncOnStartup = s.AutoSyncOnStartup;
+        TrelloPushCompletions = s.PushCompletions;
         TrelloApiKey = s.ApiKey;
         TrelloToken = s.Token;
         TrelloListName = string.IsNullOrWhiteSpace(s.ListName) ? "В работе" : s.ListName;
@@ -679,6 +681,23 @@ public sealed partial class MainViewModel : ObservableObject
         _ = EnsureAutoCreateEntriesAsync();
         _ = CheckSubscriptionRemindersAsync();
         _ = CheckSubscriptionAuditAsync();
+
+        // Two-way Trello: push completed/reopened tasks at most every 5 minutes.
+        // The push also rides along with every full sync; this keeps the lag
+        // bounded when the user just checks tasks off without syncing.
+        if (localNow - _lastTrelloPush >= TimeSpan.FromMinutes(5))
+        {
+            _lastTrelloPush = localNow;
+            PushTrelloCompletionsAsync().FireAndForget("TrelloPush");
+        }
+    }
+
+    private DateTimeOffset _lastTrelloPush = DateTimeOffset.MinValue;
+
+    private async Task PushTrelloCompletionsAsync()
+    {
+        try { await _service.PushCompletedToTrelloAsync(_trelloService); }
+        catch (Exception ex) { Log.Error("MainVM", $"Trello push failed: {ex.Message}"); }
     }
 
     /// <summary>

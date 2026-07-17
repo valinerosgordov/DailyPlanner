@@ -453,6 +453,7 @@ internal static class LocEsStrings
         ["TrelloDesc"] = "Importa tarjetas de la lista indicada a la bandeja de entrada.",
         ["TrelloApiKey"] = "Clave API",
         ["TrelloToken"] = "Token",
+        ["TrelloPushCompletions"] = "Archivar la tarjeta de Trello al completar la tarea",
         ["TrelloListName"] = "Nombre de lista (p.ej. \"En proceso\")",
         ["TrelloHelp"] = "Obtén la clave en https://trello.com/app-key — en la misma página hay un botón \"Token\".",
         ["TestConnection"] = "Probar conexión",

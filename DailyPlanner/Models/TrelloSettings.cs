@@ -8,5 +8,9 @@ public sealed class TrelloSettings
     public string ListName { get; set; } = "В работе";
     public bool IsEnabled { get; set; }
     public bool AutoSyncOnStartup { get; set; }
+
+    /// <summary>Two-way sync: archive the Trello card when its task is completed. Opt-in.</summary>
+    public bool PushCompletions { get; set; }
+
     public DateTime? LastSyncUtc { get; set; }
 }
