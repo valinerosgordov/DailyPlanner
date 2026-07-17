@@ -17,6 +17,7 @@ public partial class MainViewModel
         var s = await _service.GetTrelloSettingsAsync();
         s.IsEnabled = TrelloIsEnabled;
         s.AutoSyncOnStartup = TrelloAutoSyncOnStartup;
+        s.PushCompletions = TrelloPushCompletions;
         s.ApiKey = TrelloApiKey.Trim();
         s.Token = TrelloToken.Trim();
         s.ListName = string.IsNullOrWhiteSpace(TrelloListName) ? "В работе" : TrelloListName.Trim();

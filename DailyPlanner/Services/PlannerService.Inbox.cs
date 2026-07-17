@@ -1,3 +1,4 @@
+using System.Net.Http;
 using DailyPlanner.Data;
 using DailyPlanner.Models;
 using Microsoft.EntityFrameworkCore;
@@ -184,8 +185,70 @@ public sealed partial class PlannerService
                 tracked.LastSyncUtc = DateTime.UtcNow;
                 await db.SaveChangesAsync(ct).ConfigureAwait(false);
             }
+
+            // Push side of the two-way sync rides along with every pull.
+            await PushCompletedToTrelloAsync(trello, ct).ConfigureAwait(false);
+
             return added;
         }
         finally { _trelloSyncGate.Release(); }
+    }
+
+    /// <summary>
+    /// Two-way sync, push side: archives Trello cards whose tasks are completed
+    /// and un-archives them when a task is un-completed. Success is stamped on
+    /// the task (ExternalClosedUtc), so each transition is pushed exactly once
+    /// and failures retry automatically on the next pass.
+    /// </summary>
+    public async Task<int> PushCompletedToTrelloAsync(TrelloService trello, CancellationToken ct = default)
+    {
+        var settings = await GetTrelloSettingsAsync(ct).ConfigureAwait(false);
+        if (!settings.IsEnabled || !settings.PushCompletions
+            || string.IsNullOrWhiteSpace(settings.ApiKey) || string.IsNullOrWhiteSpace(settings.Token))
+            return 0;
+
+        await using var db = _dbFactory.CreateDbContext();
+        var toClose = await db.DailyTasks
+            .Where(t => t.ExternalId != null && t.IsCompleted && t.ExternalClosedUtc == null)
+            .ToListAsync(ct).ConfigureAwait(false);
+        var toReopen = await db.DailyTasks
+            .Where(t => t.ExternalId != null && !t.IsCompleted && t.ExternalClosedUtc != null)
+            .ToListAsync(ct).ConfigureAwait(false);
+        if (toClose.Count == 0 && toReopen.Count == 0) return 0;
+
+        var pushed = 0;
+        try
+        {
+            foreach (var task in toClose)
+            {
+                if (!await trello.SetCardClosedAsync(task.ExternalId!, true, settings.ApiKey, settings.Token, ct).ConfigureAwait(false))
+                    continue;
+                task.ExternalClosedUtc = DateTime.UtcNow;
+                pushed++;
+            }
+            foreach (var task in toReopen)
+            {
+                if (!await trello.SetCardClosedAsync(task.ExternalId!, false, settings.ApiKey, settings.Token, ct).ConfigureAwait(false))
+                    continue;
+                task.ExternalClosedUtc = null;
+                pushed++;
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            // Offline is normal for this app — save what got through, retry later.
+            Log.Warn("TrelloPush", $"Push interrupted: {ex.Message}");
+        }
+        catch (TaskCanceledException)
+        {
+            Log.Warn("TrelloPush", "Push timed out; will retry on the next pass.");
+        }
+
+        if (pushed > 0)
+        {
+            await db.SaveChangesAsync(ct).ConfigureAwait(false);
+            Log.Info("TrelloPush", $"Pushed {pushed} completion state(s) to Trello.");
+        }
+        return pushed;
     }
 }

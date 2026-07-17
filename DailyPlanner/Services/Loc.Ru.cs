@@ -486,6 +486,7 @@ internal static class LocRuStrings
         ["TrelloDesc"] = "Подтягивает карточки из указанного списка во входящие планера.",
         ["TrelloApiKey"] = "API ключ",
         ["TrelloToken"] = "Токен",
+        ["TrelloPushCompletions"] = "Архивировать карточку Trello при выполнении задачи",
         ["TrelloListName"] = "Название списка (например, «В работе»)",
         ["TrelloHelp"] = "Получить ключ: https://trello.com/app-key — там же создаётся токен по кнопке «Token».",
         ["TestConnection"] = "Проверить соединение",

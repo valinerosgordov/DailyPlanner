@@ -17,6 +17,13 @@ public sealed class DailyTask
     public DateOnly? Deadline { get; set; }
     public string? ExternalId { get; set; }
 
+    /// <summary>
+    /// When the completion of this task was pushed to Trello (card archived).
+    /// Null = not pushed yet (retried on the next push pass) or not a Trello task.
+    /// Cleared when the task is un-completed and the card gets un-archived.
+    /// </summary>
+    public DateTime? ExternalClosedUtc { get; set; }
+
     public DailyPlan? DailyPlan { get; set; }
     public DailyTask? ParentTask { get; set; }
     public List<DailyTask> SubTasks { get; set; } = [];
