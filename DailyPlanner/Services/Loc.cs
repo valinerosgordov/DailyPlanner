@@ -33,6 +33,20 @@ public sealed class Loc : INotifyPropertyChanged
 
     public static event Action? LanguageChanged;
 
+    /// <summary>
+    /// CultureInfo matching the app's ACTIVE UI LANGUAGE, not the OS culture.
+    /// Use for any user-visible date/number formatting — CurrentCulture would mix
+    /// OS-language month/day names into an app running in another language.
+    /// </summary>
+    public System.Globalization.CultureInfo Culture
+    {
+        get
+        {
+            try { return System.Globalization.CultureInfo.GetCultureInfo(_lang); }
+            catch (System.Globalization.CultureNotFoundException) { return System.Globalization.CultureInfo.CurrentCulture; }
+        }
+    }
+
     public string this[string key] => Get(key);
 
     public static string Get(string key)

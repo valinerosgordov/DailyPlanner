@@ -12,7 +12,5 @@ public sealed class FinancialGoalConfiguration : IEntityTypeConfiguration<Financ
         e.Property(g => g.Name).HasMaxLength(200);
         e.Property(g => g.Icon).HasMaxLength(50);
         e.Property(g => g.Color).HasMaxLength(20);
-        e.Property(g => g.TargetAmount).HasColumnType("decimal(18,2)");
-        e.Property(g => g.SavedAmount).HasColumnType("decimal(18,2)");
     }
 }

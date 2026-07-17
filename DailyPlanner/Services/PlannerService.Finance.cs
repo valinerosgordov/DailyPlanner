@@ -153,6 +153,8 @@ public sealed partial class PlannerService
             if (isArchived == true) return;
         }
 
+        await StampBaseAmountAsync(db, entry, ct).ConfigureAwait(false);
+
         if (entry.Id == 0)
         {
             db.FinanceEntries.Add(entry);
@@ -164,6 +166,72 @@ public sealed partial class PlannerService
         }
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
+
+    /// <summary>
+    /// Stamps ExchangeRateToBase / AmountInBaseCurrency so aggregates sum a single
+    /// currency. Falls back to the raw amount when no rate is known — same policy
+    /// as ExchangeRateService.ConvertToBaseAsync (a slightly wrong total beats a
+    /// crashed dashboard).
+    /// </summary>
+    private static async Task StampBaseAmountAsync(PlannerDbContext db, FinanceEntry entry, CancellationToken ct)
+    {
+        if (string.IsNullOrEmpty(entry.Currency)
+            || string.Equals(entry.Currency, ExchangeRateService.BaseCurrency, StringComparison.OrdinalIgnoreCase))
+        {
+            entry.ExchangeRateToBase = null;
+            entry.AmountInBaseCurrency = entry.Amount;
+            return;
+        }
+
+        var rate = await db.ExchangeRates
+            .Where(r => r.CurrencyCode == entry.Currency
+                && r.BaseCurrency == ExchangeRateService.BaseCurrency
+                && r.Date <= entry.Date)
+            .OrderByDescending(r => r.Date)
+            .Select(r => (decimal?)r.Rate)
+            .FirstOrDefaultAsync(ct).ConfigureAwait(false);
+
+        if (rate is null)
+        {
+            Log.Warn("Finance", $"No {entry.Currency}->{ExchangeRateService.BaseCurrency} rate on or before {entry.Date:yyyy-MM-dd}; storing raw amount as base.");
+            entry.ExchangeRateToBase = null;
+            entry.AmountInBaseCurrency = entry.Amount;
+            return;
+        }
+
+        entry.ExchangeRateToBase = rate;
+        entry.AmountInBaseCurrency = Math.Round(entry.Amount * rate.Value, 2);
+    }
+
+    private static decimal BaseOf(decimal amount, decimal amountInBase) => amountInBase != 0m ? amountInBase : amount;
+
+    /// <summary>
+    /// Latest known rate to base for each distinct currency (1 for base itself).
+    /// Currencies with no stored rate are omitted — callers fall back to raw amounts.
+    /// </summary>
+    private static async Task<Dictionary<string, decimal>> GetLatestRatesAsync(
+        PlannerDbContext db, IEnumerable<string> currencies, DateOnly onOrBefore, CancellationToken ct)
+    {
+        var result = new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase);
+        foreach (var cur in currencies.Where(c => !string.IsNullOrEmpty(c)).Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            if (string.Equals(cur, ExchangeRateService.BaseCurrency, StringComparison.OrdinalIgnoreCase))
+            {
+                result[cur] = 1m;
+                continue;
+            }
+            var rate = await db.ExchangeRates
+                .Where(r => r.CurrencyCode == cur && r.BaseCurrency == ExchangeRateService.BaseCurrency && r.Date <= onOrBefore)
+                .OrderByDescending(r => r.Date)
+                .Select(r => (decimal?)r.Rate)
+                .FirstOrDefaultAsync(ct).ConfigureAwait(false);
+            if (rate.HasValue) result[cur] = rate.Value;
+        }
+        return result;
+    }
+
+    private static decimal ToBase(decimal amount, string currency, Dictionary<string, decimal> rates)
+        => rates.TryGetValue(currency, out var r) ? Math.Round(amount * r, 2) : amount;
     public async Task RemoveFinanceEntryAsync(int entryId, CancellationToken ct = default)
     {
         await using var db = _dbFactory.CreateDbContext();
@@ -275,6 +343,8 @@ public sealed partial class PlannerService
 
         if (newEntries.Count > 0)
         {
+            foreach (var entry in newEntries)
+                await StampBaseAmountAsync(db, entry, ct).ConfigureAwait(false);
             db.FinanceEntries.AddRange(newEntries);
             await db.SaveChangesAsync(ct).ConfigureAwait(false);
         }
@@ -294,7 +364,7 @@ public sealed partial class PlannerService
                 var cat = g.First().Category;
                 return new CategoryBreakdownItem(
                     g.Key, cat?.Name ?? string.Empty, cat?.Icon ?? string.Empty,
-                    cat?.Color ?? "#cba6f7", g.Sum(e => e.Amount));
+                    cat?.Color ?? "#cba6f7", g.Sum(e => e.BaseAmount));
             })
             .OrderByDescending(x => x.Amount)
             .ToList();
@@ -307,12 +377,12 @@ public sealed partial class PlannerService
 
         var rawEntries = await db.FinanceEntries
             .Where(e => e.Date >= cutoff)
-            .Select(e => new { e.Date, e.Type, e.Amount })
+            .Select(e => new { e.Date, e.Type, e.Amount, e.AmountInBaseCurrency })
             .ToListAsync(ct).ConfigureAwait(false);
 
         var entries = rawEntries
             .GroupBy(e => new { e.Date.Year, e.Date.Month, e.Type })
-            .Select(g => new { g.Key.Year, g.Key.Month, g.Key.Type, Total = g.Sum(e => e.Amount) })
+            .Select(g => new { g.Key.Year, g.Key.Month, g.Key.Type, Total = g.Sum(e => BaseOf(e.Amount, e.AmountInBaseCurrency)) })
             .ToList();
 
         var result = new List<MonthlyFinanceSummary>();
@@ -331,7 +401,7 @@ public sealed partial class PlannerService
     public async Task<List<FinancialGoal>> GetFinancialGoalsAsync(CancellationToken ct = default)
     {
         await using var db = _dbFactory.CreateDbContext();
-        return await db.FinancialGoals.OrderBy(g => g.Order).ToListAsync(ct).ConfigureAwait(false);
+        return await db.FinancialGoals.AsNoTracking().OrderBy(g => g.Order).ToListAsync(ct).ConfigureAwait(false);
     }
     public async Task SaveFinancialGoalAsync(FinancialGoal goal, CancellationToken ct = default)
     {
@@ -349,7 +419,7 @@ public sealed partial class PlannerService
     public async Task<List<Account>> GetAccountsAsync(CancellationToken ct = default)
     {
         await using var db = _dbFactory.CreateDbContext();
-        return await db.Accounts.Where(a => !a.IsArchived).OrderBy(a => a.Order).ToListAsync(ct).ConfigureAwait(false);
+        return await db.Accounts.AsNoTracking().Where(a => !a.IsArchived).OrderBy(a => a.Order).ToListAsync(ct).ConfigureAwait(false);
     }
     public async Task SaveAccountAsync(Account account, CancellationToken ct = default)
     {
@@ -370,18 +440,25 @@ public sealed partial class PlannerService
         var account = await db.Accounts.FindAsync([accountId], ct).ConfigureAwait(false);
         if (account is null) return 0;
 
-        var income = await db.FinanceEntries
-            .Where(e => e.AccountId == accountId && e.Type == FinanceEntryType.Income)
-            .SumAsync(e => e.Amount, ct).ConfigureAwait(false);
-        var expense = await db.FinanceEntries
-            .Where(e => e.AccountId == accountId && e.Type == FinanceEntryType.Expense)
-            .SumAsync(e => e.Amount, ct).ConfigureAwait(false);
-        var transfersIn = await db.AccountTransfers
+        // Client-side sums: decimal now maps to exact TEXT storage, which SQLite
+        // cannot aggregate server-side; per-account row counts are small.
+        var entryAmounts = await db.FinanceEntries
+            .Where(e => e.AccountId == accountId)
+            .Select(e => new { e.Type, e.Amount, e.AmountInBaseCurrency })
+            .ToListAsync(ct).ConfigureAwait(false);
+        var income = entryAmounts.Where(x => x.Type == FinanceEntryType.Income)
+            .Sum(x => BaseOf(x.Amount, x.AmountInBaseCurrency));
+        var expense = entryAmounts.Where(x => x.Type == FinanceEntryType.Expense)
+            .Sum(x => BaseOf(x.Amount, x.AmountInBaseCurrency));
+
+        var transfersIn = (await db.AccountTransfers
             .Where(t => t.ToAccountId == accountId)
-            .SumAsync(t => t.Amount, ct).ConfigureAwait(false);
-        var transfersOut = await db.AccountTransfers
+            .Select(t => t.Amount)
+            .ToListAsync(ct).ConfigureAwait(false)).Sum();
+        var transfersOut = (await db.AccountTransfers
             .Where(t => t.FromAccountId == accountId)
-            .SumAsync(t => t.Amount, ct).ConfigureAwait(false);
+            .Select(t => t.Amount)
+            .ToListAsync(ct).ConfigureAwait(false)).Sum();
 
         return account.InitialBalance + income - expense + transfersIn - transfersOut;
     }
@@ -423,13 +500,16 @@ public sealed partial class PlannerService
         var today = DateOnly.FromDateTime(DateTime.Today);
         var endDate = today.AddDays(days);
 
-        // Current balance (all time)
-        var allIncome = await db.FinanceEntries
-            .Where(e => e.Type == FinanceEntryType.Income && e.Date <= today)
-            .SumAsync(e => e.Amount, ct).ConfigureAwait(false);
-        var allExpense = await db.FinanceEntries
-            .Where(e => e.Type == FinanceEntryType.Expense && e.Date <= today)
-            .SumAsync(e => e.Amount, ct).ConfigureAwait(false);
+        // Current balance (all time). Client-side sums in base currency — TEXT
+        // decimals can't be aggregated by SQLite, and raw sums mixed currencies.
+        var pastAmounts = await db.FinanceEntries
+            .Where(e => e.Date <= today)
+            .Select(e => new { e.Type, e.Amount, e.AmountInBaseCurrency })
+            .ToListAsync(ct).ConfigureAwait(false);
+        var allIncome = pastAmounts.Where(x => x.Type == FinanceEntryType.Income)
+            .Sum(x => BaseOf(x.Amount, x.AmountInBaseCurrency));
+        var allExpense = pastAmounts.Where(x => x.Type == FinanceEntryType.Expense)
+            .Sum(x => BaseOf(x.Amount, x.AmountInBaseCurrency));
         var currentBalance = allIncome - allExpense;
 
         // Already-planned entries in the future
@@ -441,6 +521,7 @@ public sealed partial class PlannerService
         var recurring = await db.RecurringPayments
             .Where(rp => rp.IsActive && (rp.EndDate == null || rp.EndDate >= today))
             .ToListAsync(ct).ConfigureAwait(false);
+        var rates = await GetLatestRatesAsync(db, recurring.Select(rp => rp.Currency), today, ct).ConfigureAwait(false);
 
         var result = new List<ForecastDay>();
         var runningBalance = currentBalance;
@@ -452,8 +533,8 @@ public sealed partial class PlannerService
             // Future entries
             foreach (var e in futureEntries.Where(e => e.Date == d))
             {
-                if (e.Type == FinanceEntryType.Income) dayIncome += e.Amount;
-                else dayExpense += e.Amount;
+                if (e.Type == FinanceEntryType.Income) dayIncome += e.BaseAmount;
+                else dayExpense += e.BaseAmount;
             }
 
             // Recurring payments
@@ -461,8 +542,9 @@ public sealed partial class PlannerService
             {
                 if (MatchesRecurringDate(rp, d))
                 {
-                    if (rp.Type == FinanceEntryType.Income) dayIncome += rp.Amount;
-                    else dayExpense += rp.Amount;
+                    var amount = ToBase(rp.Amount, rp.Currency, rates);
+                    if (rp.Type == FinanceEntryType.Income) dayIncome += amount;
+                    else dayExpense += amount;
                 }
             }
 
@@ -503,21 +585,23 @@ public sealed partial class PlannerService
         var recurring = await db.RecurringPayments
             .Where(rp => rp.IsActive)
             .ToListAsync(ct).ConfigureAwait(false);
+        var rates = await GetLatestRatesAsync(db, recurring.Select(rp => rp.Currency), lastDay, ct).ConfigureAwait(false);
 
         var result = new List<CashflowDay>();
         for (var d = firstDay; d <= lastDay; d = d.AddDays(1))
         {
             var dayEntries = entries.Where(e => e.Date == d).ToList();
-            var income = dayEntries.Where(e => e.Type == FinanceEntryType.Income).Sum(e => e.Amount);
-            var expense = dayEntries.Where(e => e.Type == FinanceEntryType.Expense).Sum(e => e.Amount);
+            var income = dayEntries.Where(e => e.Type == FinanceEntryType.Income).Sum(e => e.BaseAmount);
+            var expense = dayEntries.Where(e => e.Type == FinanceEntryType.Expense).Sum(e => e.BaseAmount);
 
             // Add recurring that aren't already generated
             foreach (var rp in recurring.Where(rp => MatchesRecurringDate(rp, d)))
             {
                 if (!entries.Any(e => e.RecurringPaymentId == rp.Id && e.Date == d))
                 {
-                    if (rp.Type == FinanceEntryType.Income) income += rp.Amount;
-                    else expense += rp.Amount;
+                    var amount = ToBase(rp.Amount, rp.Currency, rates);
+                    if (rp.Type == FinanceEntryType.Income) income += amount;
+                    else expense += amount;
                 }
             }
 
@@ -542,7 +626,11 @@ public sealed partial class PlannerService
             var parts = line.Split(',', StringSplitOptions.TrimEntries);
             if (parts.Length < 3) continue;
 
-            if (!DateOnly.TryParse(parts[0], out var date)) continue;
+            // Invariant first, current culture as fallback — same policy as the
+            // amount below. A bare TryParse silently dropped every row of a CSV
+            // exported under a different date culture (dd/MM vs MM/dd).
+            if (!DateOnly.TryParse(parts[0], System.Globalization.CultureInfo.InvariantCulture, out var date)
+                && !DateOnly.TryParse(parts[0], System.Globalization.CultureInfo.CurrentCulture, out date)) continue;
             if (!decimal.TryParse(parts[2], System.Globalization.NumberStyles.Any,
                     System.Globalization.CultureInfo.InvariantCulture, out var amount)
                 && !decimal.TryParse(parts[2], System.Globalization.NumberStyles.Any,
@@ -557,6 +645,7 @@ public sealed partial class PlannerService
                 CategoryId = defaultCategory.Id,
                 IsPaid = true
             };
+            await StampBaseAmountAsync(db, entry, ct).ConfigureAwait(false);
             db.FinanceEntries.Add(entry);
             imported++;
         }

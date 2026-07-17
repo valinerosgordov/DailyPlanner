@@ -35,6 +35,14 @@ public sealed class FinanceEntry
     /// </summary>
     public decimal AmountInBaseCurrency { get; set; }
 
+    /// <summary>
+    /// The value every cross-entry aggregate must sum: the stamped base-currency
+    /// amount when present, otherwise the raw amount (legacy rows / missing rate).
+    /// Summing raw <see cref="Amount"/> across currencies counts 20 USD as 20 RUB.
+    /// Not mapped (expression-bodied, no setter).
+    /// </summary>
+    public decimal BaseAmount => AmountInBaseCurrency != 0m ? AmountInBaseCurrency : Amount;
+
     public PlannerWeek? Week { get; set; }
     public FinanceCategory? Category { get; set; }
     public RecurringPayment? RecurringPayment { get; set; }

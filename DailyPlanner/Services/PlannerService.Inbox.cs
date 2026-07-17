@@ -168,7 +168,9 @@ public sealed partial class PlannerService
                     ListName = listName,
                     Url = card.ShortUrl,
                     CreatedDate = today,
-                    DueDate = card.Due.HasValue ? DateOnly.FromDateTime(card.Due.Value) : null
+                    // Trello sends `due` in UTC — take the LOCAL calendar date, otherwise
+                    // an evening deadline lands on the previous day in UTC+ timezones.
+                    DueDate = card.Due.HasValue ? DateOnly.FromDateTime(card.Due.Value.ToLocalTime()) : null
                 });
                 added++;
             }

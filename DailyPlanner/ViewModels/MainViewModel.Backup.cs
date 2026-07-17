@@ -2,6 +2,7 @@ using System.IO;
 using CommunityToolkit.Mvvm.Input;
 using DailyPlanner.Data;
 using DailyPlanner.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
 
 namespace DailyPlanner.ViewModels;
@@ -18,7 +19,7 @@ namespace DailyPlanner.ViewModels;
 public partial class MainViewModel
 {
     [RelayCommand]
-    private void BackupDatabase()
+    private async Task BackupDatabaseAsync()
     {
         var dialog = new SaveFileDialog
         {
@@ -29,8 +30,14 @@ public partial class MainViewModel
         if (dialog.ShowDialog() != true) return;
 
         var dbPath = PlannerDbContextFactory.DbPath;
-        if (File.Exists(dbPath))
-            File.Copy(dbPath, dialog.FileName, true);
+        if (!File.Exists(dbPath)) return;
+
+        // SafeCopy = integrity gate + VACUUM INTO: a raw File.Copy of the live DB
+        // could snapshot mid-write and silently miss the WAL tail.
+        var ok = await Task.Run(() => DbIntegrity.SafeCopy(dbPath, dialog.FileName));
+        NotificationService.ShowToast(
+            Loc.Get("BackupTitle"),
+            Loc.Get(ok ? "BackupSuccess" : "BackupCorruptError"));
     }
 
     [RelayCommand]
@@ -45,16 +52,12 @@ public partial class MainViewModel
 
         var dbPath = PlannerDbContextFactory.DbPath;
 
-        // Validate the backup file is a valid SQLite database
-        try
+        // Full PRAGMA integrity_check — the previous "does it open" probe let a
+        // corrupted-but-openable file overwrite the live DB.
+        var healthy = await Task.Run(() => DbIntegrity.IsHealthy(dialog.FileName));
+        if (!healthy)
         {
-            await using var testDb = new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={dialog.FileName};Mode=ReadOnly");
-            await testDb.OpenAsync();
-            await testDb.CloseAsync();
-        }
-        catch (Exception ex)
-        {
-            Log.Error("MainVM", $"Invalid backup: {ex.Message}");
+            Log.Error("MainVM", $"Restore refused: '{dialog.FileName}' failed integrity_check");
             NotificationService.ShowToast(Loc.Get("RestoreTitle"), Loc.Get("RestoreInvalidDb"));
             return;
         }
@@ -78,13 +81,24 @@ public partial class MainViewModel
                 try { File.Delete(path); }
                 catch (IOException) { /* SQLite will recreate if needed */ }
             }
+
+            // A backup made by an older app version has an older schema — bring it
+            // up to date now, or every query until restart hits "no such column".
+            await Task.Run(() =>
+            {
+                using var db = PlannerDbContextFactory.Create();
+                db.Database.Migrate();
+            });
         }
         catch (Exception ex)
         {
             Log.Error("MainVM", $"Restore failed: {ex.Message}");
-            // Restore from safety backup if copy failed
+            // Roll back to the pre-restore snapshot if copy or migration failed
             if (File.Exists(backupPath))
+            {
+                Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
                 File.Copy(backupPath, dbPath, true);
+            }
             NotificationService.ShowToast(Loc.Get("RestoreTitle"), Loc.Get("RestoreError"));
             return;
         }
@@ -93,6 +107,11 @@ public partial class MainViewModel
         await LoadTemplatesAsync();
         await LoadRemindersAsync();
         await LoadMeetingsAsync();
+
+        // Success — retire the safety copy; startup backups keep their own history.
+        try { if (File.Exists(backupPath)) File.Delete(backupPath); }
+        catch (IOException) { /* best-effort cleanup */ }
+
         NotificationService.ShowToast(Loc.Get("RestoreTitle"), Loc.Get("RestoreSuccess"));
     }
 }

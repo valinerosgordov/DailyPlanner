@@ -10,7 +10,6 @@ public sealed class IncomeSourcePaymentConfiguration : IEntityTypeConfiguration<
     {
         e.HasKey(p => p.Id);
         e.HasIndex(p => p.IncomeSourceId);
-        e.Property(p => p.Amount).HasColumnType("decimal(18,2)");
         e.Property(p => p.Description).HasMaxLength(500);
     }
 }

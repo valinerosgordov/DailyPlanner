@@ -1,5 +1,6 @@
 using DailyPlanner.Models;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 
 namespace DailyPlanner.Tests;
 
@@ -188,9 +189,15 @@ public class PlannerServiceTests : PlannerServiceTestFixture
 
         moved.Text.Should().Be("Отладка");
 
-        // Archived inbox tasks should NOT appear in active list but still be in DB
+        // Archived inbox tasks should NOT appear in active list...
         var active = await Service.GetInboxTasksAsync();
         active.Should().BeEmpty();
+
+        // ...but the row MUST physically remain, flagged archived — a delete here
+        // would break Trello dedup and the card would re-import on the next sync.
+        await using var db = CreateContext();
+        var row = await db.InboxTasks.AsNoTracking().SingleAsync(t => t.ExternalId == "trello-1");
+        row.IsArchived.Should().BeTrue();
     }
 
     [Fact]
