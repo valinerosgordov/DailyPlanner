@@ -189,6 +189,7 @@ internal static class LocEnStrings
         ["RestoreSuccess"] = "Database restored successfully",
         ["RestoreError"] = "Error restoring database",
         ["RestoreInvalidDb"] = "File is not a valid SQLite database",
+        ["FinCurrency"] = "Currency",
         ["CopyTitle"] = "Copy",
         ["CopySuccess"] = "Last week's structure copied",
         ["Reminder"] = "Reminder",

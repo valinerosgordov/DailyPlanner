@@ -48,6 +48,44 @@ public sealed partial class FinanceEntryViewModel : ObservableObject
     public bool IsSplit => _model.ParentEntryId is not null;
     public bool HasSplits => SplitEntries.Count > 0;
 
+    /// <summary>Shortlist for the per-entry currency picker; base currency first.</summary>
+    public static IReadOnlyList<string> CurrencyOptions { get; } =
+        ["RUB", "USD", "EUR", "GBP", "CNY", "TRY", "KZT", "AMD", "GEL", "AED"];
+
+    public string Currency
+    {
+        get => _model.Currency;
+        set
+        {
+            if (string.IsNullOrEmpty(value) || _model.Currency == value) return;
+            _model.Currency = value;
+            OnPropertyChanged();
+            _ = SaveCurrencyAsync();
+        }
+    }
+
+    public bool IsForeignCurrency => !string.IsNullOrEmpty(_model.Currency)
+        && !string.Equals(_model.Currency, ExchangeRateService.BaseCurrency, StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>"≈ 1 810 ₽" for foreign-currency rows; empty for base currency.</summary>
+    public string BaseAmountHint => IsForeignCurrency ? $"≈ {_model.BaseAmount:N0} ₽" : string.Empty;
+
+    // Not debounced: SaveFinanceEntryAsync re-stamps AmountInBaseCurrency on this
+    // very instance, and the hint must refresh only after that happens.
+    private async Task SaveCurrencyAsync()
+    {
+        try
+        {
+            await _service.SaveFinanceEntryAsync(_model);
+        }
+        catch (Exception ex)
+        {
+            Log.Error("FinanceEntryVM", $"Currency save failed: {ex.Message}");
+        }
+        OnPropertyChanged(nameof(IsForeignCurrency));
+        OnPropertyChanged(nameof(BaseAmountHint));
+    }
+
     public ObservableCollection<FinanceEntryViewModel> SplitEntries { get; } = [];
 
     public string DisplayAmount => Type == FinanceEntryType.Income
