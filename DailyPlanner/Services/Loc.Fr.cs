@@ -453,6 +453,7 @@ internal static class LocFrStrings
         ["TrelloDesc"] = "Importe les cartes de la liste indiquée dans la boîte de réception.",
         ["TrelloApiKey"] = "Clé API",
         ["TrelloToken"] = "Jeton",
+        ["TrelloPushCompletions"] = "Archiver la carte Trello quand la tâche est terminée",
         ["TrelloListName"] = "Nom de la liste (ex. «En cours»)",
         ["TrelloHelp"] = "Obtenez la clé sur https://trello.com/app-key — le bouton «Token» est sur la même page.",
         ["TestConnection"] = "Tester la connexion",

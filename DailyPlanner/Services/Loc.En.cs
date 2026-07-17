@@ -453,6 +453,7 @@ internal static class LocEnStrings
         ["TrelloDesc"] = "Pulls cards from the specified list into the planner inbox.",
         ["TrelloApiKey"] = "API Key",
         ["TrelloToken"] = "Token",
+        ["TrelloPushCompletions"] = "Archive Trello card when task is completed",
         ["TrelloListName"] = "List name (e.g. \"Doing\")",
         ["TrelloHelp"] = "Get key at https://trello.com/app-key — same page has a \"Token\" button.",
         ["TestConnection"] = "Test connection",

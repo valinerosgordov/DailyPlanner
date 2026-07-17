@@ -37,8 +37,11 @@ public sealed class TrelloService
     /// access logs, or referer headers from any redirect).
     /// </summary>
     private static HttpRequestMessage AuthorizedGet(string url, string apiKey, string token)
+        => Authorized(HttpMethod.Get, url, apiKey, token);
+
+    private static HttpRequestMessage Authorized(HttpMethod method, string url, string apiKey, string token)
     {
-        var req = new HttpRequestMessage(HttpMethod.Get, url);
+        var req = new HttpRequestMessage(method, url);
         req.Headers.Authorization = new AuthenticationHeaderValue(
             "OAuth",
             $"oauth_consumer_key=\"{apiKey}\", oauth_token=\"{token}\"");
@@ -102,6 +105,19 @@ public sealed class TrelloService
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<List<TrelloCard>>(ct).ConfigureAwait(false);
         return result?.Where(c => !string.IsNullOrEmpty(c.Id) && !string.IsNullOrEmpty(c.Name)).ToList() ?? [];
+    }
+
+    /// <summary>
+    /// Archives (closed=true) or un-archives a card. Returns true when the card
+    /// reached the desired state — including 404, which means the card is gone
+    /// on Trello's side and there is nothing left to close.
+    /// </summary>
+    public async Task<bool> SetCardClosedAsync(string cardId, bool closed, string apiKey, string token, CancellationToken ct = default)
+    {
+        using var req = Authorized(HttpMethod.Put,
+            $"{ApiBase}/cards/{Uri.EscapeDataString(cardId)}?closed={(closed ? "true" : "false")}", apiKey, token);
+        using var response = await Client.SendAsync(req, ct).ConfigureAwait(false);
+        return response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.NotFound;
     }
 
     public async Task<List<(TrelloCard Card, string BoardName, string ListName)>> GetCardsInListByNameAsync(
