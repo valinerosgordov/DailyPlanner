@@ -47,7 +47,7 @@
          below SQLite 3.50.2). 2.1.12 ships native SQLite 3.53.3 in the same 2.1.x line as
          SQLitePCLRaw.core/provider 2.1.11 already resolved (v3.x restructures the dependency graph
          and is not a drop-in). -->
-    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.12" />
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.53.3" />
   </ItemGroup>
 
   <ItemGroup>
