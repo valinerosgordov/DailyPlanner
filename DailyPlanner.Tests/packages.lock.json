@@ -37,9 +37,9 @@
       },
       "SQLitePCLRaw.lib.e_sqlite3": {
         "type": "Direct",
-        "requested": "[2.1.12, )",
-        "resolved": "2.1.12",
-        "contentHash": "fWi8Dbknuhgg72fWinIdjXVaqO1hHL4YBBwVLnr7e1c9TAZwJ0QE38j9syW1hwx6HaqEVTwI+O07WPdZn8Rp0w=="
+        "requested": "[3.53.3, )",
+        "resolved": "3.53.3",
+        "contentHash": "ZXiSbBkrlw2Of/dBqny/qtQol7dlThrUD8zH/jkQicCFm2yn2BbhKsQW0+YHAzhANWz4ZJCz7gvo88BwluVhkA=="
       },
       "xunit": {
         "type": "Direct",
@@ -365,7 +365,7 @@
           "CommunityToolkit.Mvvm": "[8.4.2, )",
           "Microsoft.EntityFrameworkCore.Sqlite": "[10.0.7, )",
           "Microsoft.Extensions.DependencyInjection": "[10.0.7, )",
-          "SQLitePCLRaw.lib.e_sqlite3": "[2.1.12, )",
+          "SQLitePCLRaw.lib.e_sqlite3": "[3.53.3, )",
           "Velopack": "[1.2.0, )",
           "WPF-UI": "[4.2.1, )"
         }
